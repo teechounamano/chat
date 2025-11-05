@@ -267,6 +267,15 @@
             background: #545b62;
         }
         
+        .whatsapp-btn {
+            background: #25D366 !important;
+            margin-top: 10px;
+        }
+        
+        .whatsapp-btn:hover {
+            background: #1da851 !important;
+        }
+        
         .enlace-text {
             word-break: break-all;
             font-family: monospace;
@@ -275,6 +284,42 @@
             border-radius: 5px;
             margin-bottom: 10px;
             border: 1px solid #dee2e6;
+        }
+        
+        .enlace-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .enlace-buttons button {
+            flex: 1;
+            min-width: 140px;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            z-index: 10000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            font-weight: bold;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
     </style>
 </head>
@@ -380,7 +425,7 @@
                     `<div class="error">${response.message}</div>`;
             } catch (error) {
                 document.getElementById('debugInfo').innerHTML = 
-                    `<div class="error">Error de conexión</div>`;
+                    `<div class="error">Error de conexión: ${error.message}</div>`;
             }
             
             const urlParams = new URLSearchParams(window.location.search);
@@ -422,24 +467,38 @@
                 const result = document.getElementById('formResult');
                 
                 if (response.success) {
+                    const enlaceCliente = response.data.enlaceCliente;
+                    const numeroCliente = cliente.replace(/\D/g, ''); // Limpiar número para WhatsApp
+                    const mensajeWhatsApp = `Hola! Te invito a nuestra negociación TUM. Monto: $${monto}. Accede aquí: ${enlaceCliente}`;
+                    const enlaceWhatsApp = `https://wa.me/${numeroCliente}?text=${encodeURIComponent(mensajeWhatsApp)}`;
+                    
                     result.innerHTML = `
                         <div class="success">
                             <h3>✅ ¡Negociación Creada!</h3>
                             <p><strong>ID:</strong> ${response.data.id}</p>
                             <p><strong>Tiempo:</strong> ${response.data.tiempoExpiracion} minutos</p>
                             <p><strong>Monto:</strong> $${response.data.monto}</p>
+                            <p><strong>Cliente:</strong> ${cliente}</p>
                             
                             <div class="enlace-container">
                                 <strong>Enlace para el cliente:</strong>
-                                <div class="enlace-text">${response.data.enlaceCliente}</div>
-                                <button class="copy-btn" onclick="copiarEnlace('${response.data.enlaceCliente}')">
-                                    📋 Copiar Enlace
-                                </button>
+                                <div class="enlace-text">${enlaceCliente}</div>
+                                
+                                <div class="enlace-buttons">
+                                    <button class="copy-btn" onclick="copiarEnlace('${enlaceCliente}')">
+                                        📋 Copiar Enlace
+                                    </button>
+                                    <button class="whatsapp-btn" onclick="enviarWhatsApp('${enlaceWhatsApp}')">
+                                        💬 Enviar por WhatsApp
+                                    </button>
+                                </div>
                             </div>
                             
-                            <p><a href="https://teechounamano.github.io/chat/?id=${response.data.id}&user=creador" target="_blank">
-                                👑 Abrir como Creador
-                            </a></p>
+                            <p style="margin-top: 15px;">
+                                <a href="https://teechounamano.github.io/chat/?id=${response.data.id}&user=creador" target="_blank" style="color: #007cba; text-decoration: none; font-weight: bold;">
+                                    👑 Abrir como Creador
+                                </a>
+                            </p>
                         </div>
                     `;
                     
@@ -452,16 +511,20 @@
                 }
             } catch (error) {
                 document.getElementById('formResult').innerHTML = 
-                    `<div class="error">❌ Error de conexión</div>`;
+                    `<div class="error">❌ Error de conexión: ${error.message}</div>`;
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Crear Negociación';
             }
         }
 
+        function enviarWhatsApp(enlaceWhatsApp) {
+            window.open(enlaceWhatsApp, '_blank');
+        }
+
         function copiarEnlace(enlace) {
             navigator.clipboard.writeText(enlace).then(() => {
-                alert('✅ Enlace copiado al portapapeles');
+                mostrarNotificacion('✅ Enlace copiado al portapapeles');
             }).catch(() => {
                 // Fallback para navegadores antiguos
                 const textArea = document.createElement('textarea');
@@ -470,8 +533,22 @@
                 textArea.select();
                 document.execCommand('copy');
                 document.body.removeChild(textArea);
-                alert('✅ Enlace copiado al portapapeles');
+                mostrarNotificacion('✅ Enlace copiado al portapapeles');
             });
+        }
+
+        function mostrarNotificacion(mensaje) {
+            // Crear notificación temporal
+            const notificacion = document.createElement('div');
+            notificacion.className = 'notification';
+            notificacion.textContent = mensaje;
+            document.body.appendChild(notificacion);
+            
+            setTimeout(() => {
+                if (document.body.contains(notificacion)) {
+                    document.body.removeChild(notificacion);
+                }
+            }, 3000);
         }
 
         async function cargarChat(id) {
@@ -497,17 +574,21 @@
                     statusBadge.textContent = response.data.Estado;
                     statusBadge.className = `status-badge status-${response.data.Estado.toLowerCase()}`;
                     
-                    // Mostrar controles según el tipo de usuario
-                    if (esCreador) {
-                        document.getElementById('creadorControls').classList.remove('hidden');
+                    // Mostrar controles según el tipo de usuario y estado
+                    if (response.data.Estado === 'ACTIVA') {
+                        if (esCreador) {
+                            document.getElementById('creadorControls').classList.remove('hidden');
+                        } else {
+                            document.getElementById('clienteControls').classList.remove('hidden');
+                        }
+                        
+                        // Habilitar chat solo si está activa
+                        document.getElementById('messageInput').disabled = false;
+                        document.getElementById('sendButton').disabled = false;
+                        document.getElementById('messageInput').focus();
                     } else {
-                        document.getElementById('clienteControls').classList.remove('hidden');
+                        deshabilitarChat();
                     }
-                    
-                    // Habilitar chat
-                    document.getElementById('messageInput').disabled = false;
-                    document.getElementById('sendButton').disabled = false;
-                    document.getElementById('messageInput').focus();
                     
                     // Cargar mensajes y configurar intervalos
                     await cargarMensajes();
@@ -526,7 +607,7 @@
                 }
             } catch (error) {
                 document.getElementById('messages').innerHTML = 
-                    `<div class="error">❌ Error cargando chat</div>`;
+                    `<div class="error">❌ Error cargando chat: ${error.message}</div>`;
             }
         }
 
@@ -591,10 +672,10 @@
                     input.value = '';
                     await cargarMensajes();
                 } else {
-                    alert('Error: ' + response.message);
+                    mostrarNotificacion('❌ Error: ' + response.message);
                 }
             } catch (error) {
-                alert('Error enviando mensaje');
+                mostrarNotificacion('❌ Error enviando mensaje');
             } finally {
                 btn.disabled = false;
                 input.focus();
@@ -616,7 +697,7 @@
             const comprobanteUrl = document.getElementById('comprobanteUrl').value.trim();
             
             if (!comprobanteUrl) {
-                alert('Por favor ingresa la URL del comprobante');
+                mostrarNotificacion('❌ Por favor ingresa la URL del comprobante');
                 return;
             }
             
@@ -628,14 +709,14 @@
                 });
                 
                 if (response.success) {
-                    alert('✅ Comprobante subido correctamente');
+                    mostrarNotificacion('✅ Comprobante subido correctamente');
                     ocultarSubirComprobante();
                     await cargarMensajes();
                 } else {
-                    alert('Error: ' + response.message);
+                    mostrarNotificacion('❌ Error: ' + response.message);
                 }
             } catch (error) {
-                alert('Error subiendo comprobante');
+                mostrarNotificacion('❌ Error subiendo comprobante');
             }
         }
 
@@ -654,14 +735,14 @@
                 });
                 
                 if (response.success) {
-                    alert(aprobado ? '✅ Pago aprobado' : '❌ Pago rechazado');
+                    mostrarNotificacion(aprobado ? '✅ Pago aprobado' : '❌ Pago rechazado');
                     await cargarChat(appState.negociacion.ID);
                     deshabilitarChat();
                 } else {
-                    alert('Error: ' + response.message);
+                    mostrarNotificacion('❌ Error: ' + response.message);
                 }
             } catch (error) {
-                alert('Error verificando pago');
+                mostrarNotificacion('❌ Error verificando pago');
             }
         }
 
@@ -684,14 +765,14 @@
                 });
                 
                 if (response.success) {
-                    alert('🚫 Negociación cancelada');
+                    mostrarNotificacion('🚫 Negociación cancelada');
                     await cargarChat(appState.negociacion.ID);
                     deshabilitarChat();
                 } else {
-                    alert('Error: ' + response.message);
+                    mostrarNotificacion('❌ Error: ' + response.message);
                 }
             } catch (error) {
-                alert('Error cancelando negociación');
+                mostrarNotificacion('❌ Error cancelando negociación');
             }
         }
 
