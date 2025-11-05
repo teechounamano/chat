@@ -600,33 +600,19 @@
             intervaloTimer: null
         };
 
-        // Función mejorada para hacer requests
+        // Función corregida para hacer requests - SIN no-cors
         async function hacerRequest(params) {
             const url = API_URL + '?' + new URLSearchParams(params).toString();
             try {
                 console.log('Haciendo request:', params.action, params);
-                const response = await fetch(url, {
-                    method: 'GET',
-                    mode: 'no-cors' // Importante para evitar problemas CORS
-                });
+                const response = await fetch(url);
                 
                 if (!response.ok) {
                     throw new Error(`Error HTTP: ${response.status}`);
                 }
                 
-                const text = await response.text();
-                console.log('Respuesta recibida (texto):', text);
-                
-                let data;
-                try {
-                    data = JSON.parse(text);
-                } catch (e) {
-                    // Si falla el parseo, intentar limpiar la respuesta
-                    const cleanedText = text.replace(/^.*?{/, '{').replace(/}[^}]*$/, '}');
-                    data = JSON.parse(cleanedText);
-                }
-                
-                console.log('Respuesta parseada:', data);
+                const data = await response.json();
+                console.log('Respuesta recibida:', data);
                 return data;
             } catch (error) {
                 console.error('Error en request:', error);
@@ -634,16 +620,14 @@
             }
         }
 
-        // Inicialización mejorada
+        // Inicialización
         async function init() {
             try {
                 const response = await hacerRequest({action: 'test'});
                 const debug = document.getElementById('debugInfo');
-                if (response && response.success) {
-                    debug.innerHTML = `<div class="success-message">✅ ${response.message}</div>`;
-                } else {
-                    debug.innerHTML = `<div class="error">❌ ${response?.message || 'Error desconocido'}</div>`;
-                }
+                debug.innerHTML = response.success ? 
+                    `<div class="success-message">✅ ${response.message}</div>` :
+                    `<div class="error">❌ ${response.message}</div>`;
             } catch (error) {
                 document.getElementById('debugInfo').innerHTML = 
                     `<div class="error">❌ Error de conexión: ${error.message}</div>`;
@@ -688,7 +672,7 @@
                 
                 const result = document.getElementById('formResult');
                 
-                if (response && response.success) {
+                if (response.success) {
                     const enlaceCliente = response.data.enlaceCliente;
                     const numeroCliente = cliente.replace(/\D/g, '');
                     const mensajeWhatsApp = `Hola! Te invito a nuestra negociación TUM. Monto: $${monto}. Accede aquí: ${enlaceCliente}`;
@@ -731,7 +715,7 @@
                             </div>
                             
                             <p style="margin-top: 15px; text-align: center;">
-                                <a href="${window.location.origin}${window.location.pathname}?id=${response.data.id}&user=creador" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">
+                                <a href="https://teechounamano.github.io/chat/?id=${response.data.id}&user=creador" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">
                                     👑 Abrir Panel del Creador
                                 </a>
                             </p>
@@ -743,7 +727,7 @@
                     document.getElementById('monto').value = '';
                     document.getElementById('descripcion').value = '';
                 } else {
-                    result.innerHTML = `<div class="error">❌ ${response?.message || 'Error desconocido'}</div>`;
+                    result.innerHTML = `<div class="error">❌ ${response.message}</div>`;
                 }
             } catch (error) {
                 document.getElementById('formResult').innerHTML = 
@@ -754,13 +738,13 @@
             }
         }
 
-        // Función mejorada para cargar el chat
+        // Función para cargar el chat
         async function cargarChat(id) {
             try {
                 console.log('Cargando chat para ID:', id);
                 const response = await hacerRequest({ action: 'get_negociacion', id: id });
                 
-                if (response && response.success) {
+                if (response.success) {
                     appState.negociacion = response.data;
                     console.log('Negociación cargada:', response.data);
                     
@@ -773,33 +757,32 @@
                     document.getElementById('negociacionInfo').innerHTML = `
                         <div class="info-item">
                             <span class="info-label">ID</span>
-                            <span class="info-value">${response.data.ID || 'N/A'}</span>
+                            <span class="info-value">${response.data.ID}</span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Monto</span>
-                            <span class="info-value">$${response.data.Monto || '0'}</span>
+                            <span class="info-value">$${response.data.Monto}</span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Cliente</span>
-                            <span class="info-value">${response.data.Cliente || 'N/A'}</span>
+                            <span class="info-value">${response.data.Cliente}</span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Estado</span>
-                            <span class="info-value">${response.data.Estado || 'DESCONOCIDO'}</span>
+                            <span class="info-value">${response.data.Estado}</span>
                         </div>
                     `;
                     
                     // Actualizar badge de estado
                     const statusBadge = document.getElementById('statusBadge');
-                    const estado = response.data.Estado || 'DESCONOCIDO';
-                    statusBadge.textContent = estado;
-                    statusBadge.className = `status-badge status-${estado.toLowerCase()}`;
+                    statusBadge.textContent = response.data.Estado;
+                    statusBadge.className = `status-badge status-${response.data.Estado.toLowerCase()}`;
                     
                     // Mostrar controles según el tipo de usuario
                     document.getElementById('creadorControls').classList.add('hidden');
                     document.getElementById('clienteControls').classList.add('hidden');
                     
-                    if (estado === 'ACTIVA') {
+                    if (response.data.Estado === 'ACTIVA') {
                         if (esCreador) {
                             document.getElementById('creadorControls').classList.remove('hidden');
                         } else {
@@ -827,7 +810,7 @@
                     
                 } else {
                     document.getElementById('messages').innerHTML = 
-                        `<div class="error">❌ ${response?.message || 'Error cargando negociación'}</div>`;
+                        `<div class="error">❌ ${response.message}</div>`;
                 }
             } catch (error) {
                 document.getElementById('messages').innerHTML = 
@@ -841,10 +824,10 @@
             try {
                 const response = await hacerRequest({ action: 'get_mensajes', id: appState.negociacion.ID });
                 
-                if (response && response.success) {
+                if (response.success) {
                     mostrarMensajes(response.data);
                 } else {
-                    console.error('Error cargando mensajes:', response?.message);
+                    console.error('Error cargando mensajes:', response.message);
                 }
             } catch (error) {
                 console.error('Error cargando mensajes:', error);
@@ -917,12 +900,12 @@
                     mensaje: mensaje
                 });
                 
-                if (response && response.success) {
+                if (response.success) {
                     input.value = '';
                     document.getElementById('sendButton').disabled = true;
                     await cargarMensajes();
                 } else {
-                    mostrarNotificacion('❌ Error al enviar mensaje: ' + (response?.message || 'Error desconocido'));
+                    mostrarNotificacion('❌ Error al enviar mensaje: ' + response.message);
                 }
             } catch (error) {
                 mostrarNotificacion('❌ Error de conexión: ' + error.message);
@@ -952,12 +935,12 @@
                     comprobanteUrl: comprobanteUrl
                 });
                 
-                if (response && response.success) {
+                if (response.success) {
                     mostrarNotificacion('✅ Comprobante subido exitosamente');
                     ocultarSubirComprobante();
                     await cargarMensajes();
                 } else {
-                    mostrarNotificacion('❌ Error al subir comprobante: ' + (response?.message || 'Error desconocido'));
+                    mostrarNotificacion('❌ Error al subir comprobante: ' + response.message);
                 }
             } catch (error) {
                 mostrarNotificacion('❌ Error de conexión: ' + error.message);
@@ -976,11 +959,11 @@
                     aprobado: aprobado
                 });
                 
-                if (response && response.success) {
+                if (response.success) {
                     mostrarNotificacion(aprobado ? '✅ Pago aprobado' : '❌ Pago rechazado');
                     await cargarChat(appState.negociacion.ID);
                 } else {
-                    mostrarNotificacion('❌ Error al verificar pago: ' + (response?.message || 'Error desconocido'));
+                    mostrarNotificacion('❌ Error al verificar pago: ' + response.message);
                 }
             } catch (error) {
                 mostrarNotificacion('❌ Error de conexión: ' + error.message);
@@ -999,11 +982,11 @@
                     tipoUsuario: appState.userType
                 });
                 
-                if (response && response.success) {
+                if (response.success) {
                     mostrarNotificacion('✅ Negociación cancelada');
                     await cargarChat(appState.negociacion.ID);
                 } else {
-                    mostrarNotificacion('❌ Error al cancelar: ' + (response?.message || 'Error desconocido'));
+                    mostrarNotificacion('❌ Error al cancelar: ' + response.message);
                 }
             } catch (error) {
                 mostrarNotificacion('❌ Error de conexión: ' + error.message);
