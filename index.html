@@ -575,7 +575,7 @@
                     statusBadge.className = `status-badge status-${response.data.Estado.toLowerCase()}`;
                     
                     // CORREGIDO: Mostrar controles según el tipo de usuario
-                    // Ocultar todos los controles primero
+                    // Primero ocultar todos los controles
                     document.getElementById('creadorControls').classList.add('hidden');
                     document.getElementById('clienteControls').classList.add('hidden');
                     
@@ -625,13 +625,9 @@
                     mostrarMensajes(response.data);
                 } else {
                     console.error('Error cargando mensajes:', response.message);
-                    document.getElementById('messages').innerHTML = 
-                        `<div class="error">❌ Error cargando mensajes: ${response.message}</div>`;
                 }
             } catch (error) {
                 console.error('Error cargando mensajes:', error);
-                document.getElementById('messages').innerHTML = 
-                    `<div class="error">❌ Error de conexión cargando mensajes</div>`;
             }
         }
 
@@ -642,17 +638,6 @@
                 container.innerHTML = '<div class="loading">💬 No hay mensajes aún</div>';
                 return;
             }
-            
-            // Ordenar mensajes por fecha (más antiguo primero)
-            mensajes.sort((a, b) => {
-                try {
-                    const fechaA = new Date(a.Fecha);
-                    const fechaB = new Date(b.Fecha);
-                    return fechaA - fechaB;
-                } catch (e) {
-                    return 0;
-                }
-            });
             
             container.innerHTML = mensajes.map(msg => {
                 let clase = '';
@@ -671,23 +656,15 @@
                     clase += ' comprobante';
                 }
                 
-                // Manejo seguro de fechas
+                // Manejo seguro de fechas - SIMPLIFICADO
                 let fechaStr = 'Fecha no disponible';
                 try {
-                    let fecha;
-                    if (msg.Fecha instanceof Date) {
-                        fecha = msg.Fecha;
-                    } else if (typeof msg.Fecha === 'string') {
-                        fecha = new Date(msg.Fecha);
-                    } else {
-                        fecha = new Date();
-                    }
-                    
+                    const fecha = new Date(msg.Fecha);
                     if (!isNaN(fecha.getTime())) {
                         fechaStr = fecha.toLocaleString('es-ES');
                     }
                 } catch (e) {
-                    console.warn('Error formateando fecha:', e);
+                    // Si hay error, usar fecha actual
                     fechaStr = new Date().toLocaleString('es-ES');
                 }
                 
@@ -727,7 +704,7 @@
                     mostrarNotificacion('❌ Error: ' + response.message);
                 }
             } catch (error) {
-                mostrarNotificacion('❌ Error enviando mensaje: ' + error.message);
+                mostrarNotificacion('❌ Error enviando mensaje');
             } finally {
                 btn.disabled = false;
                 input.focus();
@@ -768,7 +745,7 @@
                     mostrarNotificacion('❌ Error: ' + response.message);
                 }
             } catch (error) {
-                mostrarNotificacion('❌ Error subiendo comprobante: ' + error.message);
+                mostrarNotificacion('❌ Error subiendo comprobante');
             }
         }
 
@@ -794,7 +771,7 @@
                     mostrarNotificacion('❌ Error: ' + response.message);
                 }
             } catch (error) {
-                mostrarNotificacion('❌ Error verificando pago: ' + error.message);
+                mostrarNotificacion('❌ Error verificando pago');
             }
         }
 
@@ -824,7 +801,7 @@
                     mostrarNotificacion('❌ Error: ' + response.message);
                 }
             } catch (error) {
-                mostrarNotificacion('❌ Error cancelando negociación: ' + error.message);
+                mostrarNotificacion('❌ Error cancelando negociación');
             }
         }
 
@@ -853,18 +830,18 @@
                     const timerElement = document.getElementById('timer');
                     const tiempoRestanteElement = document.getElementById('tiempoRestante');
                     
-                    console.log('Tiempo restante recibido:', tiempo);
-                    
+                    // CORREGIDO: Manejo seguro del tiempo
                     if (tiempo && typeof tiempo.expirada !== 'undefined') {
                         if (tiempo.expirada) {
                             tiempoRestanteElement.textContent = 'EXPIRADO';
                             timerElement.className = 'timer danger';
                             deshabilitarChat();
                         } else {
-                            const minutos = (tiempo.minutos !== undefined && tiempo.minutos !== null) ? 
-                                Math.max(0, tiempo.minutos).toString().padStart(2, '0') : '00';
-                            const segundos = (tiempo.segundos !== undefined && tiempo.segundos !== null) ? 
-                                Math.max(0, tiempo.segundos).toString().padStart(2, '0') : '00';
+                            // Validar que minutos y segundos sean números válidos
+                            const minutos = (tiempo.minutos !== undefined && !isNaN(tiempo.minutos)) ? 
+                                Math.max(0, parseInt(tiempo.minutos)).toString().padStart(2, '0') : '00';
+                            const segundos = (tiempo.segundos !== undefined && !isNaN(tiempo.segundos)) ? 
+                                Math.max(0, parseInt(tiempo.segundos)).toString().padStart(2, '0') : '00';
                             
                             tiempoRestanteElement.textContent = `${minutos}:${segundos}`;
                             
@@ -878,15 +855,15 @@
                             }
                         }
                     } else {
-                        tiempoRestanteElement.textContent = 'Error';
+                        // Si no hay datos válidos, mostrar error
+                        tiempoRestanteElement.textContent = '--:--';
                     }
                 } else {
-                    console.error('Error obteniendo tiempo:', response.message);
-                    tiempoRestanteElement.textContent = 'Error';
+                    tiempoRestanteElement.textContent = '--:--';
                 }
             } catch (error) {
                 console.error('Error actualizando timer:', error);
-                document.getElementById('tiempoRestante').textContent = 'Error';
+                document.getElementById('tiempoRestante').textContent = '--:--';
             }
         }
 
@@ -909,4 +886,3 @@
     </script>
 </body>
 </html>
-
