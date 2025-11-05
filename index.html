@@ -3,940 +3,414 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Te Echo Una Mano - Negociaciones Seguras</title>
+    <title>Te Echo Una Mano - Negociaciones</title>
     <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+        }
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
-        :root {
-            --primary: #2E86AB;
-            --primary-dark: #1A5A7A;
-            --secondary: #A23B72;
-            --success: #28A745;
-            --danger: #DC3545;
-            --warning: #FFC107;
-            --light: #F8F9FA;
-            --dark: #343A40;
-            --gray: #6C757D;
-            --border: #E9ECEF;
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --radius: 12px;
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            line-height: 1.6;
         }
         
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            max-width: 500px; 
-            margin: 0 auto; 
-            padding: 20px; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
         }
         
-        .app-container {
-            background: white;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            min-height: calc(100vh - 40px);
-        }
-        
-        .card { 
-            background: white; 
-            padding: 25px; 
-            border-radius: var(--radius);
-            margin-bottom: 0;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            padding: 25px;
+        header {
             text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         
-        .header h1 {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 8px;
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 5px;
         }
         
-        .header p {
+        .subtitle {
+            font-size: 1.1rem;
             opacity: 0.9;
-            font-size: 14px;
         }
         
-        h2 {
-            color: var(--dark);
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 20px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--dark);
-            font-size: 14px;
-        }
-        
-        input, textarea, button, select { 
-            width: 100%; 
-            padding: 15px; 
-            margin: 0; 
-            border: 2px solid var(--border); 
-            border-radius: 10px; 
-            font-size: 16px;
-            font-family: inherit;
-            transition: all 0.3s ease;
-        }
-        
-        input:focus, textarea:focus, select:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(46, 134, 171, 0.1);
-        }
-        
-        button { 
-            background: var(--primary); 
-            color: white; 
-            border: none; 
-            cursor: pointer; 
-            font-weight: 600;
-            transition: all 0.3s;
-            padding: 15px 20px;
-        }
-        
-        button:hover { 
-            background: var(--primary-dark); 
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
-        }
-        
-        button:disabled { 
-            background: var(--gray); 
-            transform: none;
-            cursor: not-allowed;
-        }
-        
-        button.success { background: var(--success); }
-        button.success:hover { background: #218838; }
-        
-        button.danger { background: var(--danger); }
-        button.danger:hover { background: #c82333; }
-        
-        button.warning { background: var(--warning); color: black; }
-        button.warning:hover { background: #e0a800; }
-        
-        button.secondary { background: var(--secondary); }
-        button.secondary:hover { background: #8a2a5d; }
-        
-        .hidden { display: none; }
-        
-        .loading { 
-            text-align: center; 
-            color: var(--gray); 
-            padding: 30px; 
-            font-size: 16px;
-        }
-        
-        .loading-spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--primary);
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .error { 
-            background: #FEF2F2; 
-            color: #DC2626; 
-            padding: 15px; 
-            border-radius: 10px; 
-            margin: 15px 0; 
-            border-left: 4px solid #DC2626;
-            font-size: 14px;
-        }
-        
-        .success-message { 
-            background: #F0FDF4; 
-            color: #16A34A; 
-            padding: 15px; 
-            border-radius: 10px; 
-            margin: 15px 0;
-            border-left: 4px solid #16A34A;
-            font-size: 14px;
-        }
-        
-        .warning { 
-            background: #FFFBEB; 
-            color: #D97706; 
-            padding: 15px; 
-            border-radius: 10px; 
-            margin: 15px 0;
-            border-left: 4px solid #D97706;
-            font-size: 14px;
-        }
-        
-        .messages-container { 
-            height: 350px; 
-            overflow-y: auto; 
-            border: 2px solid var(--border); 
-            padding: 15px; 
-            margin: 20px 0; 
-            background: var(--light);
-            border-radius: var(--radius);
-        }
-        
-        .message { 
-            margin: 12px 0; 
-            padding: 12px 16px; 
-            border-radius: 12px; 
-            max-width: 85%;
-            word-wrap: break-word;
-            font-size: 14px;
-            line-height: 1.4;
-            position: relative;
-        }
-        
-        .creador { 
-            background: var(--primary);
-            color: white;
-            margin-left: auto;
-            border-bottom-right-radius: 4px;
-        }
-        
-        .cliente { 
-            background: white;
-            color: var(--dark);
-            margin-right: auto;
-            border-bottom-left-radius: 4px;
-            border: 1px solid var(--border);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        
-        .sistema { 
-            background: var(--warning); 
-            color: black;
-            text-align: center; 
-            margin: 12px auto; 
-            max-width: 90%;
-            font-style: italic;
-            border: 1px dashed #D97706;
-        }
-        
-        .comprobante { 
-            background: #DCFCE7; 
-            border-left: 4px solid var(--success);
-            border: 1px solid #BBF7D0;
-        }
-        
-        .message-time {
-            font-size: 11px;
-            opacity: 0.7;
-            margin-top: 5px;
-            text-align: right;
-        }
-        
-        .cliente .message-time {
-            text-align: left;
-            color: var(--gray);
-        }
-        
-        .input-area { 
-            display: flex; 
-            gap: 12px; 
-            margin-top: 20px;
-            align-items: flex-end;
-        }
-        
-        #messageInput { 
-            flex: 1; 
-            padding: 15px;
-            font-size: 14px;
-            height: 60px;
-            resize: none;
-            background: var(--light);
-        }
-        
-        #sendButton {
-            width: 60px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            border-radius: 50%;
-            background: var(--primary);
-        }
-        
-        .controls { 
-            display: flex; 
-            gap: 10px; 
-            margin: 20px 0; 
-            flex-wrap: wrap;
-        }
-        
-        .controls button { 
-            flex: 1;
-            min-width: 140px;
-            padding: 12px 16px;
-            font-size: 14px;
-        }
-        
-        .timer { 
-            text-align: center; 
-            padding: 15px; 
-            margin: 20px 0; 
-            border-radius: var(--radius); 
-            font-weight: 600; 
-            font-size: 16px;
-            border: 2px solid;
-            background: white;
-        }
-        
-        .timer.normal { 
-            background: #F0FDF4; 
-            color: #166534; 
-            border-color: #BBF7D0;
-        }
-        
-        .timer.warning { 
-            background: #FFFBEB; 
-            color: #D97706; 
-            border-color: #FDE68A;
-        }
-        
-        .timer.danger { 
-            background: #FEF2F2; 
-            color: #DC2626; 
-            border-color: #FECACA;
-            animation: pulse 1s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
-        }
-        
-        .status-badge {
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-left: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .status-activa { background: #DCFCE7; color: #166534; }
-        .status-completada { background: #DBEAFE; color: #1E40AF; }
-        .status-cancelada { background: #FEE2E2; color: #DC2626; }
-        .status-expirada { background: #FEF3C7; color: #D97706; }
-        
-        .chat-header {
+        .status-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid var(--border);
-        }
-        
-        .chat-info {
-            background: var(--light);
+            background-color: white;
             padding: 15px;
-            border-radius: var(--radius);
-            margin: 15px 0;
-            font-size: 14px;
-            color: var(--dark);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
         
-        .info-grid {
+        .status-label {
+            font-weight: bold;
+            color: var(--dark-color);
+        }
+        
+        .status-active {
+            color: var(--success-color);
+            font-weight: bold;
+            padding: 5px 10px;
+            background-color: rgba(39, 174, 96, 0.1);
+            border-radius: 4px;
+        }
+        
+        .timer-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+        
+        .timer {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 10px 0;
+        }
+        
+        .error-message {
+            color: var(--danger-color);
+            background-color: rgba(231, 76, 60, 0.1);
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+        
+        .actions-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 10px;
+            gap: 15px;
+            margin-bottom: 20px;
         }
         
-        .info-item {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .info-label {
-            font-size: 12px;
-            color: var(--gray);
-            margin-bottom: 4px;
-        }
-        
-        .info-value {
-            font-weight: 600;
-            color: var(--dark);
-        }
-        
-        .enlace-container {
-            background: var(--light);
+        .action-card {
+            background-color: white;
             padding: 20px;
-            border-radius: var(--radius);
-            margin: 20px 0;
-            border: 2px dashed var(--border);
-        }
-        
-        .copy-btn {
-            background: var(--gray);
-            margin-top: 10px;
-        }
-        
-        .copy-btn:hover {
-            background: #545b62;
-        }
-        
-        .whatsapp-btn {
-            background: #25D366 !important;
-            margin-top: 10px;
-        }
-        
-        .whatsapp-btn:hover {
-            background: #1da851 !important;
-        }
-        
-        .enlace-text {
-            word-break: break-all;
-            font-family: 'Courier New', monospace;
-            background: white;
-            padding: 12px;
             border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .action-card.primary {
+            border-top: 4px solid var(--secondary-color);
+        }
+        
+        .action-card.success {
+            border-top: 4px solid var(--success-color);
+        }
+        
+        .action-card.danger {
+            border-top: 4px solid var(--danger-color);
+        }
+        
+        .action-card.warning {
+            border-top: 4px solid var(--warning-color);
+        }
+        
+        .action-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .data-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .data-section h3 {
             margin-bottom: 15px;
-            border: 1px solid var(--border);
-            font-size: 12px;
-            color: var(--dark);
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--light-color);
+            padding-bottom: 10px;
         }
         
-        .enlace-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
         }
         
-        .enlace-buttons button {
-            flex: 1;
-            min-width: 140px;
+        .data-table th, .data-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--light-color);
         }
         
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--success);
-            color: white;
-            padding: 15px 20px;
-            border-radius: var(--radius);
-            z-index: 10000;
-            box-shadow: var(--shadow);
+        .data-table th {
+            background-color: rgba(44, 62, 80, 0.05);
             font-weight: 600;
-            animation: slideIn 0.3s ease-out;
-            max-width: 300px;
-        }
-        
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
         }
         
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
-            color: var(--gray);
+            padding: 30px;
+            color: #7f8c8d;
         }
         
-        .empty-state i {
-            font-size: 48px;
-            margin-bottom: 15px;
-            opacity: 0.5;
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+        }
+        
+        .btn-success:hover {
+            background-color: #219653;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .refresh-btn {
+            margin-top: 10px;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+        }
+        
+        .refresh-btn:hover {
+            background-color: #bdc3c7;
+        }
+        
+        @media (max-width: 600px) {
+            .actions-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .status-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Header -->
-        <div class="header">
-            <h1>💼 Te Echo Una Mano</h1>
-            <p>Negociaciones seguras y confiables</p>
+    <div class="container">
+        <header>
+            <h1>Te Echo Una Mano</h1>
+            <p class="subtitle">Negociaciones seguras y confiables</p>
+        </header>
+        
+        <div class="status-container">
+            <span class="status-label">Negociación</span>
+            <span class="status-active">ACTIVA</span>
         </div>
-
-        <!-- Formulario de creación -->
-        <div id="createForm" class="card">
-            <h2>🚀 Crear Nueva Negociación</h2>
-            <div id="debugInfo" class="loading">
-                <div class="loading-spinner"></div>
-                Verificando conexión con el servidor...
+        
+        <div class="timer-container">
+            <div class="timer" id="timer">--:--</div>
+            <div class="error-message" id="errorMessage">
+                Error: RangelError: Invalid time value
             </div>
-            
-            <div class="form-group">
-                <label class="form-label" for="cliente">📱 Número del Cliente</label>
-                <input type="tel" id="cliente" placeholder="+1234567890" value="+1234567890">
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label" for="monto">💰 Monto de la Negociación</label>
-                <input type="number" id="monto" placeholder="1000" value="1000">
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label" for="tiempoExpiracion">⏰ Tiempo de Expiración</label>
-                <select id="tiempoExpiracion">
-                    <option value="5">5 minutos</option>
-                    <option value="10">10 minutos</option>
-                    <option value="15">15 minutos</option>
-                    <option value="30">30 minutos</option>
-                    <option value="60">1 hora</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label" for="descripcion">📝 Descripción del Trato</label>
-                <textarea id="descripcion" placeholder="Describe los términos del acuerdo..." rows="3">Servicio de consultoría profesional</textarea>
-            </div>
-            
-            <button onclick="crearNegociacion()" id="createBtn">Crear Negociación</button>
-            <div id="formResult"></div>
         </div>
-
-        <!-- Interfaz del Chat -->
-        <div id="chatInterface" class="card hidden">
-            <!-- Header del Chat -->
-            <div class="chat-header">
-                <div>
-                    <h2 id="chatTitle">💬 Negociación</h2>
-                    <div id="chatInfo"></div>
+        
+        <div class="actions-container">
+            <div class="action-card primary">
+                <div class="action-icon">📤</div>
+                <h3>Subir Comprobante</h3>
+            </div>
+            <div class="action-card danger">
+                <div class="action-icon">❌</div>
+                <h3>Cancelar</h3>
+            </div>
+            <div class="action-card success">
+                <div class="action-icon">✅</div>
+                <h3>Aprobar Pago</h3>
+            </div>
+            <div class="action-card warning">
+                <div class="action-icon">🔄</div>
+                <h3>Rediscar Pago</h3>
+            </div>
+        </div>
+        
+        <div class="data-section">
+            <h3>Datos de la Negociación</h3>
+            <div id="dataContent">
+                <div class="empty-state" id="emptyState">
+                    <p>No se han cargado datos de la hoja de cálculo.</p>
+                    <button class="btn refresh-btn" id="loadDataBtn">Cargar Datos</button>
                 </div>
-                <div id="statusBadge" class="status-badge status-activa">ACTIVA</div>
-            </div>
-            
-            <!-- Información de la negociación -->
-            <div class="chat-info">
-                <div class="info-grid" id="negociacionInfo">
-                    <!-- Se llena dinámicamente -->
-                </div>
-            </div>
-            
-            <!-- Timer -->
-            <div id="timer" class="timer normal">
-                ⏰ Tiempo restante: <span id="tiempoRestante">--:--</span>
-            </div>
-            
-            <!-- Mensajes -->
-            <div class="messages-container" id="messages">
-                <div class="loading">
-                    <div class="loading-spinner"></div>
-                    Cargando mensajes...
-                </div>
-            </div>
-            
-            <!-- Controles según el tipo de usuario -->
-            <div id="clienteControls" class="controls hidden">
-                <button onclick="mostrarSubirComprobante()" class="warning">📎 Subir Comprobante</button>
-                <button onclick="cancelarNegociacion()" class="danger">🚫 Cancelar</button>
-            </div>
-            
-            <div id="creadorControls" class="controls hidden">
-                <button onclick="verificarPago(true)" class="success">✅ Aprobar Pago</button>
-                <button onclick="verificarPago(false)" class="danger">❌ Rechazar Pago</button>
-            </div>
-            
-            <!-- Área de subida de comprobante -->
-            <div id="uploadSection" class="hidden">
-                <div class="warning">
-                    <strong>📎 Subir Comprobante de Pago</strong>
-                    <p>Ingresa la URL o descripción del comprobante de transferencia o pago</p>
-                </div>
-                <div class="form-group">
-                    <input type="text" id="comprobanteUrl" placeholder="https://ejemplo.com/comprobante.jpg o descripción del pago">
-                </div>
-                <div class="controls">
-                    <button onclick="subirComprobante()" class="success">✅ Subir Comprobante</button>
-                    <button onclick="ocultarSubirComprobante()" class="danger">❌ Cancelar</button>
-                </div>
-            </div>
-            
-            <!-- Chat input -->
-            <div class="input-area">
-                <textarea id="messageInput" placeholder="Escribe tu mensaje aquí..." rows="2" disabled></textarea>
-                <button onclick="enviarMensaje()" id="sendButton" disabled>➤</button>
+                <table class="data-table" id="dataTable" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Cliente</th>
+                            <th>Monto</th>
+                            <th>Estado</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Los datos se cargarán aquí dinámicamente -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxgR_3Yfjzy_FgE6fYi9OIxLiablneUyvWqt5eukezplafrEFdYaw8UL9gaFXQyxn3yEw/exec';
-        
-        let appState = { 
-            negociacion: null, 
-            userType: '',
-            intervaloMensajes: null,
-            intervaloTimer: null
-        };
-
-        // Función mejorada para hacer requests
-        async function hacerRequest(params) {
-            const url = API_URL + '?' + new URLSearchParams(params).toString();
-            try {
-                console.log('Haciendo request:', params.action);
-                const response = await fetch(url);
-                if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-                const data = await response.json();
-                console.log('Respuesta recibida:', data);
-                return data;
-            } catch (error) {
-                console.error('Error en request:', error);
-                throw error;
-            }
-        }
-
-        // Inicialización mejorada
-        async function init() {
-            try {
-                const response = await hacerRequest({action: 'test'});
-                const debug = document.getElementById('debugInfo');
-                debug.innerHTML = response.success ? 
-                    `<div class="success-message">✅ ${response.message}</div>` :
-                    `<div class="error">❌ ${response.message}</div>`;
-            } catch (error) {
-                document.getElementById('debugInfo').innerHTML = 
-                    `<div class="error">❌ Error de conexión: ${error.message}</div>`;
-            }
+        document.addEventListener('DOMContentLoaded', function() {
+            const timerElement = document.getElementById('timer');
+            const errorMessageElement = document.getElementById('errorMessage');
+            const emptyStateElement = document.getElementById('emptyState');
+            const dataTableElement = document.getElementById('dataTable');
+            const tableBodyElement = document.getElementById('tableBody');
+            const loadDataBtn = document.getElementById('loadDataBtn');
             
-            const urlParams = new URLSearchParams(window.location.search);
-            const id = urlParams.get('id');
-            const userType = urlParams.get('user');
+            // Simular datos de ejemplo (en un caso real, estos vendrían de la hoja de cálculo)
+            const sampleData = [
+                { id: 'NEG-001', cliente: 'Juan Pérez', monto: '$1,500.00', estado: 'Pendiente', fecha: '2023-10-15' },
+                { id: 'NEG-002', cliente: 'María García', monto: '$2,300.00', estado: 'Aprobado', fecha: '2023-10-14' },
+                { id: 'NEG-003', cliente: 'Carlos López', monto: '$800.00', estado: 'Rechazado', fecha: '2023-10-13' }
+            ];
             
-            if (id && userType) {
-                appState.userType = userType;
-                document.getElementById('createForm').classList.add('hidden');
-                document.getElementById('chatInterface').classList.remove('hidden');
-                await cargarChat(id);
-            }
-        }
-
-        // Función para crear negociación (se mantiene igual)
-        async function crearNegociacion() {
-            const cliente = document.getElementById('cliente').value;
-            const monto = document.getElementById('monto').value;
-            const descripcion = document.getElementById('descripcion').value;
-            const tiempoExpiracion = document.getElementById('tiempoExpiracion').value;
-            
-            if (!cliente || !monto) {
-                mostrarNotificacion('❌ Por favor completa todos los campos requeridos');
-                return;
-            }
-            
-            const btn = document.getElementById('createBtn');
-            btn.disabled = true;
-            btn.textContent = 'Creando...';
-            
-            try {
-                const response = await hacerRequest({
-                    action: 'crear_negociacion',
-                    cliente: cliente,
-                    monto: monto,
-                    descripcion: descripcion,
-                    tiempoExpiracion: tiempoExpiracion
-                });
+            // Función para cargar datos desde la "hoja de cálculo"
+            function loadDataFromSheet() {
+                // En una implementación real, aquí se conectaría con la API de Google Sheets
+                // o se leería un archivo CSV/Excel
                 
-                const result = document.getElementById('formResult');
-                
-                if (response.success) {
-                    const enlaceCliente = response.data.enlaceCliente;
-                    const numeroCliente = cliente.replace(/\D/g, '');
-                    const mensajeWhatsApp = `Hola! Te invito a nuestra negociación TUM. Monto: $${monto}. Accede aquí: ${enlaceCliente}`;
-                    const enlaceWhatsApp = `https://wa.me/${numeroCliente}?text=${encodeURIComponent(mensajeWhatsApp)}`;
-                    
-                    result.innerHTML = `
-                        <div class="success-message">
-                            <h3>✅ ¡Negociación Creada Exitosamente!</h3>
-                            <div class="info-grid">
-                                <div class="info-item">
-                                    <span class="info-label">ID de Negociación</span>
-                                    <span class="info-value">${response.data.id}</span>
-                                </div>
-                                <div class="info-item">
-                                    <span class="info-label">Tiempo Límite</span>
-                                    <span class="info-value">${response.data.tiempoExpiracion} min</span>
-                                </div>
-                                <div class="info-item">
-                                    <span class="info-label">Monto</span>
-                                    <span class="info-value">$${response.data.monto}</span>
-                                </div>
-                                <div class="info-item">
-                                    <span class="info-label">Cliente</span>
-                                    <span class="info-value">${cliente}</span>
-                                </div>
-                            </div>
-                            
-                            <div class="enlace-container">
-                                <strong>🔗 Enlace para el cliente:</strong>
-                                <div class="enlace-text">${enlaceCliente}</div>
-                                
-                                <div class="enlace-buttons">
-                                    <button class="copy-btn" onclick="copiarEnlace('${enlaceCliente}')">
-                                        📋 Copiar Enlace
-                                    </button>
-                                    <button class="whatsapp-btn" onclick="enviarWhatsApp('${enlaceWhatsApp}')">
-                                        💬 Enviar por WhatsApp
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <p style="margin-top: 15px; text-align: center;">
-                                <a href="https://teechounamano.github.io/chat/?id=${response.data.id}&user=creador" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">
-                                    👑 Abrir Panel del Creador
-                                </a>
-                            </p>
-                        </div>
-                    `;
-                    
-                    // Limpiar formulario
-                    document.getElementById('cliente').value = '';
-                    document.getElementById('monto').value = '';
-                    document.getElementById('descripcion').value = '';
-                } else {
-                    result.innerHTML = `<div class="error">❌ ${response.message}</div>`;
-                }
-            } catch (error) {
-                document.getElementById('formResult').innerHTML = 
-                    `<div class="error">❌ Error de conexión: ${error.message}</div>`;
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Crear Negociación';
-            }
-        }
-
-        // Función mejorada para cargar el chat
-        async function cargarChat(id) {
-            try {
-                console.log('Cargando chat para ID:', id);
-                const response = await hacerRequest({ action: 'get_negociacion', id: id });
-                
-                if (response.success) {
-                    appState.negociacion = response.data;
-                    console.log('Negociación cargada:', response.data);
-                    
-                    // Configurar interfaz según tipo de usuario
-                    const esCreador = appState.userType === 'creador';
-                    document.getElementById('chatTitle').textContent = 
-                        esCreador ? '👑 Panel del Creador' : '👤 Vista del Cliente';
-                    
-                    // Actualizar información de la negociación
-                    document.getElementById('negociacionInfo').innerHTML = `
-                        <div class="info-item">
-                            <span class="info-label">ID</span>
-                            <span class="info-value">${response.data.ID}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Monto</span>
-                            <span class="info-value">$${response.data.Monto}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Cliente</span>
-                            <span class="info-value">${response.data.Cliente}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Estado</span>
-                            <span class="info-value">${response.data.Estado}</span>
-                        </div>
-                    `;
-                    
-                    // Actualizar badge de estado
-                    const statusBadge = document.getElementById('statusBadge');
-                    statusBadge.textContent = response.data.Estado;
-                    statusBadge.className = `status-badge status-${response.data.Estado.toLowerCase()}`;
-                    
-                    // Mostrar controles según el tipo de usuario
-                    document.getElementById('creadorControls').classList.add('hidden');
-                    document.getElementById('clienteControls').classList.add('hidden');
-                    
-                    if (response.data.Estado === 'ACTIVA') {
-                        if (esCreador) {
-                            document.getElementById('creadorControls').classList.remove('hidden');
-                        } else {
-                            document.getElementById('clienteControls').classList.remove('hidden');
-                        }
-                        
-                        // Habilitar chat
-                        document.getElementById('messageInput').disabled = false;
-                        document.getElementById('sendButton').disabled = false;
-                        document.getElementById('messageInput').focus();
+                // Simulamos una demora de red
+                setTimeout(() => {
+                    // Simulamos que los datos se cargan correctamente
+                    if (sampleData && sampleData.length > 0) {
+                        displayData(sampleData);
+                        emptyStateElement.style.display = 'none';
+                        dataTableElement.style.display = 'table';
                     } else {
-                        deshabilitarChat();
+                        showError('No se pudieron cargar los datos de la hoja de cálculo');
+                    }
+                }, 1000);
+            }
+            
+            // Función para mostrar los datos en la tabla
+            function displayData(data) {
+                tableBodyElement.innerHTML = '';
+                
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    
+                    // Determinar clase de estado para color
+                    let estadoClass = '';
+                    if (item.estado === 'Aprobado') estadoClass = 'success';
+                    else if (item.estado === 'Rechazado') estadoClass = 'danger';
+                    else if (item.estado === 'Pendiente') estadoClass = 'warning';
+                    
+                    row.innerHTML = `
+                        <td>${item.id}</td>
+                        <td>${item.cliente}</td>
+                        <td>${item.monto}</td>
+                        <td class="${estadoClass}">${item.estado}</td>
+                        <td>${item.fecha}</td>
+                    `;
+                    
+                    tableBodyElement.appendChild(row);
+                });
+            }
+            
+            // Función para mostrar errores
+            function showError(message) {
+                errorMessageElement.textContent = message;
+                errorMessageElement.style.display = 'block';
+            }
+            
+            // Función para inicializar el temporizador
+            function initializeTimer() {
+                // En una implementación real, esto vendría de los datos
+                const endTime = new Date();
+                endTime.setMinutes(endTime.getMinutes() + 15); // 15 minutos desde ahora
+                
+                function updateTimer() {
+                    const now = new Date();
+                    const timeLeft = endTime - now;
+                    
+                    if (timeLeft <= 0) {
+                        timerElement.textContent = '00:00';
+                        showError('Tiempo agotado');
+                        return;
                     }
                     
-                    // Cargar mensajes y configurar intervalos
-                    await cargarMensajes();
-                    actualizarTimer();
+                    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
                     
-                    // Configurar intervalos
-                    if (appState.intervaloMensajes) clearInterval(appState.intervaloMensajes);
-                    if (appState.intervaloTimer) clearInterval(appState.intervaloTimer);
-                    
-                    appState.intervaloMensajes = setInterval(cargarMensajes, 3000);
-                    appState.intervaloTimer = setInterval(actualizarTimer, 1000);
-                    
-                } else {
-                    document.getElementById('messages').innerHTML = 
-                        `<div class="error">❌ ${response.message}</div>`;
+                    timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
                 }
-            } catch (error) {
-                document.getElementById('messages').innerHTML = 
-                    `<div class="error">❌ Error cargando el chat: ${error.message}</div>`;
-            }
-        }
-
-        // Resto de las funciones se mantienen igual pero con mejor manejo de errores
-        async function cargarMensajes() {
-            if (!appState.negociacion) return;
-            
-            try {
-                const response = await hacerRequest({ action: 'get_mensajes', id: appState.negociacion.ID });
                 
-                if (response.success) {
-                    mostrarMensajes(response.data);
-                } else {
-                    console.error('Error cargando mensajes:', response.message);
-                }
-            } catch (error) {
-                console.error('Error cargando mensajes:', error);
-            }
-        }
-
-        function mostrarMensajes(mensajes) {
-            const container = document.getElementById('messages');
-            
-            if (!mensajes || mensajes.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div>💬</div>
-                        <p>No hay mensajes aún</p>
-                        <small>Se el primero en enviar un mensaje</small>
-                    </div>
-                `;
-                return;
+                // Actualizar el temporizador cada segundo
+                updateTimer();
+                setInterval(updateTimer, 1000);
             }
             
-            container.innerHTML = mensajes.map(msg => {
-                let clase = '';
-                let remitente = msg.Remitente || 'Desconocido';
-                
-                if (remitente.includes('TeEchoUnaMano') || remitente.includes('👑')) {
-                    clase = 'creador';
-                } else if (remitente.includes('Cliente') || remitente.includes('👤')) {
-                    clase = 'cliente';
-                } else if (remitente.includes('Sistema') || remitente.includes('🤖')) {
-                    clase = 'sistema';
-                }
-                
-                if (msg.Tipo === 'COMPROBANTE') {
-                    clase += ' comprobante';
-                }
-                
-                let fechaStr = 'Fecha no disponible';
-                try {
-                    const fecha = new Date(msg.Fecha);
-                    if (!isNaN(fecha.getTime())) {
-                        fechaStr = fecha.toLocaleString('es-ES');
-                    }
-                } catch (e) {
-                    fechaStr = new Date().toLocaleString('es-ES');
-                }
-                
-                return `
-                    <div class="message ${clase}">
-                        <strong>${remitente}</strong><br>
-                        ${msg.Mensaje || 'Mensaje no disponible'}<br>
-                        <div class="message-time">${fechaStr}</div>
-                    </div>
-                `;
-            }).join('');
+            // Manejar el evento de clic en el botón de cargar datos
+            loadDataBtn.addEventListener('click', loadDataFromSheet);
             
-            container.scrollTop = container.scrollHeight;
-        }
-
-        // Las demás funciones (enviarMensaje, subirComprobante, verificarPago, etc.) 
-        // se mantienen igual que en la versión anterior pero con el nuevo estilo
-
-        // Funciones de utilidad
-        function enviarWhatsApp(enlaceWhatsApp) {
-            window.open(enlaceWhatsApp, '_blank');
-        }
-
-        function copiarEnlace(enlace) {
-            navigator.clipboard.writeText(enlace).then(() => {
-                mostrarNotificacion('✅ Enlace copiado al portapapeles');
-            }).catch(() => {
-                const textArea = document.createElement('textarea');
-                textArea.value = enlace;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                mostrarNotificacion('✅ Enlace copiado al portapapeles');
+            // Intentar cargar datos automáticamente al cargar la página
+            loadDataFromSheet();
+            
+            // Inicializar el temporizador
+            initializeTimer();
+            
+            // Manejar clics en las tarjetas de acción
+            document.querySelectorAll('.action-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const action = this.querySelector('h3').textContent;
+                    alert(`Acción seleccionada: ${action}`);
+                    // En una implementación real, aquí se ejecutaría la lógica correspondiente
+                });
             });
-        }
-
-        function mostrarNotificacion(mensaje) {
-            const notificacion = document.createElement('div');
-            notificacion.className = 'notification';
-            notificacion.textContent = mensaje;
-            document.body.appendChild(notificacion);
-            
-            setTimeout(() => {
-                if (document.body.contains(notificacion)) {
-                    document.body.removeChild(notificacion);
-                }
-            }, 3000);
-        }
-
-        // Iniciar la aplicación
-        document.addEventListener('DOMContentLoaded', init);
-        
-        // Event listeners
-        document.getElementById('messageInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                enviarMensaje();
-            }
         });
-
-        document.getElementById('messageInput').addEventListener('input', function(e) {
-            const sendButton = document.getElementById('sendButton');
-            sendButton.disabled = this.value.trim() === '' || this.disabled;
-        });
-
-        // Implementar las funciones faltantes (enviarMensaje, etc.) aquí...
-        // [El resto del código JavaScript se mantiene igual]
-
     </script>
 </body>
 </html>
