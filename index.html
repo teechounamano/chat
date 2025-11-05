@@ -575,6 +575,7 @@
                     statusBadge.className = `status-badge status-${response.data.Estado.toLowerCase()}`;
                     
                     // Mostrar controles según el tipo de usuario y estado
+                    // SOLO el creador ve los botones de aprobar/rechazar
                     if (response.data.Estado === 'ACTIVA') {
                         if (esCreador) {
                             document.getElementById('creadorControls').classList.remove('hidden');
@@ -639,15 +640,26 @@
                 else if (msg.Remitente.includes('Sistema')) clase = 'sistema';
                 if (msg.Tipo === 'COMPROBANTE') clase += ' comprobante';
                 
-                // Manejo seguro de fechas
+                // Manejo seguro de fechas - CORREGIDO
                 let fechaStr = 'Fecha no disponible';
                 try {
-                    const fecha = new Date(msg.Fecha);
+                    // Intentar diferentes formatos de fecha
+                    let fecha;
+                    if (msg.Fecha instanceof Date) {
+                        fecha = msg.Fecha;
+                    } else if (typeof msg.Fecha === 'string') {
+                        // Intentar parsear la fecha string
+                        fecha = new Date(msg.Fecha);
+                    } else {
+                        fecha = new Date();
+                    }
+                    
                     if (!isNaN(fecha.getTime())) {
                         fechaStr = fecha.toLocaleString('es-ES');
                     }
                 } catch (e) {
                     console.warn('Error formateando fecha:', e);
+                    fechaStr = new Date().toLocaleString('es-ES');
                 }
                 
                 return `
@@ -814,22 +826,34 @@
                     
                     console.log('Tiempo restante recibido:', tiempo); // Para debugging
                     
-                    if (tiempo.expirada) {
+                    // Validación robusta del tiempo
+                    if (tiempo && typeof tiempo.expirada !== 'undefined') {
+                        if (tiempo.expirada) {
+                            tiempoRestanteElement.textContent = 'EXPIRADO';
+                            timerElement.className = 'timer danger';
+                            deshabilitarChat();
+                        } else {
+                            const minutos = (tiempo.minutos !== undefined && tiempo.minutos !== null) ? 
+                                Math.max(0, tiempo.minutos).toString().padStart(2, '0') : '00';
+                            const segundos = (tiempo.segundos !== undefined && tiempo.segundos !== null) ? 
+                                Math.max(0, tiempo.segundos).toString().padStart(2, '0') : '00';
+                            
+                            tiempoRestanteElement.textContent = `${minutos}:${segundos}`;
+                            
+                            const min = parseInt(minutos);
+                            if (min < 1) {
+                                timerElement.className = 'timer danger';
+                            } else if (min < 5) {
+                                timerElement.className = 'timer warning';
+                            } else {
+                                timerElement.className = 'timer normal';
+                            }
+                        }
+                    } else {
+                        // Si no hay datos de tiempo, mostrar como expirado
                         tiempoRestanteElement.textContent = 'EXPIRADO';
                         timerElement.className = 'timer danger';
                         deshabilitarChat();
-                    } else {
-                        const minutos = tiempo.minutos !== undefined ? tiempo.minutos.toString().padStart(2, '0') : '00';
-                        const segundos = tiempo.segundos !== undefined ? tiempo.segundos.toString().padStart(2, '0') : '00';
-                        tiempoRestanteElement.textContent = `${minutos}:${segundos}`;
-                        
-                        if (tiempo.minutos < 1) {
-                            timerElement.className = 'timer danger';
-                        } else if (tiempo.minutos < 5) {
-                            timerElement.className = 'timer warning';
-                        } else {
-                            timerElement.className = 'timer normal';
-                        }
                     }
                 } else {
                     console.error('Error obteniendo tiempo:', response.message);
