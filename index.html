@@ -1,416 +1,64 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Te Echo Una Mano - Negociaciones</title>
-    <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --success-color: #27ae60;
-            --danger-color: #e74c3c;
-            --warning-color: #f39c12;
-            --light-color: #ecf0f1;
-            --dark-color: #34495e;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background-color: #f5f7fa;
-            color: var(--dark-color);
-            line-height: 1.6;
-        }
-        
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background-color: var(--primary-color);
-            color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        h1 {
-            font-size: 2.2rem;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-        
-        .status-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            background-color: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-        
-        .status-label {
-            font-weight: bold;
-            color: var(--dark-color);
-        }
-        
-        .status-active {
-            color: var(--success-color);
-            font-weight: bold;
-            padding: 5px 10px;
-            background-color: rgba(39, 174, 96, 0.1);
-            border-radius: 4px;
-        }
-        
-        .timer-container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            text-align: center;
-        }
-        
-        .timer {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--primary-color);
-            margin: 10px 0;
-        }
-        
-        .error-message {
-            color: var(--danger-color);
-            background-color: rgba(231, 76, 60, 0.1);
-            padding: 10px;
-            border-radius: 4px;
-            margin: 10px 0;
-            font-size: 0.9rem;
-        }
-        
-        .actions-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .action-card {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .action-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .action-card.primary {
-            border-top: 4px solid var(--secondary-color);
-        }
-        
-        .action-card.success {
-            border-top: 4px solid var(--success-color);
-        }
-        
-        .action-card.danger {
-            border-top: 4px solid var(--danger-color);
-        }
-        
-        .action-card.warning {
-            border-top: 4px solid var(--warning-color);
-        }
-        
-        .action-icon {
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-        
-        .data-section {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            margin-bottom: 20px;
-        }
-        
-        .data-section h3 {
-            margin-bottom: 15px;
-            color: var(--primary-color);
-            border-bottom: 1px solid var(--light-color);
-            padding-bottom: 10px;
-        }
-        
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        .data-table th, .data-table td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid var(--light-color);
-        }
-        
-        .data-table th {
-            background-color: rgba(44, 62, 80, 0.05);
-            font-weight: 600;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 30px;
-            color: #7f8c8d;
-        }
-        
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: var(--secondary-color);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background-color 0.3s;
-        }
-        
-        .btn:hover {
-            background-color: #2980b9;
-        }
-        
-        .btn-success {
-            background-color: var(--success-color);
-        }
-        
-        .btn-success:hover {
-            background-color: #219653;
-        }
-        
-        .btn-danger {
-            background-color: var(--danger-color);
-        }
-        
-        .btn-danger:hover {
-            background-color: #c0392b;
-        }
-        
-        .refresh-btn {
-            margin-top: 10px;
-            background-color: var(--light-color);
-            color: var(--dark-color);
-        }
-        
-        .refresh-btn:hover {
-            background-color: #bdc3c7;
-        }
-        
-        @media (max-width: 600px) {
-            .actions-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .status-container {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat TUM - Negociaciones</title>
+<style>
+body {
+font-family: Arial, sans-serif;
+max-width: 500px;
+margin: 0 auto;
+padding: 20px;
+background: #f5f5f5;
+}
+.card {
+background: white;
+padding: 20px;
+border-radius: 10px;
+margin-bottom: 20px;
+box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+input, textarea, button {
+width: 100%;
+padding: 10px;
+margin: 5px 0;
+border: 1px solid #ddd;
+border-radius: 5px;
+}
+button {
+background: #007cba;
+color: white;
+border: none;
+cursor: pointer;
+}
+button:hover { background: #005a87; }
+button:disabled { background: #ccc; }
+.hidden { display: none; }
+.loading { text-align: center; color: #666; padding: 20px; }
+.error { background: #fee; color: #c00; padding: 10px; border-radius: 5px; margin: 10px 0; }
+.success { background: #efe; color: #060; padding: 10px; border-radius: 5px; margin: 10px 0; }
+.messages {
+height: 300px;
+overflow-y: auto;
+border: 1px solid #ddd;
+padding: 10px;
+margin: 10px 0;
+background: #fafafa;
+}
+.message {
+margin: 10px 0;
+padding: 10px;
+border-radius: 5px;
+}
+.creador { background: #e3f2fd; margin-left: 20px; }
+.cliente { background: #f5f5f5; margin-right: 20px; }
+.input-area { display: flex; gap: 10px; }
+#messageInput { flex: 1; }
+#sendButton { width: auto; }
+</style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Te Echo Una Mano</h1>
-            <p class="subtitle">Negociaciones seguras y confiables</p>
-        </header>
-        
-        <div class="status-container">
-            <span class="status-label">Negociación</span>
-            <span class="status-active">ACTIVA</span>
-        </div>
-        
-        <div class="timer-container">
-            <div class="timer" id="timer">--:--</div>
-            <div class="error-message" id="errorMessage">
-                Error: RangelError: Invalid time value
-            </div>
-        </div>
-        
-        <div class="actions-container">
-            <div class="action-card primary">
-                <div class="action-icon">📤</div>
-                <h3>Subir Comprobante</h3>
-            </div>
-            <div class="action-card danger">
-                <div class="action-icon">❌</div>
-                <h3>Cancelar</h3>
-            </div>
-            <div class="action-card success">
-                <div class="action-icon">✅</div>
-                <h3>Aprobar Pago</h3>
-            </div>
-            <div class="action-card warning">
-                <div class="action-icon">🔄</div>
-                <h3>Rediscar Pago</h3>
-            </div>
-        </div>
-        
-        <div class="data-section">
-            <h3>Datos de la Negociación</h3>
-            <div id="dataContent">
-                <div class="empty-state" id="emptyState">
-                    <p>No se han cargado datos de la hoja de cálculo.</p>
-                    <button class="btn refresh-btn" id="loadDataBtn">Cargar Datos</button>
-                </div>
-                <table class="data-table" id="dataTable" style="display: none;">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Cliente</th>
-                            <th>Monto</th>
-                            <th>Estado</th>
-                            <th>Fecha</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody">
-                        <!-- Los datos se cargarán aquí dinámicamente -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const timerElement = document.getElementById('timer');
-            const errorMessageElement = document.getElementById('errorMessage');
-            const emptyStateElement = document.getElementById('emptyState');
-            const dataTableElement = document.getElementById('dataTable');
-            const tableBodyElement = document.getElementById('tableBody');
-            const loadDataBtn = document.getElementById('loadDataBtn');
-            
-            // Simular datos de ejemplo (en un caso real, estos vendrían de la hoja de cálculo)
-            const sampleData = [
-                { id: 'NEG-001', cliente: 'Juan Pérez', monto: '$1,500.00', estado: 'Pendiente', fecha: '2023-10-15' },
-                { id: 'NEG-002', cliente: 'María García', monto: '$2,300.00', estado: 'Aprobado', fecha: '2023-10-14' },
-                { id: 'NEG-003', cliente: 'Carlos López', monto: '$800.00', estado: 'Rechazado', fecha: '2023-10-13' }
-            ];
-            
-            // Función para cargar datos desde la "hoja de cálculo"
-            function loadDataFromSheet() {
-                // En una implementación real, aquí se conectaría con la API de Google Sheets
-                // o se leería un archivo CSV/Excel
-                
-                // Simulamos una demora de red
-                setTimeout(() => {
-                    // Simulamos que los datos se cargan correctamente
-                    if (sampleData && sampleData.length > 0) {
-                        displayData(sampleData);
-                        emptyStateElement.style.display = 'none';
-                        dataTableElement.style.display = 'table';
-                    } else {
-                        showError('No se pudieron cargar los datos de la hoja de cálculo');
-                    }
-                }, 1000);
-            }
-            
-            // Función para mostrar los datos en la tabla
-            function displayData(data) {
-                tableBodyElement.innerHTML = '';
-                
-                data.forEach(item => {
-                    const row = document.createElement('tr');
-                    
-                    // Determinar clase de estado para color
-                    let estadoClass = '';
-                    if (item.estado === 'Aprobado') estadoClass = 'success';
-                    else if (item.estado === 'Rechazado') estadoClass = 'danger';
-                    else if (item.estado === 'Pendiente') estadoClass = 'warning';
-                    
-                    row.innerHTML = `
-                        <td>${item.id}</td>
-                        <td>${item.cliente}</td>
-                        <td>${item.monto}</td>
-                        <td class="${estadoClass}">${item.estado}</td>
-                        <td>${item.fecha}</td>
-                    `;
-                    
-                    tableBodyElement.appendChild(row);
-                });
-            }
-            
-            // Función para mostrar errores
-            function showError(message) {
-                errorMessageElement.textContent = message;
-                errorMessageElement.style.display = 'block';
-            }
-            
-            // Función para inicializar el temporizador
-            function initializeTimer() {
-                // En una implementación real, esto vendría de los datos
-                const endTime = new Date();
-                endTime.setMinutes(endTime.getMinutes() + 15); // 15 minutos desde ahora
-                
-                function updateTimer() {
-                    const now = new Date();
-                    const timeLeft = endTime - now;
-                    
-                    if (timeLeft <= 0) {
-                        timerElement.textContent = '00:00';
-                        showError('Tiempo agotado');
-                        return;
-                    }
-                    
-                    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-                    
-                    timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                }
-                
-                // Actualizar el temporizador cada segundo
-                updateTimer();
-                setInterval(updateTimer, 1000);
-            }
-            
-            // Manejar el evento de clic en el botón de cargar datos
-            loadDataBtn.addEventListener('click', loadDataFromSheet);
-            
-            // Intentar cargar datos automáticamente al cargar la página
-            loadDataFromSheet();
-            
-            // Inicializar el temporizador
-            initializeTimer();
-            
-            // Manejar clics en las tarjetas de acción
-            document.querySelectorAll('.action-card').forEach(card => {
-                card.addEventListener('click', function() {
-                    const action = this.querySelector('h3').textContent;
-                    alert(`Acción seleccionada: ${action}`);
-                    // En una implementación real, aquí se ejecutaría la lógica correspondiente
-                });
-            });
-        });
-    </script>
-</body>
-</html>
+<div id="createForm" class="card">
+<h2>🚀 Crear Negociación TUM</h2>
+<div id="debugInfo" class="loading">🔄 Probando conexión...</div>
