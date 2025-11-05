@@ -59,7 +59,7 @@
         .cliente { background: #f5f5f5; margin-right: 20px; }
         .sistema { background: #fff3cd; text-align: center; margin: 10px auto; max-width: 90%; }
         .comprobante { background: #d4edda; border-left: 4px solid #28a745; }
-        .input-area { display: flex; gap: 10px; }
+        .input-area { display: flex; gap: 10px; margin-top: 10px; }
         #messageInput { flex: 1; }
         .controls { display: flex; gap: 10px; margin: 10px 0; }
         .controls button { flex: 1; }
@@ -69,6 +69,7 @@
             margin: 10px 0; 
             border-radius: 5px; 
             font-weight: bold; 
+            font-size: 16px;
         }
         .timer.normal { background: #d4edda; color: #155724; }
         .timer.warning { background: #fff3cd; color: #856404; }
@@ -89,6 +90,12 @@
         .status-completada { background: #cce7ff; color: #004085; }
         .status-cancelada { background: #f8d7da; color: #721c24; }
         .status-expirada { background: #fff3cd; color: #856404; }
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
@@ -101,11 +108,11 @@
         <input type="email" id="clienteEmail" placeholder="Email del cliente" value="cliente@ejemplo.com">
         <input type="number" id="monto" placeholder="Monto" value="1000">
         <select id="tiempoExpiracion">
-            <option value="1">1 hora</option>
-            <option value="6">6 horas</option>
-            <option value="12">12 horas</option>
-            <option value="24" selected>24 horas</option>
-            <option value="48">48 horas</option>
+            <option value="5">5 minutos</option>
+            <option value="10">10 minutos</option>
+            <option value="15">15 minutos</option>
+            <option value="30">30 minutos</option>
+            <option value="60">1 hora</option>
         </select>
         <textarea id="descripcion" placeholder="Descripción del trato..." rows="3">Servicio de consultoría TUM</textarea>
         
@@ -116,15 +123,15 @@
     <!-- Interfaz del Chat -->
     <div id="chatInterface" class="card hidden">
         <!-- Header con información -->
-        <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 15px;">
+        <div class="chat-header">
             <h2 id="chatTitle">💬 Chat TUM</h2>
             <div id="statusBadge" class="status-badge status-activa">ACTIVA</div>
         </div>
         
-        <div id="chatInfo" class="loading">Cargando...</div>
+        <div id="chatInfo"></div>
         
         <!-- Timer -->
-        <div id="timer" class="timer normal hidden">
+        <div id="timer" class="timer normal">
             ⏰ Tiempo restante: <span id="tiempoRestante">--:--</span>
         </div>
         
@@ -136,12 +143,12 @@
         <!-- Controles según el tipo de usuario -->
         <div id="clienteControls" class="controls hidden">
             <button onclick="mostrarSubirComprobante()" class="warning">📎 Subir Comprobante</button>
+            <button onclick="cancelarNegociacion()" class="danger">🚫 Cancelar</button>
         </div>
         
         <div id="creadorControls" class="controls hidden">
             <button onclick="verificarPago(true)" class="success">✅ Aprobar Pago</button>
-            <button onclick="verificarPago(false)" class="danger">❌ Rechazar</button>
-            <button onclick="cancelarNegociacion()" class="danger">🚫 Cancelar</button>
+            <button onclick="verificarPago(false)" class="danger">❌ Rechazar Pago</button>
         </div>
         
         <!-- Área de subida de comprobante -->
@@ -157,9 +164,9 @@
             </div>
         </div>
         
-        <!-- Chat input -->
+        <!-- Chat input - AHORA VISIBLE -->
         <div class="input-area">
-            <input type="text" id="messageInput" placeholder="Escribe tu mensaje..." disabled>
+            <input type="text" id="messageInput" placeholder="Escribe tu mensaje aquí..." disabled>
             <button onclick="enviarMensaje()" id="sendButton" disabled>Enviar</button>
         </div>
     </div>
@@ -169,7 +176,9 @@
         
         let appState = { 
             negociacion: null, 
-            userType: '' 
+            userType: '',
+            intervaloMensajes: null,
+            intervaloTimer: null
         };
 
         async function hacerRequest(params) {
@@ -207,7 +216,7 @@
                 appState.userType = userType;
                 document.getElementById('createForm').classList.add('hidden');
                 document.getElementById('chatInterface').classList.remove('hidden');
-                cargarChat(id);
+                await cargarChat(id);
             }
         }
 
@@ -239,7 +248,7 @@
                         <div class="success">
                             <h3>✅ ¡Negociación Creada!</h3>
                             <p><strong>ID:</strong> ${response.data.id}</p>
-                            <p><strong>Tiempo:</strong> ${response.data.tiempoExpiracion} horas</p>
+                            <p><strong>Tiempo:</strong> ${response.data.tiempoExpiracion} minutos</p>
                             <p><strong>Monto:</strong> $${response.data.monto}</p>
                             <p><a href="${response.data.enlaces.creador}" target="_blank">👑 Abrir como Creador</a></p>
                             <p><a href="${response.data.enlaces.cliente}" target="_blank">👤 Abrir como Cliente</a></p>
@@ -291,13 +300,20 @@
                         document.getElementById('clienteControls').classList.remove('hidden');
                     }
                     
+                    // Habilitar chat
                     document.getElementById('messageInput').disabled = false;
                     document.getElementById('sendButton').disabled = false;
                     
+                    // Cargar mensajes y configurar intervalos
                     await cargarMensajes();
                     actualizarTimer();
-                    setInterval(cargarMensajes, 2000);
-                    setInterval(actualizarTimer, 60000);
+                    
+                    // Configurar intervalos
+                    if (appState.intervaloMensajes) clearInterval(appState.intervaloMensajes);
+                    if (appState.intervaloTimer) clearInterval(appState.intervaloTimer);
+                    
+                    appState.intervaloMensajes = setInterval(cargarMensajes, 2000);
+                    appState.intervaloTimer = setInterval(actualizarTimer, 1000);
                     
                 } else {
                     document.getElementById('messages').innerHTML = 
@@ -377,6 +393,7 @@
                 alert('Error enviando mensaje: ' + error.message);
             } finally {
                 btn.disabled = false;
+                input.focus();
             }
         }
 
@@ -403,8 +420,7 @@
                 const response = await hacerRequest({
                     action: 'subir_comprobante',
                     id: appState.negociacion.ID,
-                    comprobanteUrl: comprobanteUrl,
-                    monto: appState.negociacion.Monto
+                    comprobanteUrl: comprobanteUrl
                 });
                 
                 if (response.success) {
@@ -465,7 +481,8 @@
                 const response = await hacerRequest({
                     action: 'cancelar_negociacion',
                     id: appState.negociacion.ID,
-                    razon: razon
+                    razon: razon,
+                    tipoUsuario: appState.userType
                 });
                 
                 if (response.success) {
@@ -486,30 +503,45 @@
             document.getElementById('creadorControls').classList.add('hidden');
             document.getElementById('clienteControls').classList.add('hidden');
             document.getElementById('uploadSection').classList.add('hidden');
+            
+            if (appState.intervaloMensajes) clearInterval(appState.intervaloMensajes);
+            if (appState.intervaloTimer) clearInterval(appState.intervaloTimer);
         }
 
         async function actualizarTimer() {
-            if (!appState.negociacion || !appState.negociacion.Tiempo_Restante) return;
+            if (!appState.negociacion) return;
             
-            const tiempo = appState.negociacion.Tiempo_Restante;
-            const timerElement = document.getElementById('timer');
-            const tiempoRestanteElement = document.getElementById('tiempoRestante');
-            
-            if (tiempo.expirada) {
-                timerElement.className = 'timer danger';
-                tiempoRestanteElement.textContent = 'EXPIRADO';
-                deshabilitarChat();
-            } else {
-                timerElement.classList.remove('hidden');
-                tiempoRestanteElement.textContent = `${tiempo.horas}h ${tiempo.minutos}m`;
+            try {
+                const response = await hacerRequest({
+                    action: 'obtener_tiempo_restante', 
+                    id: appState.negociacion.ID 
+                });
                 
-                if (tiempo.horas < 1) {
-                    timerElement.className = 'timer danger';
-                } else if (tiempo.horas < 6) {
-                    timerElement.className = 'timer warning';
-                } else {
-                    timerElement.className = 'timer normal';
+                if (response.success) {
+                    const tiempo = response.data;
+                    const timerElement = document.getElementById('timer');
+                    const tiempoRestanteElement = document.getElementById('tiempoRestante');
+                    
+                    if (tiempo.expirada) {
+                        tiempoRestanteElement.textContent = 'EXPIRADO';
+                        timerElement.className = 'timer danger';
+                        deshabilitarChat();
+                    } else {
+                        const minutos = tiempo.minutos.toString().padStart(2, '0');
+                        const segundos = tiempo.segundos.toString().padStart(2, '0');
+                        tiempoRestanteElement.textContent = `${minutos}:${segundos}`;
+                        
+                        if (tiempo.minutos < 1) {
+                            timerElement.className = 'timer danger';
+                        } else if (tiempo.minutos < 5) {
+                            timerElement.className = 'timer warning';
+                        } else {
+                            timerElement.className = 'timer normal';
+                        }
+                    }
                 }
+            } catch (error) {
+                console.error('Error actualizando timer:', error);
             }
         }
 
@@ -523,4 +555,3 @@
     </script>
 </body>
 </html>
-
