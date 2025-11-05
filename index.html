@@ -62,3 +62,237 @@ border-radius: 5px;
 <div id="createForm" class="card">
 <h2>🚀 Crear Negociación TUM</h2>
 <div id="debugInfo" class="loading">🔄 Probando conexión...</div>
+    <input type="email" id="creadorEmail" placeholder="Tu email" value="creador@ejemplo.com">
+    <input type="email" id="clienteEmail" placeholder="Email del cliente" value="cliente@ejemplo.com">
+    <input type="number" id="monto" placeholder="Monto" value="1000">
+    <textarea id="descripcion" placeholder="Descripción" rows="3">Servicio de consultoría TUM</textarea>
+
+    <button onclick="crearNegociacion()" id="createBtn">Crear Negociación</button>
+    <div id="formResult"></div>
+</div>
+
+<div id="chatInterface" class="card hidden">
+    <h2 id="chatTitle">💬 Chat</h2>
+    <div id="chatInfo" class="loading">Cargando...</div>
+
+    <div class="messages" id="messages">
+        <div class="loading">Cargando mensajes...</div>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="messageInput" placeholder="Escribe tu mensaje..." disabled>
+        <button onclick="enviarMensaje()" id="sendButton" disabled>Enviar</button>
+    </div>
+</div>
+
+<script>
+    // ⚠️ IMPORTANTE: Usa SOLO esta URL (la que funciona)
+    const API_URL = '<https://script.google.com/macros/s/AKfycbxgR_3Yfjzy_FgE6fYi9OIxLiablneUyvWqt5eukezplafrEFdYaw8UL9gaFXQyxn3yEw/exec>';
+
+    let appState = {
+        negociacion: null,
+        userType: ''
+    };
+
+    // Función para hacer requests - SIMPLE como tu proyecto
+    async function hacerRequest(params) {
+        const url = API_URL + '?' + new URLSearchParams(params).toString();
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error('Error HTTP: ' + response.status);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error en request:', error);
+            throw error;
+        }
+    }
+
+    // Inicializar
+    async function init() {
+        console.log('Iniciando aplicación...');
+
+        // Probar conexión
+        try {
+            const response = await hacerRequest({action: 'test'});
+            const debug = document.getElementById('debugInfo');
+            if (response.success) {
+                debug.innerHTML = `<div class="success">${response.message}</div>`;
+            } else {
+                debug.innerHTML = `<div class="error">${response.message}</div>`;
+            }
+        } catch (error) {
+            document.getElementById('debugInfo').innerHTML =
+                `<div class="error">Error de conexión: ${error.message}</div>`;
+        }
+
+        // Verificar si estamos en chat
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('id');
+        const userType = urlParams.get('user');
+
+        if (id && userType) {
+            appState.userType = userType;
+            document.getElementById('createForm').classList.add('hidden');
+            document.getElementById('chatInterface').classList.remove('hidden');
+            cargarChat(id);
+        }
+    }
+
+    // Crear negociación
+    async function crearNegociacion() {
+        const creador = document.getElementById('creadorEmail').value;
+        const cliente = document.getElementById('clienteEmail').value;
+        const monto = document.getElementById('monto').value;
+        const descripcion = document.getElementById('descripcion').value;
+
+        const btn = document.getElementById('createBtn');
+        btn.disabled = true;
+        btn.textContent = 'Creando...';
+
+        try {
+            const response = await hacerRequest({
+                action: 'crear_negociacion',
+                creador: creador,
+                cliente: cliente,
+                monto: monto,
+                descripcion: descripcion
+            });
+
+            const result = document.getElementById('formResult');
+
+            if (response.success) {
+                result.innerHTML = `
+                    <div class="success">
+                        <h3>✅ ¡Negociación Creada!</h3>
+                        <p><strong>ID:</strong> ${response.data.id}</p>
+                        <p><a href="${response.data.enlaces.creador}" target="_blank">👑 Abrir como Creador</a></p>
+                        <p><a href="${response.data.enlaces.cliente}" target="_blank">👤 Abrir como Cliente</a></p>
+                    </div>
+                `;
+
+                // Limpiar formulario
+                document.getElementById('creadorEmail').value = '';
+                document.getElementById('clienteEmail').value = '';
+                document.getElementById('monto').value = '';
+                document.getElementById('descripcion').value = '';
+            } else {
+                result.innerHTML = `<div class="error">❌ Error: ${response.message}</div>`;
+            }
+        } catch (error) {
+            document.getElementById('formResult').innerHTML =
+                `<div class="error">❌ Error de conexión: ${error.message}</div>`;
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Crear Negociación';
+        }
+    }
+
+    // Cargar chat
+    async function cargarChat(id) {
+        try {
+            const response = await hacerRequest({
+                action: 'get_negociacion',
+                id: id
+            });
+
+            if (response.success) {
+                appState.negociacion = response.data;
+                document.getElementById('chatTitle').textContent =
+                    appState.userType === 'creador' ? '👑 Chat - Creador' : '👤 Chat - Cliente';
+                document.getElementById('chatInfo').textContent =
+                    `ID: ${response.data.ID} | $${response.data.Monto} | ${response.data.Estado}`;
+
+                document.getElementById('messageInput').disabled = false;
+                document.getElementById('sendButton').disabled = false;
+
+                await cargarMensajes();
+                setInterval(cargarMensajes, 2000);
+            } else {
+                document.getElementById('messages').innerHTML =
+                    `<div class="error">❌ ${response.message}</div>`;
+            }
+        } catch (error) {
+            document.getElementById('messages').innerHTML =
+                `<div class="error">❌ Error cargando chat: ${error.message}</div>`;
+        }
+    }
+
+    // Cargar mensajes
+    async function cargarMensajes() {
+        if (!appState.negociacion) return;
+
+        try {
+            const response = await hacerRequest({
+                action: 'get_mensajes',
+                id: appState.negociacion.ID
+            });
+
+            if (response.success) {
+                mostrarMensajes(response.data);
+            }
+        } catch (error) {
+            console.error('Error cargando mensajes:', error);
+        }
+    }
+
+    // Mostrar mensajes
+    function mostrarMensajes(mensajes) {
+        const container = document.getElementById('messages');
+
+        if (!mensajes || mensajes.length === 0) {
+            container.innerHTML = '<div class="loading">💬 No hay mensajes aún</div>';
+            return;
+        }
+
+        container.innerHTML = mensajes.map(msg => `
+            <div class="message ${msg.Remitente.includes('Creador') ? 'creador' : 'cliente'}">
+                <strong>${msg.Remitente}</strong><br>
+                ${msg.Mensaje}<br>
+                <small>${new Date(msg.Fecha).toLocaleString('es-ES')}</small>
+            </div>
+        `).join('');
+
+        container.scrollTop = container.scrollHeight;
+    }
+
+    // Enviar mensaje
+    async function enviarMensaje() {
+        const input = document.getElementById('messageInput');
+        const mensaje = input.value.trim();
+
+        if (!mensaje || !appState.negociacion) return;
+
+        const btn = document.getElementById('sendButton');
+        btn.disabled = true;
+
+        try {
+            const response = await hacerRequest({
+                action: 'enviar_mensaje',
+                id: appState.negociacion.ID,
+                tipoUsuario: appState.userType,
+                mensaje: mensaje
+            });
+
+            if (response.success) {
+                input.value = '';
+                await cargarMensajes();
+            } else {
+                alert('Error: ' + response.message);
+            }
+        } catch (error) {
+            alert('Error enviando mensaje: ' + error.message);
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    // Iniciar
+    document.addEventListener('DOMContentLoaded', init);
+</script>
+  </body>
+</html>
+
+
