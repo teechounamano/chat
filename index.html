@@ -600,36 +600,22 @@
             intervaloTimer: null
         };
 
-        // Función corregida para hacer requests
+        // FUNCIÓN ORIGINAL QUE FUNCIONABA - SIN CAMBIOS
         async function hacerRequest(params) {
             const url = API_URL + '?' + new URLSearchParams(params).toString();
             try {
                 console.log('Haciendo request:', params.action, params);
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
+                const response = await fetch(url);
                 
                 if (!response.ok) {
                     throw new Error(`Error HTTP: ${response.status}`);
                 }
                 
-                const text = await response.text();
-                let data;
-                try {
-                    data = JSON.parse(text);
-                } catch (e) {
-                    console.warn('Respuesta no es JSON, intentando parsear como texto:', text);
-                    data = { success: false, message: 'Respuesta inválida del servidor' };
-                }
-                
+                const data = await response.json();
                 console.log('Respuesta recibida:', data);
                 return data;
             } catch (error) {
                 console.error('Error en request:', error);
-                mostrarNotificacion('❌ Error de conexión: ' + error.message);
                 throw error;
             }
         }
@@ -752,7 +738,7 @@
             }
         }
 
-        // Función para cargar el chat - CORREGIDA
+        // Función para cargar el chat - VERSIÓN ORIGINAL MEJORADA
         async function cargarChat(id) {
             try {
                 console.log('Cargando chat para ID:', id);
@@ -771,29 +757,28 @@
                     document.getElementById('negociacionInfo').innerHTML = `
                         <div class="info-item">
                             <span class="info-label">ID</span>
-                            <span class="info-value">${response.data.ID || 'N/A'}</span>
+                            <span class="info-value">${response.data.ID}</span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Monto</span>
-                            <span class="info-value">$${response.data.Monto || '0'}</span>
+                            <span class="info-value">$${response.data.Monto}</span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Cliente</span>
-                            <span class="info-value">${response.data.Cliente || 'N/A'}</span>
+                            <span class="info-value">${response.data.Cliente}</span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Estado</span>
-                            <span class="info-value">${response.data.Estado || 'DESCONOCIDO'}</span>
+                            <span class="info-value">${response.data.Estado}</span>
                         </div>
                     `;
                     
                     // Actualizar badge de estado
                     const statusBadge = document.getElementById('statusBadge');
-                    const estado = (response.data.Estado || 'DESCONOCIDO').toLowerCase();
-                    statusBadge.textContent = response.data.Estado || 'DESCONOCIDO';
-                    statusBadge.className = `status-badge status-${estado}`;
+                    statusBadge.textContent = response.data.Estado;
+                    statusBadge.className = `status-badge status-${response.data.Estado.toLowerCase()}`;
                     
-                    // Mostrar controles según el tipo de usuario y estado
+                    // Mostrar controles según el tipo de usuario
                     document.getElementById('creadorControls').classList.add('hidden');
                     document.getElementById('clienteControls').classList.add('hidden');
                     
@@ -1008,40 +993,31 @@
             }
         }
 
-        // Función mejorada para actualizar el timer
         function actualizarTimer() {
-            if (!appState.negociacion) return;
+            if (!appState.negociacion || !appState.negociacion.Tiempo_Restante) return;
             
+            const tiempoRestante = appState.negociacion.Tiempo_Restante;
             const timerElement = document.getElementById('tiempoRestante');
             const timerContainer = document.getElementById('timer');
             
-            // Si tenemos tiempo restante del backend, usarlo
-            if (appState.negociacion.Tiempo_Restante) {
-                const tiempoRestante = appState.negociacion.Tiempo_Restante;
-                
-                if (tiempoRestante.expirada) {
-                    timerElement.textContent = '00:00';
-                    timerContainer.className = 'timer danger';
-                    return;
-                }
-                
-                const minutos = tiempoRestante.minutos || 0;
-                const segundos = tiempoRestante.segundos || 0;
-                const tiempoFormateado = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
-                timerElement.textContent = tiempoFormateado;
-                
-                // Cambiar color según el tiempo
-                if (minutos < 1) {
-                    timerContainer.className = 'timer danger';
-                } else if (minutos < 5) {
-                    timerContainer.className = 'timer warning';
-                } else {
-                    timerContainer.className = 'timer normal';
-                }
-            } else {
-                // Fallback si no hay tiempo restante
-                timerElement.textContent = '--:--';
+            if (tiempoRestante.expirada) {
+                timerElement.textContent = '00:00';
+                timerContainer.className = 'timer danger';
+                return;
+            }
+            
+            const minutos = tiempoRestante.minutos || 0;
+            const segundos = tiempoRestante.segundos || 0;
+            const tiempoFormateado = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+            timerElement.textContent = tiempoFormateado;
+            
+            // Cambiar color según el tiempo
+            if (minutos < 1) {
+                timerContainer.className = 'timer danger';
+            } else if (minutos < 5) {
                 timerContainer.className = 'timer warning';
+            } else {
+                timerContainer.className = 'timer normal';
             }
         }
 
