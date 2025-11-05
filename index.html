@@ -574,8 +574,11 @@
                     statusBadge.textContent = response.data.Estado;
                     statusBadge.className = `status-badge status-${response.data.Estado.toLowerCase()}`;
                     
-                    // Mostrar controles según el tipo de usuario y estado
-                    // SOLO el creador ve los botones de aprobar/rechazar
+                    // CORREGIDO: Mostrar controles según el tipo de usuario
+                    // Ocultar todos los controles primero
+                    document.getElementById('creadorControls').classList.add('hidden');
+                    document.getElementById('clienteControls').classList.add('hidden');
+                    
                     if (response.data.Estado === 'ACTIVA') {
                         if (esCreador) {
                             document.getElementById('creadorControls').classList.remove('hidden');
@@ -617,11 +620,18 @@
             
             try {
                 const response = await hacerRequest({ action: 'get_mensajes', id: appState.negociacion.ID });
+                
                 if (response.success) {
                     mostrarMensajes(response.data);
+                } else {
+                    console.error('Error cargando mensajes:', response.message);
+                    document.getElementById('messages').innerHTML = 
+                        `<div class="error">❌ Error cargando mensajes: ${response.message}</div>`;
                 }
             } catch (error) {
                 console.error('Error cargando mensajes:', error);
+                document.getElementById('messages').innerHTML = 
+                    `<div class="error">❌ Error de conexión cargando mensajes</div>`;
             }
         }
 
@@ -633,22 +643,41 @@
                 return;
             }
             
+            // Ordenar mensajes por fecha (más antiguo primero)
+            mensajes.sort((a, b) => {
+                try {
+                    const fechaA = new Date(a.Fecha);
+                    const fechaB = new Date(b.Fecha);
+                    return fechaA - fechaB;
+                } catch (e) {
+                    return 0;
+                }
+            });
+            
             container.innerHTML = mensajes.map(msg => {
                 let clase = '';
-                if (msg.Remitente.includes('TeEchoUnaMano')) clase = 'creador';
-                else if (msg.Remitente.includes('Cliente')) clase = 'cliente';
-                else if (msg.Remitente.includes('Sistema')) clase = 'sistema';
-                if (msg.Tipo === 'COMPROBANTE') clase += ' comprobante';
+                let remitente = msg.Remitente || 'Desconocido';
                 
-                // Manejo seguro de fechas - CORREGIDO
+                // Determinar clase según remitente
+                if (remitente.includes('TeEchoUnaMano') || remitente.includes('👑')) {
+                    clase = 'creador';
+                } else if (remitente.includes('Cliente') || remitente.includes('👤')) {
+                    clase = 'cliente';
+                } else if (remitente.includes('Sistema') || remitente.includes('🤖')) {
+                    clase = 'sistema';
+                }
+                
+                if (msg.Tipo === 'COMPROBANTE') {
+                    clase += ' comprobante';
+                }
+                
+                // Manejo seguro de fechas
                 let fechaStr = 'Fecha no disponible';
                 try {
-                    // Intentar diferentes formatos de fecha
                     let fecha;
                     if (msg.Fecha instanceof Date) {
                         fecha = msg.Fecha;
                     } else if (typeof msg.Fecha === 'string') {
-                        // Intentar parsear la fecha string
                         fecha = new Date(msg.Fecha);
                     } else {
                         fecha = new Date();
@@ -664,8 +693,8 @@
                 
                 return `
                     <div class="message ${clase}">
-                        <strong>${msg.Remitente}</strong><br>
-                        ${msg.Mensaje}<br>
+                        <strong>${remitente}</strong><br>
+                        ${msg.Mensaje || 'Mensaje no disponible'}<br>
                         <small>${fechaStr}</small>
                     </div>
                 `;
@@ -698,7 +727,7 @@
                     mostrarNotificacion('❌ Error: ' + response.message);
                 }
             } catch (error) {
-                mostrarNotificacion('❌ Error enviando mensaje');
+                mostrarNotificacion('❌ Error enviando mensaje: ' + error.message);
             } finally {
                 btn.disabled = false;
                 input.focus();
@@ -739,7 +768,7 @@
                     mostrarNotificacion('❌ Error: ' + response.message);
                 }
             } catch (error) {
-                mostrarNotificacion('❌ Error subiendo comprobante');
+                mostrarNotificacion('❌ Error subiendo comprobante: ' + error.message);
             }
         }
 
@@ -765,7 +794,7 @@
                     mostrarNotificacion('❌ Error: ' + response.message);
                 }
             } catch (error) {
-                mostrarNotificacion('❌ Error verificando pago');
+                mostrarNotificacion('❌ Error verificando pago: ' + error.message);
             }
         }
 
@@ -795,7 +824,7 @@
                     mostrarNotificacion('❌ Error: ' + response.message);
                 }
             } catch (error) {
-                mostrarNotificacion('❌ Error cancelando negociación');
+                mostrarNotificacion('❌ Error cancelando negociación: ' + error.message);
             }
         }
 
@@ -824,9 +853,8 @@
                     const timerElement = document.getElementById('timer');
                     const tiempoRestanteElement = document.getElementById('tiempoRestante');
                     
-                    console.log('Tiempo restante recibido:', tiempo); // Para debugging
+                    console.log('Tiempo restante recibido:', tiempo);
                     
-                    // Validación robusta del tiempo
                     if (tiempo && typeof tiempo.expirada !== 'undefined') {
                         if (tiempo.expirada) {
                             tiempoRestanteElement.textContent = 'EXPIRADO';
@@ -850,10 +878,7 @@
                             }
                         }
                     } else {
-                        // Si no hay datos de tiempo, mostrar como expirado
-                        tiempoRestanteElement.textContent = 'EXPIRADO';
-                        timerElement.className = 'timer danger';
-                        deshabilitarChat();
+                        tiempoRestanteElement.textContent = 'Error';
                     }
                 } else {
                     console.error('Error obteniendo tiempo:', response.message);
@@ -868,7 +893,7 @@
         // Iniciar
         document.addEventListener('DOMContentLoaded', init);
         
-        // Enviar mensaje con Enter (pero permitir Shift+Enter para nueva línea)
+        // Enviar mensaje con Enter
         document.getElementById('messageInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -876,7 +901,7 @@
             }
         });
 
-        // También manejar el evento input para mejor UX
+        // Habilitar/deshabilitar botón de enviar
         document.getElementById('messageInput').addEventListener('input', function(e) {
             const sendButton = document.getElementById('sendButton');
             sendButton.disabled = this.value.trim() === '' || this.disabled;
