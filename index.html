@@ -639,11 +639,22 @@
                 else if (msg.Remitente.includes('Sistema')) clase = 'sistema';
                 if (msg.Tipo === 'COMPROBANTE') clase += ' comprobante';
                 
+                // Manejo seguro de fechas
+                let fechaStr = 'Fecha no disponible';
+                try {
+                    const fecha = new Date(msg.Fecha);
+                    if (!isNaN(fecha.getTime())) {
+                        fechaStr = fecha.toLocaleString('es-ES');
+                    }
+                } catch (e) {
+                    console.warn('Error formateando fecha:', e);
+                }
+                
                 return `
                     <div class="message ${clase}">
                         <strong>${msg.Remitente}</strong><br>
                         ${msg.Mensaje}<br>
-                        <small>${new Date(msg.Fecha).toLocaleString('es-ES')}</small>
+                        <small>${fechaStr}</small>
                     </div>
                 `;
             }).join('');
@@ -787,48 +798,48 @@
             if (appState.intervaloTimer) clearInterval(appState.intervaloTimer);
         }
 
-      async function actualizarTimer() {
-    if (!appState.negociacion) return;
-    
-    try {
-        const response = await hacerRequest({
-            action: 'obtener_tiempo_restante', 
-            id: appState.negociacion.ID 
-        });
-        
-        if (response.success) {
-            const tiempo = response.data;
-            const timerElement = document.getElementById('timer');
-            const tiempoRestanteElement = document.getElementById('tiempoRestante');
+        async function actualizarTimer() {
+            if (!appState.negociacion) return;
             
-            console.log('Tiempo restante:', tiempo); // Para debugging
-            
-            if (tiempo.expirada) {
-                tiempoRestanteElement.textContent = 'EXPIRADO';
-                timerElement.className = 'timer danger';
-                deshabilitarChat();
-            } else {
-                const minutos = tiempo.minutos.toString().padStart(2, '0');
-                const segundos = tiempo.segundos.toString().padStart(2, '0');
-                tiempoRestanteElement.textContent = `${minutos}:${segundos}`;
+            try {
+                const response = await hacerRequest({
+                    action: 'obtener_tiempo_restante', 
+                    id: appState.negociacion.ID 
+                });
                 
-                if (tiempo.minutos < 1) {
-                    timerElement.className = 'timer danger';
-                } else if (tiempo.minutos < 5) {
-                    timerElement.className = 'timer warning';
+                if (response.success) {
+                    const tiempo = response.data;
+                    const timerElement = document.getElementById('timer');
+                    const tiempoRestanteElement = document.getElementById('tiempoRestante');
+                    
+                    console.log('Tiempo restante recibido:', tiempo); // Para debugging
+                    
+                    if (tiempo.expirada) {
+                        tiempoRestanteElement.textContent = 'EXPIRADO';
+                        timerElement.className = 'timer danger';
+                        deshabilitarChat();
+                    } else {
+                        const minutos = tiempo.minutos !== undefined ? tiempo.minutos.toString().padStart(2, '0') : '00';
+                        const segundos = tiempo.segundos !== undefined ? tiempo.segundos.toString().padStart(2, '0') : '00';
+                        tiempoRestanteElement.textContent = `${minutos}:${segundos}`;
+                        
+                        if (tiempo.minutos < 1) {
+                            timerElement.className = 'timer danger';
+                        } else if (tiempo.minutos < 5) {
+                            timerElement.className = 'timer warning';
+                        } else {
+                            timerElement.className = 'timer normal';
+                        }
+                    }
                 } else {
-                    timerElement.className = 'timer normal';
+                    console.error('Error obteniendo tiempo:', response.message);
+                    tiempoRestanteElement.textContent = 'Error';
                 }
+            } catch (error) {
+                console.error('Error actualizando timer:', error);
+                document.getElementById('tiempoRestante').textContent = 'Error';
             }
-        } else {
-            console.error('Error obteniendo tiempo:', response.message);
-            tiempoRestanteElement.textContent = 'Error';
         }
-    } catch (error) {
-        console.error('Error actualizando timer:', error);
-        document.getElementById('tiempoRestante').textContent = 'Error';
-    }
-}
 
         // Iniciar
         document.addEventListener('DOMContentLoaded', init);
@@ -840,7 +851,12 @@
                 enviarMensaje();
             }
         });
+
+        // También manejar el evento input para mejor UX
+        document.getElementById('messageInput').addEventListener('input', function(e) {
+            const sendButton = document.getElementById('sendButton');
+            sendButton.disabled = this.value.trim() === '' || this.disabled;
+        });
     </script>
 </body>
 </html>
-
