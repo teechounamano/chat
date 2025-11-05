@@ -604,11 +604,29 @@
         async function hacerRequest(params) {
             const url = API_URL + '?' + new URLSearchParams(params).toString();
             try {
-                console.log('Haciendo request:', params.action);
-                const response = await fetch(url);
-                if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-                const data = await response.json();
-                console.log('Respuesta recibida:', data);
+                console.log('Haciendo request:', params.action, params);
+                const response = await fetch(url, {
+                    method: 'GET',
+                    mode: 'no-cors' // Importante para evitar problemas CORS
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+                
+                const text = await response.text();
+                console.log('Respuesta recibida (texto):', text);
+                
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    // Si falla el parseo, intentar limpiar la respuesta
+                    const cleanedText = text.replace(/^.*?{/, '{').replace(/}[^}]*$/, '}');
+                    data = JSON.parse(cleanedText);
+                }
+                
+                console.log('Respuesta parseada:', data);
                 return data;
             } catch (error) {
                 console.error('Error en request:', error);
@@ -621,9 +639,11 @@
             try {
                 const response = await hacerRequest({action: 'test'});
                 const debug = document.getElementById('debugInfo');
-                debug.innerHTML = response.success ? 
-                    `<div class="success-message">✅ ${response.message}</div>` :
-                    `<div class="error">❌ ${response.message}</div>`;
+                if (response && response.success) {
+                    debug.innerHTML = `<div class="success-message">✅ ${response.message}</div>`;
+                } else {
+                    debug.innerHTML = `<div class="error">❌ ${response?.message || 'Error desconocido'}</div>`;
+                }
             } catch (error) {
                 document.getElementById('debugInfo').innerHTML = 
                     `<div class="error">❌ Error de conexión: ${error.message}</div>`;
@@ -641,7 +661,7 @@
             }
         }
 
-        // Función para crear negociación (se mantiene igual)
+        // Función para crear negociación
         async function crearNegociacion() {
             const cliente = document.getElementById('cliente').value;
             const monto = document.getElementById('monto').value;
@@ -668,7 +688,7 @@
                 
                 const result = document.getElementById('formResult');
                 
-                if (response.success) {
+                if (response && response.success) {
                     const enlaceCliente = response.data.enlaceCliente;
                     const numeroCliente = cliente.replace(/\D/g, '');
                     const mensajeWhatsApp = `Hola! Te invito a nuestra negociación TUM. Monto: $${monto}. Accede aquí: ${enlaceCliente}`;
@@ -711,7 +731,7 @@
                             </div>
                             
                             <p style="margin-top: 15px; text-align: center;">
-                                <a href="https://teechounamano.github.io/chat/?id=${response.data.id}&user=creador" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">
+                                <a href="${window.location.origin}${window.location.pathname}?id=${response.data.id}&user=creador" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">
                                     👑 Abrir Panel del Creador
                                 </a>
                             </p>
@@ -723,7 +743,7 @@
                     document.getElementById('monto').value = '';
                     document.getElementById('descripcion').value = '';
                 } else {
-                    result.innerHTML = `<div class="error">❌ ${response.message}</div>`;
+                    result.innerHTML = `<div class="error">❌ ${response?.message || 'Error desconocido'}</div>`;
                 }
             } catch (error) {
                 document.getElementById('formResult').innerHTML = 
@@ -740,7 +760,7 @@
                 console.log('Cargando chat para ID:', id);
                 const response = await hacerRequest({ action: 'get_negociacion', id: id });
                 
-                if (response.success) {
+                if (response && response.success) {
                     appState.negociacion = response.data;
                     console.log('Negociación cargada:', response.data);
                     
@@ -753,32 +773,33 @@
                     document.getElementById('negociacionInfo').innerHTML = `
                         <div class="info-item">
                             <span class="info-label">ID</span>
-                            <span class="info-value">${response.data.ID}</span>
+                            <span class="info-value">${response.data.ID || 'N/A'}</span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Monto</span>
-                            <span class="info-value">$${response.data.Monto}</span>
+                            <span class="info-value">$${response.data.Monto || '0'}</span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Cliente</span>
-                            <span class="info-value">${response.data.Cliente}</span>
+                            <span class="info-value">${response.data.Cliente || 'N/A'}</span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Estado</span>
-                            <span class="info-value">${response.data.Estado}</span>
+                            <span class="info-value">${response.data.Estado || 'DESCONOCIDO'}</span>
                         </div>
                     `;
                     
                     // Actualizar badge de estado
                     const statusBadge = document.getElementById('statusBadge');
-                    statusBadge.textContent = response.data.Estado;
-                    statusBadge.className = `status-badge status-${response.data.Estado.toLowerCase()}`;
+                    const estado = response.data.Estado || 'DESCONOCIDO';
+                    statusBadge.textContent = estado;
+                    statusBadge.className = `status-badge status-${estado.toLowerCase()}`;
                     
                     // Mostrar controles según el tipo de usuario
                     document.getElementById('creadorControls').classList.add('hidden');
                     document.getElementById('clienteControls').classList.add('hidden');
                     
-                    if (response.data.Estado === 'ACTIVA') {
+                    if (estado === 'ACTIVA') {
                         if (esCreador) {
                             document.getElementById('creadorControls').classList.remove('hidden');
                         } else {
@@ -806,7 +827,7 @@
                     
                 } else {
                     document.getElementById('messages').innerHTML = 
-                        `<div class="error">❌ ${response.message}</div>`;
+                        `<div class="error">❌ ${response?.message || 'Error cargando negociación'}</div>`;
                 }
             } catch (error) {
                 document.getElementById('messages').innerHTML = 
@@ -814,17 +835,16 @@
             }
         }
 
-        // Resto de las funciones se mantienen igual pero con mejor manejo de errores
         async function cargarMensajes() {
             if (!appState.negociacion) return;
             
             try {
                 const response = await hacerRequest({ action: 'get_mensajes', id: appState.negociacion.ID });
                 
-                if (response.success) {
+                if (response && response.success) {
                     mostrarMensajes(response.data);
                 } else {
-                    console.error('Error cargando mensajes:', response.message);
+                    console.error('Error cargando mensajes:', response?.message);
                 }
             } catch (error) {
                 console.error('Error cargando mensajes:', error);
@@ -883,8 +903,147 @@
             container.scrollTop = container.scrollHeight;
         }
 
-        // Las demás funciones (enviarMensaje, subirComprobante, verificarPago, etc.) 
-        // se mantienen igual que en la versión anterior pero con el nuevo estilo
+        async function enviarMensaje() {
+            const input = document.getElementById('messageInput');
+            const mensaje = input.value.trim();
+            
+            if (!mensaje || !appState.negociacion) return;
+            
+            try {
+                const response = await hacerRequest({
+                    action: 'enviar_mensaje',
+                    id: appState.negociacion.ID,
+                    tipoUsuario: appState.userType,
+                    mensaje: mensaje
+                });
+                
+                if (response && response.success) {
+                    input.value = '';
+                    document.getElementById('sendButton').disabled = true;
+                    await cargarMensajes();
+                } else {
+                    mostrarNotificacion('❌ Error al enviar mensaje: ' + (response?.message || 'Error desconocido'));
+                }
+            } catch (error) {
+                mostrarNotificacion('❌ Error de conexión: ' + error.message);
+            }
+        }
+
+        function mostrarSubirComprobante() {
+            document.getElementById('uploadSection').classList.remove('hidden');
+        }
+
+        function ocultarSubirComprobante() {
+            document.getElementById('uploadSection').classList.add('hidden');
+            document.getElementById('comprobanteUrl').value = '';
+        }
+
+        async function subirComprobante() {
+            const comprobanteUrl = document.getElementById('comprobanteUrl').value.trim();
+            if (!comprobanteUrl) {
+                mostrarNotificacion('❌ Por favor ingresa la URL o descripción del comprobante');
+                return;
+            }
+            
+            try {
+                const response = await hacerRequest({
+                    action: 'subir_comprobante',
+                    id: appState.negociacion.ID,
+                    comprobanteUrl: comprobanteUrl
+                });
+                
+                if (response && response.success) {
+                    mostrarNotificacion('✅ Comprobante subido exitosamente');
+                    ocultarSubirComprobante();
+                    await cargarMensajes();
+                } else {
+                    mostrarNotificacion('❌ Error al subir comprobante: ' + (response?.message || 'Error desconocido'));
+                }
+            } catch (error) {
+                mostrarNotificacion('❌ Error de conexión: ' + error.message);
+            }
+        }
+
+        async function verificarPago(aprobado) {
+            if (!confirm(`¿Estás seguro de que quieres ${aprobado ? 'APROBAR' : 'RECHAZAR'} el pago?`)) {
+                return;
+            }
+            
+            try {
+                const response = await hacerRequest({
+                    action: 'verificar_pago',
+                    id: appState.negociacion.ID,
+                    aprobado: aprobado
+                });
+                
+                if (response && response.success) {
+                    mostrarNotificacion(aprobado ? '✅ Pago aprobado' : '❌ Pago rechazado');
+                    await cargarChat(appState.negociacion.ID);
+                } else {
+                    mostrarNotificacion('❌ Error al verificar pago: ' + (response?.message || 'Error desconocido'));
+                }
+            } catch (error) {
+                mostrarNotificacion('❌ Error de conexión: ' + error.message);
+            }
+        }
+
+        async function cancelarNegociacion() {
+            const razon = prompt('¿Por qué cancelas la negociación?');
+            if (razon === null || razon.trim() === '') return;
+            
+            try {
+                const response = await hacerRequest({
+                    action: 'cancelar_negociacion',
+                    id: appState.negociacion.ID,
+                    razon: razon,
+                    tipoUsuario: appState.userType
+                });
+                
+                if (response && response.success) {
+                    mostrarNotificacion('✅ Negociación cancelada');
+                    await cargarChat(appState.negociacion.ID);
+                } else {
+                    mostrarNotificacion('❌ Error al cancelar: ' + (response?.message || 'Error desconocido'));
+                }
+            } catch (error) {
+                mostrarNotificacion('❌ Error de conexión: ' + error.message);
+            }
+        }
+
+        function actualizarTimer() {
+            if (!appState.negociacion || !appState.negociacion.Tiempo_Restante) return;
+            
+            const tiempoRestante = appState.negociacion.Tiempo_Restante;
+            const timerElement = document.getElementById('tiempoRestante');
+            const timerContainer = document.getElementById('timer');
+            
+            if (tiempoRestante.expirada) {
+                timerElement.textContent = '00:00';
+                timerContainer.className = 'timer danger';
+                return;
+            }
+            
+            const minutos = tiempoRestante.minutos || 0;
+            const segundos = tiempoRestante.segundos || 0;
+            const tiempoFormateado = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+            timerElement.textContent = tiempoFormateado;
+            
+            // Cambiar color según el tiempo
+            if (minutos < 1) {
+                timerContainer.className = 'timer danger';
+            } else if (minutos < 5) {
+                timerContainer.className = 'timer warning';
+            } else {
+                timerContainer.className = 'timer normal';
+            }
+        }
+
+        function deshabilitarChat() {
+            document.getElementById('messageInput').disabled = true;
+            document.getElementById('sendButton').disabled = true;
+            document.getElementById('creadorControls').classList.add('hidden');
+            document.getElementById('clienteControls').classList.add('hidden');
+        }
 
         // Funciones de utilidad
         function enviarWhatsApp(enlaceWhatsApp) {
@@ -933,10 +1092,6 @@
             const sendButton = document.getElementById('sendButton');
             sendButton.disabled = this.value.trim() === '' || this.disabled;
         });
-
-        // Implementar las funciones faltantes (enviarMensaje, etc.) aquí...
-        // [El resto del código JavaScript se mantiene igual]
-
     </script>
 </body>
 </html>
