@@ -19,7 +19,7 @@
             margin-bottom: 20px; 
             box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
         }
-        input, textarea, button { 
+        input, textarea, button, select { 
             width: 100%; 
             padding: 10px; 
             margin: 5px 0; 
@@ -34,10 +34,14 @@
         }
         button:hover { background: #005a87; }
         button:disabled { background: #ccc; }
+        button.success { background: #28a745; }
+        button.danger { background: #dc3545; }
+        button.warning { background: #ffc107; color: black; }
         .hidden { display: none; }
         .loading { text-align: center; color: #666; padding: 20px; }
         .error { background: #fee; color: #c00; padding: 10px; border-radius: 5px; margin: 10px 0; }
         .success { background: #efe; color: #060; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .warning { background: #fff3cd; color: #856404; padding: 10px; border-radius: 5px; margin: 10px 0; }
         .messages { 
             height: 300px; 
             overflow-y: auto; 
@@ -53,12 +57,42 @@
         }
         .creador { background: #e3f2fd; margin-left: 20px; }
         .cliente { background: #f5f5f5; margin-right: 20px; }
+        .sistema { background: #fff3cd; text-align: center; margin: 10px auto; max-width: 90%; }
+        .comprobante { background: #d4edda; border-left: 4px solid #28a745; }
         .input-area { display: flex; gap: 10px; }
         #messageInput { flex: 1; }
-        #sendButton { width: auto; }
+        .controls { display: flex; gap: 10px; margin: 10px 0; }
+        .controls button { flex: 1; }
+        .timer { 
+            text-align: center; 
+            padding: 10px; 
+            margin: 10px 0; 
+            border-radius: 5px; 
+            font-weight: bold; 
+        }
+        .timer.normal { background: #d4edda; color: #155724; }
+        .timer.warning { background: #fff3cd; color: #856404; }
+        .timer.danger { background: #f8d7da; color: #721c24; animation: pulse 1s infinite; }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status-activa { background: #d4edda; color: #155724; }
+        .status-completada { background: #cce7ff; color: #004085; }
+        .status-cancelada { background: #f8d7da; color: #721c24; }
+        .status-expirada { background: #fff3cd; color: #856404; }
     </style>
 </head>
 <body>
+    <!-- Formulario de creación -->
     <div id="createForm" class="card">
         <h2>🚀 Crear Negociación TUM</h2>
         <div id="debugInfo" class="loading">🔄 Probando conexión...</div>
@@ -66,20 +100,64 @@
         <input type="email" id="creadorEmail" placeholder="Tu email" value="creador@ejemplo.com">
         <input type="email" id="clienteEmail" placeholder="Email del cliente" value="cliente@ejemplo.com">
         <input type="number" id="monto" placeholder="Monto" value="1000">
-        <textarea id="descripcion" placeholder="Descripción" rows="3">Servicio de consultoría TUM</textarea>
+        <select id="tiempoExpiracion">
+            <option value="1">1 hora</option>
+            <option value="6">6 horas</option>
+            <option value="12">12 horas</option>
+            <option value="24" selected>24 horas</option>
+            <option value="48">48 horas</option>
+        </select>
+        <textarea id="descripcion" placeholder="Descripción del trato..." rows="3">Servicio de consultoría TUM</textarea>
         
         <button onclick="crearNegociacion()" id="createBtn">Crear Negociación</button>
         <div id="formResult"></div>
     </div>
 
+    <!-- Interfaz del Chat -->
     <div id="chatInterface" class="card hidden">
-        <h2 id="chatTitle">💬 Chat</h2>
+        <!-- Header con información -->
+        <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 15px;">
+            <h2 id="chatTitle">💬 Chat TUM</h2>
+            <div id="statusBadge" class="status-badge status-activa">ACTIVA</div>
+        </div>
+        
         <div id="chatInfo" class="loading">Cargando...</div>
         
+        <!-- Timer -->
+        <div id="timer" class="timer normal hidden">
+            ⏰ Tiempo restante: <span id="tiempoRestante">--:--</span>
+        </div>
+        
+        <!-- Mensajes -->
         <div class="messages" id="messages">
             <div class="loading">Cargando mensajes...</div>
         </div>
         
+        <!-- Controles según el tipo de usuario -->
+        <div id="clienteControls" class="controls hidden">
+            <button onclick="mostrarSubirComprobante()" class="warning">📎 Subir Comprobante</button>
+        </div>
+        
+        <div id="creadorControls" class="controls hidden">
+            <button onclick="verificarPago(true)" class="success">✅ Aprobar Pago</button>
+            <button onclick="verificarPago(false)" class="danger">❌ Rechazar</button>
+            <button onclick="cancelarNegociacion()" class="danger">🚫 Cancelar</button>
+        </div>
+        
+        <!-- Área de subida de comprobante -->
+        <div id="uploadSection" class="hidden">
+            <div class="warning">
+                <strong>Subir Comprobante de Pago</strong>
+                <p>Adjunta una imagen o enlace del comprobante de transferencia</p>
+            </div>
+            <input type="text" id="comprobanteUrl" placeholder="URL del comprobante o descripción">
+            <div class="controls">
+                <button onclick="subirComprobante()" class="success">✅ Confirmar Comprobante</button>
+                <button onclick="ocultarSubirComprobante()" class="danger">❌ Cancelar</button>
+            </div>
+        </div>
+        
+        <!-- Chat input -->
         <div class="input-area">
             <input type="text" id="messageInput" placeholder="Escribe tu mensaje..." disabled>
             <button onclick="enviarMensaje()" id="sendButton" disabled>Enviar</button>
@@ -87,23 +165,19 @@
     </div>
 
     <script>
-        // ⚠️ IMPORTANTE: Usa SOLO esta URL (la que funciona)
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxgR_3Yfjzy_FgE6fYi9OIxLiablneUyvWqt5eukezplafrEFdYaw8UL9gaFXQyxn3yEw/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwWTmQkUpCeTixWcwvUBqBCA37U11l3JMN9f-qXXyTSm-gX3uVsd3LPdNVtH3IUVhGm/exec';
         
         let appState = { 
             negociacion: null, 
             userType: '' 
         };
 
-        // Función para hacer requests - SIMPLE como tu proyecto
         async function hacerRequest(params) {
             const url = API_URL + '?' + new URLSearchParams(params).toString();
             
             try {
                 const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error('Error HTTP: ' + response.status);
-                }
+                if (!response.ok) throw new Error('Error HTTP: ' + response.status);
                 return await response.json();
             } catch (error) {
                 console.error('Error en request:', error);
@@ -111,25 +185,20 @@
             }
         }
 
-        // Inicializar
         async function init() {
             console.log('Iniciando aplicación...');
             
-            // Probar conexión
             try {
                 const response = await hacerRequest({action: 'test'});
                 const debug = document.getElementById('debugInfo');
-                if (response.success) {
-                    debug.innerHTML = `<div class="success">${response.message}</div>`;
-                } else {
-                    debug.innerHTML = `<div class="error">${response.message}</div>`;
-                }
+                debug.innerHTML = response.success ? 
+                    `<div class="success">${response.message}</div>` :
+                    `<div class="error">${response.message}</div>`;
             } catch (error) {
                 document.getElementById('debugInfo').innerHTML = 
                     `<div class="error">Error de conexión: ${error.message}</div>`;
             }
             
-            // Verificar si estamos en chat
             const urlParams = new URLSearchParams(window.location.search);
             const id = urlParams.get('id');
             const userType = urlParams.get('user');
@@ -142,12 +211,12 @@
             }
         }
 
-        // Crear negociación
         async function crearNegociacion() {
             const creador = document.getElementById('creadorEmail').value;
             const cliente = document.getElementById('clienteEmail').value;
             const monto = document.getElementById('monto').value;
             const descripcion = document.getElementById('descripcion').value;
+            const tiempoExpiracion = document.getElementById('tiempoExpiracion').value;
             
             const btn = document.getElementById('createBtn');
             btn.disabled = true;
@@ -159,7 +228,8 @@
                     creador: creador,
                     cliente: cliente,
                     monto: monto,
-                    descripcion: descripcion
+                    descripcion: descripcion,
+                    tiempoExpiracion: tiempoExpiracion
                 });
                 
                 const result = document.getElementById('formResult');
@@ -169,12 +239,13 @@
                         <div class="success">
                             <h3>✅ ¡Negociación Creada!</h3>
                             <p><strong>ID:</strong> ${response.data.id}</p>
+                            <p><strong>Tiempo:</strong> ${response.data.tiempoExpiracion} horas</p>
+                            <p><strong>Monto:</strong> $${response.data.monto}</p>
                             <p><a href="${response.data.enlaces.creador}" target="_blank">👑 Abrir como Creador</a></p>
                             <p><a href="${response.data.enlaces.cliente}" target="_blank">👤 Abrir como Cliente</a></p>
                         </div>
                     `;
                     
-                    // Limpiar formulario
                     document.getElementById('creadorEmail').value = '';
                     document.getElementById('clienteEmail').value = '';
                     document.getElementById('monto').value = '';
@@ -191,26 +262,43 @@
             }
         }
 
-        // Cargar chat
         async function cargarChat(id) {
             try {
-                const response = await hacerRequest({
-                    action: 'get_negociacion', 
-                    id: id
-                });
+                const response = await hacerRequest({ action: 'get_negociacion', id: id });
                 
                 if (response.success) {
                     appState.negociacion = response.data;
+                    
+                    // Configurar interfaz según tipo de usuario
                     document.getElementById('chatTitle').textContent = 
                         appState.userType === 'creador' ? '👑 Chat - Creador' : '👤 Chat - Cliente';
-                    document.getElementById('chatInfo').textContent = 
-                        `ID: ${response.data.ID} | $${response.data.Monto} | ${response.data.Estado}`;
+                    
+                    document.getElementById('chatInfo').innerHTML = `
+                        <strong>ID:</strong> ${response.data.ID} | 
+                        <strong>Monto:</strong> $${response.data.Monto} | 
+                        <strong>Estado:</strong> ${response.data.Estado}
+                    `;
+                    
+                    // Actualizar badge de estado
+                    const statusBadge = document.getElementById('statusBadge');
+                    statusBadge.textContent = response.data.Estado;
+                    statusBadge.className = `status-badge status-${response.data.Estado.toLowerCase()}`;
+                    
+                    // Mostrar controles según el tipo de usuario
+                    if (appState.userType === 'creador') {
+                        document.getElementById('creadorControls').classList.remove('hidden');
+                    } else {
+                        document.getElementById('clienteControls').classList.remove('hidden');
+                    }
                     
                     document.getElementById('messageInput').disabled = false;
                     document.getElementById('sendButton').disabled = false;
                     
                     await cargarMensajes();
+                    actualizarTimer();
                     setInterval(cargarMensajes, 2000);
+                    setInterval(actualizarTimer, 60000);
+                    
                 } else {
                     document.getElementById('messages').innerHTML = 
                         `<div class="error">❌ ${response.message}</div>`;
@@ -221,15 +309,11 @@
             }
         }
 
-        // Cargar mensajes
         async function cargarMensajes() {
             if (!appState.negociacion) return;
             
             try {
-                const response = await hacerRequest({
-                    action: 'get_mensajes', 
-                    id: appState.negociacion.ID
-                });
+                const response = await hacerRequest({ action: 'get_mensajes', id: appState.negociacion.ID });
                 
                 if (response.success) {
                     mostrarMensajes(response.data);
@@ -239,7 +323,6 @@
             }
         }
 
-        // Mostrar mensajes
         function mostrarMensajes(mensajes) {
             const container = document.getElementById('messages');
             
@@ -248,18 +331,25 @@
                 return;
             }
             
-            container.innerHTML = mensajes.map(msg => `
-                <div class="message ${msg.Remitente.includes('Creador') ? 'creador' : 'cliente'}">
-                    <strong>${msg.Remitente}</strong><br>
-                    ${msg.Mensaje}<br>
-                    <small>${new Date(msg.Fecha).toLocaleString('es-ES')}</small>
-                </div>
-            `).join('');
+            container.innerHTML = mensajes.map(msg => {
+                let clase = '';
+                if (msg.Remitente.includes('Creador')) clase = 'creador';
+                else if (msg.Remitente.includes('Cliente')) clase = 'cliente';
+                else if (msg.Remitente.includes('Sistema')) clase = 'sistema';
+                if (msg.Tipo === 'COMPROBANTE') clase += ' comprobante';
+                
+                return `
+                    <div class="message ${clase}">
+                        <strong>${msg.Remitente}</strong><br>
+                        ${msg.Mensaje}<br>
+                        <small>${new Date(msg.Fecha).toLocaleString('es-ES')}</small>
+                    </div>
+                `;
+            }).join('');
             
             container.scrollTop = container.scrollHeight;
         }
 
-        // Enviar mensaje
         async function enviarMensaje() {
             const input = document.getElementById('messageInput');
             const mensaje = input.value.trim();
@@ -290,8 +380,146 @@
             }
         }
 
+        function mostrarSubirComprobante() {
+            document.getElementById('uploadSection').classList.remove('hidden');
+            document.getElementById('clienteControls').classList.add('hidden');
+        }
+
+        function ocultarSubirComprobante() {
+            document.getElementById('uploadSection').classList.add('hidden');
+            document.getElementById('clienteControls').classList.remove('hidden');
+            document.getElementById('comprobanteUrl').value = '';
+        }
+
+        async function subirComprobante() {
+            const comprobanteUrl = document.getElementById('comprobanteUrl').value.trim();
+            
+            if (!comprobanteUrl) {
+                alert('Por favor ingresa la URL o descripción del comprobante');
+                return;
+            }
+            
+            try {
+                const response = await hacerRequest({
+                    action: 'subir_comprobante',
+                    id: appState.negociacion.ID,
+                    comprobanteUrl: comprobanteUrl,
+                    monto: appState.negociacion.Monto
+                });
+                
+                if (response.success) {
+                    alert('✅ Comprobante subido correctamente');
+                    ocultarSubirComprobante();
+                    await cargarMensajes();
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            } catch (error) {
+                alert('Error subiendo comprobante: ' + error.message);
+            }
+        }
+
+        async function verificarPago(aprobado) {
+            const razon = prompt(aprobado ? 
+                'Ingresa una razón para aprobar el pago:' : 
+                'Ingresa la razón para rechazar el pago:');
+            
+            if (razon === null) return;
+            
+            if (!razon.trim()) {
+                alert('Por favor ingresa una razón');
+                return;
+            }
+            
+            try {
+                const response = await hacerRequest({
+                    action: 'verificar_pago',
+                    id: appState.negociacion.ID,
+                    aprobado: aprobado,
+                    razon: razon
+                });
+                
+                if (response.success) {
+                    alert(aprobado ? '✅ Pago aprobado correctamente' : '❌ Pago rechazado');
+                    await cargarChat(appState.negociacion.ID);
+                    deshabilitarChat();
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            } catch (error) {
+                alert('Error verificando pago: ' + error.message);
+            }
+        }
+
+        async function cancelarNegociacion() {
+            const razon = prompt('Ingresa la razón para cancelar la negociación:');
+            
+            if (razon === null) return;
+            
+            if (!razon.trim()) {
+                alert('Por favor ingresa una razón');
+                return;
+            }
+            
+            try {
+                const response = await hacerRequest({
+                    action: 'cancelar_negociacion',
+                    id: appState.negociacion.ID,
+                    razon: razon
+                });
+                
+                if (response.success) {
+                    alert('🚫 Negociación cancelada');
+                    await cargarChat(appState.negociacion.ID);
+                    deshabilitarChat();
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            } catch (error) {
+                alert('Error cancelando negociación: ' + error.message);
+            }
+        }
+
+        function deshabilitarChat() {
+            document.getElementById('messageInput').disabled = true;
+            document.getElementById('sendButton').disabled = true;
+            document.getElementById('creadorControls').classList.add('hidden');
+            document.getElementById('clienteControls').classList.add('hidden');
+            document.getElementById('uploadSection').classList.add('hidden');
+        }
+
+        async function actualizarTimer() {
+            if (!appState.negociacion || !appState.negociacion.Tiempo_Restante) return;
+            
+            const tiempo = appState.negociacion.Tiempo_Restante;
+            const timerElement = document.getElementById('timer');
+            const tiempoRestanteElement = document.getElementById('tiempoRestante');
+            
+            if (tiempo.expirada) {
+                timerElement.className = 'timer danger';
+                tiempoRestanteElement.textContent = 'EXPIRADO';
+                deshabilitarChat();
+            } else {
+                timerElement.classList.remove('hidden');
+                tiempoRestanteElement.textContent = `${tiempo.horas}h ${tiempo.minutos}m`;
+                
+                if (tiempo.horas < 1) {
+                    timerElement.className = 'timer danger';
+                } else if (tiempo.horas < 6) {
+                    timerElement.className = 'timer warning';
+                } else {
+                    timerElement.className = 'timer normal';
+                }
+            }
+        }
+
         // Iniciar
         document.addEventListener('DOMContentLoaded', init);
+        
+        // Enviar mensaje con Enter
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') enviarMensaje();
+        });
     </script>
 </body>
 </html>
