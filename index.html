@@ -181,6 +181,15 @@
             text-align: center;
         }
 
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 20px;
+            margin: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
         .controls {
             padding: 15px;
             background: #e3f2fd;
@@ -269,8 +278,23 @@
             transform: translateY(-2px);
         }
 
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .hidden {
             display: none;
+        }
+
+        .debug-info {
+            background: #fff3cd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-size: 12px;
+            color: #856404;
         }
     </style>
 </head>
@@ -278,29 +302,33 @@
     <div class="container">
         <!-- Formulario para crear negociación -->
         <div id="createForm" class="create-form">
-            <h2 style="text-align: center; margin-bottom: 30px; color: #333;">🚀 Crear Nueva Negociación</h2>
+            <h2 style="text-align: center; margin-bottom: 30px; color: #333;">🚀 Crear Nueva Negociación TUM</h2>
+            
+            <div class="debug-info" id="debugInfo">
+                🔧 Conectando con backend...
+            </div>
             
             <div class="form-group">
                 <label for="creadorEmail">Tu Email (Creador):</label>
-                <input type="email" id="creadorEmail" placeholder="tu@email.com" required>
+                <input type="email" id="creadorEmail" placeholder="tu@email.com" required value="creador@ejemplo.com">
             </div>
             
             <div class="form-group">
                 <label for="clienteEmail">Email del Cliente:</label>
-                <input type="email" id="clienteEmail" placeholder="cliente@email.com" required>
+                <input type="email" id="clienteEmail" placeholder="cliente@email.com" required value="cliente@ejemplo.com">
             </div>
             
             <div class="form-group">
                 <label for="monto">Monto ($):</label>
-                <input type="number" id="monto" placeholder="1000" required>
+                <input type="number" id="monto" placeholder="1000" required value="1500">
             </div>
             
             <div class="form-group">
                 <label for="descripcion">Descripción:</label>
-                <textarea id="descripcion" placeholder="Descripción del trato..." rows="3" required></textarea>
+                <textarea id="descripcion" placeholder="Descripción del trato..." rows="3" required>Servicio de consultoría TUM</textarea>
             </div>
             
-            <button class="submit-btn" onclick="crearNegociacion()">Crear Negociación</button>
+            <button class="submit-btn" onclick="crearNegociacion()" id="createBtn">Crear Negociación</button>
             
             <div id="formResult" style="margin-top: 20px;"></div>
         </div>
@@ -332,7 +360,7 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN - REEMPLAZA CON TU URL DE APPS SCRIPT
+        // CONFIGURACIÓN - URL de tu Apps Script
         const API_URL = 'https://script.google.com/macros/s/AKfycbx6GtL5Os_q-zRQ18t5Vx_0RBiIfxj75n8oArJFNc_OXaRXnMPmBhkFWLr_xGPqMffuEQ/exec';
         
         // Estado de la aplicación
@@ -345,22 +373,49 @@
 
         // Inicializar la aplicación
         async function init() {
+            console.log('🚀 Iniciando aplicación TUM...');
+            
+            // Probar conexión con backend primero
+            await testBackendConnection();
+            
             const urlParams = new URLSearchParams(window.location.search);
             const negociacionId = urlParams.get('id');
             const userType = urlParams.get('user');
 
-            console.log('Iniciando app...', { negociacionId, userType });
+            console.log('Parámetros URL:', { negociacionId, userType });
 
             if (negociacionId && userType) {
                 // Mostrar chat si hay parámetros
                 appState.userType = userType;
-                await cargarNegociacion(negociacionId);
                 document.getElementById('createForm').classList.add('hidden');
                 document.getElementById('chatInterface').classList.remove('hidden');
+                await cargarNegociacion(negociacionId);
             } else {
                 // Mostrar formulario de creación
                 document.getElementById('createForm').classList.remove('hidden');
                 document.getElementById('chatInterface').classList.add('hidden');
+            }
+        }
+
+        // Probar conexión con el backend
+        async function testBackendConnection() {
+            try {
+                const debugInfo = document.getElementById('debugInfo');
+                debugInfo.innerHTML = '🔧 Probando conexión con backend...';
+                
+                const testUrl = `${API_URL}?action=test`;
+                console.log('Probando URL:', testUrl);
+                
+                const response = await fetch(testUrl);
+                const result = await response.json();
+                
+                debugInfo.innerHTML = `✅ Backend conectado: ${result.message || 'Conexión exitosa'}`;
+                console.log('✅ Backend funcionando:', result);
+                
+            } catch (error) {
+                const debugInfo = document.getElementById('debugInfo');
+                debugInfo.innerHTML = `❌ Error conectando con backend: ${error.message}`;
+                console.error('❌ Error backend:', error);
             }
         }
 
@@ -376,26 +431,34 @@
                 return;
             }
 
-            const btn = document.querySelector('.submit-btn');
+            const btn = document.getElementById('createBtn');
+            const formResult = document.getElementById('formResult');
+            
             btn.disabled = true;
             btn.textContent = 'Creando...';
+            formResult.innerHTML = '<div class="loading">🔄 Creando negociación...</div>';
 
             try {
                 const url = `${API_URL}?action=crear_negociacion&creador=${encodeURIComponent(creadorEmail)}&cliente=${encodeURIComponent(clienteEmail)}&monto=${monto}&descripcion=${encodeURIComponent(descripcion)}`;
                 
+                console.log('Enviando solicitud a:', url);
+                
                 const response = await fetch(url);
                 const result = await response.json();
+                
+                console.log('Respuesta recibida:', result);
 
                 if (result.success) {
                     const html = `
-                        <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 10px; margin-top: 15px;">
+                        <div class="success">
                             <h4>✅ Negociación Creada Exitosamente</h4>
                             <p><strong>ID:</strong> ${result.id}</p>
-                            <p><strong>Enlace Creador:</strong> <a href="${result.enlaces.creador}" target="_blank">${result.enlaces.creador}</a></p>
-                            <p><strong>Enlace Cliente:</strong> <a href="${result.enlaces.cliente}" target="_blank">${result.enlaces.cliente}</a></p>
+                            <p><strong>Enlace Creador:</strong> <a href="${result.enlaces.creador}" target="_blank" style="color: #155724; text-decoration: underline;">Abrir como Creador</a></p>
+                            <p><strong>Enlace Cliente:</strong> <a href="${result.enlaces.cliente}" target="_blank" style="color: #155724; text-decoration: underline;">Abrir como Cliente</a></p>
+                            <p><em>Guarda estos enlaces para acceder al chat</em></p>
                         </div>
                     `;
-                    document.getElementById('formResult').innerHTML = html;
+                    formResult.innerHTML = html;
                     
                     // Limpiar formulario
                     document.getElementById('creadorEmail').value = '';
@@ -403,10 +466,11 @@
                     document.getElementById('monto').value = '';
                     document.getElementById('descripcion').value = '';
                 } else {
-                    alert('Error: ' + result.error);
+                    formResult.innerHTML = `<div class="error">❌ Error: ${result.error}</div>`;
                 }
             } catch (error) {
-                alert('Error de conexión: ' + error.message);
+                console.error('Error creando negociación:', error);
+                formResult.innerHTML = `<div class="error">❌ Error de conexión: ${error.message}</div>`;
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Crear Negociación';
@@ -417,8 +481,12 @@
         async function cargarNegociacion(id) {
             try {
                 const url = `${API_URL}?action=get_negociacion&id=${id}&user=${appState.userType}`;
+                console.log('Cargando negociación:', url);
+                
                 const response = await fetch(url);
                 const data = await response.json();
+                
+                console.log('Datos negociación:', data);
 
                 if (data.error) {
                     throw new Error(data.error);
@@ -426,11 +494,11 @@
 
                 appState.negociacion = data;
                 configurarInterfaz();
-                cargarMensajes();
+                await cargarMensajes();
                 iniciarAutoRefresh();
                 
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error cargando negociación:', error);
                 mostrarError('No se pudo cargar la negociación: ' + error.message);
             }
         }
@@ -543,6 +611,8 @@
             try {
                 const url = `${API_URL}?action=enviar_mensaje&id=${appState.negociacion.id}&remitente=${appState.userType}&tipoUsuario=${appState.userType}&mensaje=${encodeURIComponent(mensaje)}`;
                 
+                console.log('Enviando mensaje:', url);
+                
                 const response = await fetch(url);
                 const resultado = await response.json();
                 
@@ -593,5 +663,3 @@
     </script>
 </body>
 </html>
-
-
