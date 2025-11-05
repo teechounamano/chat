@@ -87,39 +87,47 @@
     </div>
 
     <script>
-        // ⚠️ IMPORTANTE: Usa SOLO esta URL
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxksmlCQ-VhADnBwDeT4ZZHM12CoabWqEm_0S6_6xpzhnue4YYZGNNBdAHtg0_1yU21Bg/exec';
+        // ⚠️ IMPORTANTE: Usa SOLO esta URL (la que funciona)
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxgR_3Yfjzy_FgE6fYi9OIxLiablneUyvWqt5eukezplafrEFdYaw8UL9gaFXQyxn3yEw/exec';
         
-        let appState = { negociacion: null, userType: '' };
+        let appState = { 
+            negociacion: null, 
+            userType: '' 
+        };
 
-        // Función para hacer requests (JSONP)
-        function hacerRequest(params, callback) {
-            const callbackName = 'cb_' + Math.random().toString(36).substr(2, 9);
-            window[callbackName] = function(data) {
-                delete window[callbackName];
-                if (script.parentNode) script.parentNode.removeChild(script);
-                callback(data);
-            };
+        // Función para hacer requests - SIMPLE como tu proyecto
+        async function hacerRequest(params) {
+            const url = API_URL + '?' + new URLSearchParams(params).toString();
             
-            const script = document.createElement('script');
-            params.callback = callbackName;
-            script.src = API_URL + '?' + new URLSearchParams(params).toString();
-            document.body.appendChild(script);
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error('Error HTTP: ' + response.status);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error en request:', error);
+                throw error;
+            }
         }
 
         // Inicializar
-        function init() {
-            console.log('Iniciando app...');
+        async function init() {
+            console.log('Iniciando aplicación...');
             
             // Probar conexión
-            hacerRequest({action: 'test'}, function(res) {
+            try {
+                const response = await hacerRequest({action: 'test'});
                 const debug = document.getElementById('debugInfo');
-                if (res && res.status === 'OK') {
-                    debug.innerHTML = `<div class="success">${res.message}</div>`;
+                if (response.success) {
+                    debug.innerHTML = `<div class="success">${response.message}</div>`;
                 } else {
-                    debug.innerHTML = `<div class="error">${res?.message || 'Error de conexión'}</div>`;
+                    debug.innerHTML = `<div class="error">${response.message}</div>`;
                 }
-            });
+            } catch (error) {
+                document.getElementById('debugInfo').innerHTML = 
+                    `<div class="error">Error de conexión: ${error.message}</div>`;
+            }
             
             // Verificar si estamos en chat
             const urlParams = new URLSearchParams(window.location.search);
@@ -135,7 +143,7 @@
         }
 
         // Crear negociación
-        function crearNegociacion() {
+        async function crearNegociacion() {
             const creador = document.getElementById('creadorEmail').value;
             const cliente = document.getElementById('clienteEmail').value;
             const monto = document.getElementById('monto').value;
@@ -145,63 +153,90 @@
             btn.disabled = true;
             btn.textContent = 'Creando...';
             
-            hacerRequest({
-                action: 'crear_negociacion',
-                creador: creador,
-                cliente: cliente,
-                monto: monto,
-                descripcion: descripcion
-            }, function(res) {
-                btn.disabled = false;
-                btn.textContent = 'Crear Negociación';
+            try {
+                const response = await hacerRequest({
+                    action: 'crear_negociacion',
+                    creador: creador,
+                    cliente: cliente,
+                    monto: monto,
+                    descripcion: descripcion
+                });
                 
                 const result = document.getElementById('formResult');
-                if (res.status === 'OK') {
+                
+                if (response.success) {
                     result.innerHTML = `
                         <div class="success">
                             <h3>✅ ¡Negociación Creada!</h3>
-                            <p><strong>ID:</strong> ${res.data.id}</p>
-                            <p><a href="${res.data.enlaces.creador}" target="_blank">👑 Abrir como Creador</a></p>
-                            <p><a href="${res.data.enlaces.cliente}" target="_blank">👤 Abrir como Cliente</a></p>
+                            <p><strong>ID:</strong> ${response.data.id}</p>
+                            <p><a href="${response.data.enlaces.creador}" target="_blank">👑 Abrir como Creador</a></p>
+                            <p><a href="${response.data.enlaces.cliente}" target="_blank">👤 Abrir como Cliente</a></p>
                         </div>
                     `;
+                    
+                    // Limpiar formulario
+                    document.getElementById('creadorEmail').value = '';
+                    document.getElementById('clienteEmail').value = '';
+                    document.getElementById('monto').value = '';
+                    document.getElementById('descripcion').value = '';
                 } else {
-                    result.innerHTML = `<div class="error">❌ Error: ${res.message}</div>`;
+                    result.innerHTML = `<div class="error">❌ Error: ${response.message}</div>`;
                 }
-            });
+            } catch (error) {
+                document.getElementById('formResult').innerHTML = 
+                    `<div class="error">❌ Error de conexión: ${error.message}</div>`;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Crear Negociación';
+            }
         }
 
         // Cargar chat
-        function cargarChat(id) {
-            hacerRequest({action: 'get_negociacion', id: id}, function(res) {
-                if (res.status === 'OK') {
-                    appState.negociacion = res.data;
+        async function cargarChat(id) {
+            try {
+                const response = await hacerRequest({
+                    action: 'get_negociacion', 
+                    id: id
+                });
+                
+                if (response.success) {
+                    appState.negociacion = response.data;
                     document.getElementById('chatTitle').textContent = 
                         appState.userType === 'creador' ? '👑 Chat - Creador' : '👤 Chat - Cliente';
                     document.getElementById('chatInfo').textContent = 
-                        `ID: ${res.data.id} | $${res.data.monto} | ${res.data.estado}`;
+                        `ID: ${response.data.ID} | $${response.data.Monto} | ${response.data.Estado}`;
                     
                     document.getElementById('messageInput').disabled = false;
                     document.getElementById('sendButton').disabled = false;
                     
-                    cargarMensajes();
+                    await cargarMensajes();
                     setInterval(cargarMensajes, 2000);
                 } else {
                     document.getElementById('messages').innerHTML = 
-                        `<div class="error">❌ ${res.message}</div>`;
+                        `<div class="error">❌ ${response.message}</div>`;
                 }
-            });
+            } catch (error) {
+                document.getElementById('messages').innerHTML = 
+                    `<div class="error">❌ Error cargando chat: ${error.message}</div>`;
+            }
         }
 
         // Cargar mensajes
-        function cargarMensajes() {
+        async function cargarMensajes() {
             if (!appState.negociacion) return;
             
-            hacerRequest({action: 'get_mensajes', id: appState.negociacion.id}, function(res) {
-                if (res.status === 'OK') {
-                    mostrarMensajes(res.data);
+            try {
+                const response = await hacerRequest({
+                    action: 'get_mensajes', 
+                    id: appState.negociacion.ID
+                });
+                
+                if (response.success) {
+                    mostrarMensajes(response.data);
                 }
-            });
+            } catch (error) {
+                console.error('Error cargando mensajes:', error);
+            }
         }
 
         // Mostrar mensajes
@@ -214,10 +249,10 @@
             }
             
             container.innerHTML = mensajes.map(msg => `
-                <div class="message ${msg.remitente.includes('Creador') ? 'creador' : 'cliente'}">
-                    <strong>${msg.remitente}</strong><br>
-                    ${msg.mensaje}<br>
-                    <small>${msg.fecha}</small>
+                <div class="message ${msg.Remitente.includes('Creador') ? 'creador' : 'cliente'}">
+                    <strong>${msg.Remitente}</strong><br>
+                    ${msg.Mensaje}<br>
+                    <small>${new Date(msg.Fecha).toLocaleString('es-ES')}</small>
                 </div>
             `).join('');
             
@@ -225,29 +260,34 @@
         }
 
         // Enviar mensaje
-        function enviarMensaje() {
+        async function enviarMensaje() {
             const input = document.getElementById('messageInput');
             const mensaje = input.value.trim();
             
-            if (!mensaje) return;
+            if (!mensaje || !appState.negociacion) return;
             
             const btn = document.getElementById('sendButton');
             btn.disabled = true;
             
-            hacerRequest({
-                action: 'enviar_mensaje',
-                id: appState.negociacion.id,
-                tipoUsuario: appState.userType,
-                mensaje: mensaje
-            }, function(res) {
-                btn.disabled = false;
-                if (res.status === 'OK') {
+            try {
+                const response = await hacerRequest({
+                    action: 'enviar_mensaje',
+                    id: appState.negociacion.ID,
+                    tipoUsuario: appState.userType,
+                    mensaje: mensaje
+                });
+                
+                if (response.success) {
                     input.value = '';
-                    cargarMensajes();
+                    await cargarMensajes();
                 } else {
-                    alert('Error: ' + res.message);
+                    alert('Error: ' + response.message);
                 }
-            });
+            } catch (error) {
+                alert('Error enviando mensaje: ' + error.message);
+            } finally {
+                btn.disabled = false;
+            }
         }
 
         // Iniciar
@@ -255,4 +295,3 @@
     </script>
 </body>
 </html>
-
