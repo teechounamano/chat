@@ -3,427 +3,263 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat TUM - Negociaciones</title>
+    <title>Chat TUM</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 20px; }
         .container { max-width: 500px; margin: 0 auto; }
-        .card { background: white; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden; margin-bottom: 20px; }
-        .header { background: linear-gradient(135deg, #4CAF50, #45a049); color: white; padding: 25px; text-align: center; }
-        .header.creador { background: linear-gradient(135deg, #2196F3, #1976D2); }
-        .user-badge { background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: bold; display: inline-block; margin-top: 10px; }
-        .info-panel { background: #f8f9fa; padding: 15px; border-bottom: 1px solid #dee2e6; font-size: 14px; color: #666; }
-        .messages { height: 400px; overflow-y: auto; padding: 20px; background: #fafafa; }
-        .message { margin-bottom: 15px; padding: 12px 16px; border-radius: 18px; max-width: 80%; word-wrap: break-word; animation: fadeIn 0.3s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .message-creador { background: #2196F3; color: white; margin-left: auto; border-bottom-right-radius: 5px; }
-        .message-cliente { background: #e9ecef; color: #333; margin-right: auto; border-bottom-left-radius: 5px; }
-        .message-sistema { background: #fff3cd; color: #856404; max-width: 90%; margin: 10px auto; text-align: center; font-size: 13px; }
-        .message-sender { font-weight: bold; font-size: 12px; margin-bottom: 5px; opacity: 0.9; }
-        .message-time { font-size: 11px; opacity: 0.7; margin-top: 5px; text-align: right; }
-        .input-area { padding: 20px; background: white; border-top: 1px solid #dee2e6; display: flex; gap: 12px; align-items: center; }
-        #messageInput { flex: 1; padding: 14px 18px; border: 2px solid #e9ecef; border-radius: 25px; font-size: 15px; outline: none; transition: border-color 0.3s; }
-        #messageInput:focus { border-color: #4CAF50; }
-        #sendButton { background: #4CAF50; color: white; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: background 0.3s; }
-        #sendButton:hover { background: #45a049; }
-        #sendButton:disabled { background: #ccc; cursor: not-allowed; }
-        .loading { text-align: center; padding: 30px; color: #666; font-size: 16px; }
-        .error { background: #f8d7da; color: #721c24; padding: 20px; margin: 15px; border-radius: 10px; text-align: center; }
-        .success { background: #d4edda; color: #155724; padding: 20px; margin: 15px; border-radius: 10px; text-align: center; }
-        .controls { padding: 15px; background: #e3f2fd; border-top: 1px solid #bbdefb; display: flex; gap: 10px; flex-wrap: wrap; }
-        .control-btn { padding: 10px 16px; border: none; border-radius: 20px; font-size: 14px; cursor: pointer; flex: 1; min-width: 140px; transition: transform 0.2s; }
-        .control-btn:hover { transform: translateY(-2px); }
-        .btn-approve { background: #4CAF50; color: white; }
-        .btn-reject { background: #f44336; color: white; }
-        .btn-upload { background: #FF9800; color: white; }
-        .create-form { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
-        .form-group input, .form-group textarea { width: 100%; padding: 12px 16px; border: 2px solid #e9ecef; border-radius: 10px; font-size: 15px; transition: border-color 0.3s; }
-        .form-group input:focus, .form-group textarea:focus { border-color: #4CAF50; outline: none; }
-        .submit-btn { background: linear-gradient(135deg, #4CAF50, #45a049); color: white; border: none; padding: 15px 30px; border-radius: 25px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; transition: transform 0.2s; }
-        .submit-btn:hover { transform: translateY(-2px); }
-        .submit-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+        .card { background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .btn { background: #007cba; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; }
+        .btn:hover { background: #005a87; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }
         .hidden { display: none; }
-        .debug-info { background: #fff3cd; padding: 10px; margin: 10px 0; border-radius: 5px; font-size: 12px; color: #856404; }
+        .loading { text-align: center; padding: 20px; color: #666; }
+        .error { background: #fee; color: #c00; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .success { background: #efe; color: #060; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .chat-header { background: #007cba; color: white; padding: 15px; border-radius: 10px 10px 0 0; }
+        .messages { height: 300px; overflow-y: auto; padding: 15px; border: 1px solid #ddd; background: #fafafa; }
+        .message { margin-bottom: 10px; padding: 10px; border-radius: 5px; }
+        .message-creador { background: #e3f2fd; margin-left: 20px; }
+        .message-cliente { background: #f5f5f5; margin-right: 20px; }
+        .input-area { display: flex; gap: 10px; margin-top: 10px; }
+        #messageInput { flex: 1; }
+        #sendButton { width: auto; padding: 10px 20px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div id="createForm" class="create-form">
-            <h2 style="text-align: center; margin-bottom: 30px; color: #333;">🚀 Crear Nueva Negociación TUM</h2>
-            
-            <div class="debug-info" id="debugInfo">
-                🔧 Conectando con backend...
-            </div>
+        <!-- Formulario de creación -->
+        <div id="createForm" class="card">
+            <h2>Crear Nueva Negociación</h2>
+            <div id="debugInfo" class="loading">Probando conexión...</div>
             
             <div class="form-group">
-                <label for="creadorEmail">Tu Email (Creador):</label>
-                <input type="email" id="creadorEmail" placeholder="tu@email.com" required>
+                <label>Tu Email:</label>
+                <input type="email" id="creadorEmail" value="creador@ejemplo.com">
             </div>
-            
             <div class="form-group">
-                <label for="clienteEmail">Email del Cliente:</label>
-                <input type="email" id="clienteEmail" placeholder="cliente@email.com" required>
+                <label>Email del Cliente:</label>
+                <input type="email" id="clienteEmail" value="cliente@ejemplo.com">
             </div>
-            
             <div class="form-group">
-                <label for="monto">Monto ($):</label>
-                <input type="number" id="monto" placeholder="1000" required>
+                <label>Monto:</label>
+                <input type="number" id="monto" value="1000">
             </div>
-            
             <div class="form-group">
-                <label for="descripcion">Descripción:</label>
-                <textarea id="descripcion" placeholder="Descripción del trato..." rows="3" required></textarea>
+                <label>Descripción:</label>
+                <textarea id="descripcion" rows="3">Servicio de consultoría</textarea>
             </div>
-            
-            <button class="submit-btn" onclick="crearNegociacion()" id="createBtn">Crear Negociación</button>
-            
-            <div id="formResult" style="margin-top: 20px;"></div>
+            <button class="btn" onclick="crearNegociacion()" id="createBtn">Crear Negociación</button>
+            <div id="formResult"></div>
         </div>
 
+        <!-- Chat -->
         <div id="chatInterface" class="card hidden">
-            <div class="header" id="header">
-                <h2 id="titulo">💬 Chat TUM</h2>
-                <div class="user-badge" id="userBadge">Cargando...</div>
+            <div class="chat-header">
+                <h3 id="chatTitle">Chat de Negociación</h3>
+                <div id="chatInfo"></div>
             </div>
-
-            <div class="info-panel" id="infoPanel">
-                <div id="infoContent">Conectando...</div>
-            </div>
-
             <div class="messages" id="messages">
-                <div class="loading">🔄 Cargando chat...</div>
+                <div class="loading">Cargando mensajes...</div>
             </div>
-
-            <div class="controls" id="controls"></div>
-
             <div class="input-area">
-                <input type="text" id="messageInput" placeholder="Escribe tu mensaje..." autocomplete="off" disabled>
-                <button id="sendButton" onclick="enviarMensaje()" disabled>➤</button>
+                <input type="text" id="messageInput" placeholder="Escribe tu mensaje..." disabled>
+                <button class="btn" id="sendButton" onclick="enviarMensaje()" disabled>Enviar</button>
             </div>
         </div>
     </div>
 
     <script>
-        // CONFIGURACIÓN
-        const API_URL = 'https://script.google.com/macros/s/AKfycbx6GtL5Os_q-zRQ18t5Vx_0RBiIfxj75n8oArJFNc_OXaRXnMPmBhkFWLr_xGPqMffuEQ/exec';
-        let appState = { negociacion: null, userType: '', mensajes: [], cargando: true };
+        // CONFIGURACIÓN - ACTUALIZA ESTA URL CON TU URL DE PRODUCCIÓN
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxqPhfhVW26KahmC-Xa1LiI13O8j96-lwdQL9ZcwWVh/exec';
+        
+        let appState = {
+            negociacion: null,
+            userType: ''
+        };
 
-        // Función para hacer requests con JSONP (evita CORS)
-        function makeRequest(url, callback) {
-            // Crear un callback único
-            const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+        // Función para hacer requests
+        async function makeRequest(params) {
+            const url = API_URL + '?' + new URLSearchParams(params).toString();
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    mode: 'no-cors' // Importante: usar no-cors
+                });
+                
+                // Con no-cors no podemos leer la respuesta, pero sabemos que llegó
+                return {status: 'success'};
+                
+            } catch (error) {
+                // Con no-cors, los errores de CORS no se capturan
+                return {status: 'success'}; // Asumimos éxito
+            }
+        }
+
+        // Función alternativa usando JSONP
+        function makeJSONPRequest(params, callback) {
+            const callbackName = 'callback_' + Date.now();
             window[callbackName] = function(data) {
                 delete window[callbackName];
                 document.body.removeChild(script);
                 callback(data);
             };
-
-            // Agregar callback a la URL
+            
             const script = document.createElement('script');
-            script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + callbackName;
+            params.callback = callbackName;
+            script.src = API_URL + '?' + new URLSearchParams(params).toString();
             document.body.appendChild(script);
         }
 
-        // Función para hacer POST requests
-        async function makePostRequest(action, data) {
-            // Para POST, usamos un formulario temporal
-            const form = document.createElement('form');
-            form.method = 'GET'; // Usamos GET para evitar CORS
-            form.action = API_URL;
-            
-            // Agregar parámetros
-            const params = { action, ...data };
-            for (const key in params) {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = key;
-                input.value = params[key];
-                form.appendChild(input);
-            }
-            
-            document.body.appendChild(form);
-            
-            return new Promise((resolve) => {
-                const callbackName = 'post_callback_' + Math.round(100000 * Math.random());
-                window[callbackName] = function(response) {
-                    delete window[callbackName];
-                    document.body.removeChild(form);
-                    resolve(response);
-                };
-                
-                // Agregar callback
-                const callbackInput = document.createElement('input');
-                callbackInput.type = 'hidden';
-                callbackInput.name = 'callback';
-                callbackInput.value = callbackName;
-                form.appendChild(callbackInput);
-                
-                // Crear iframe para enviar el formulario
-                const iframe = document.createElement('iframe');
-                iframe.name = 'post_iframe_' + Math.round(100000 * Math.random());
-                iframe.style.display = 'none';
-                iframe.onload = function() {
-                    // El response se maneja via callback
-                };
-                
-                document.body.appendChild(iframe);
-                form.target = iframe.name;
-                form.submit();
-                
-                // Limpiar después de un tiempo
-                setTimeout(() => {
-                    if (document.body.contains(iframe)) {
-                        document.body.removeChild(iframe);
-                    }
-                    if (document.body.contains(form)) {
-                        document.body.removeChild(form);
-                    }
-                }, 5000);
-            });
-        }
-
-        // Inicializar la aplicación
+        // Inicializar
         async function init() {
-            console.log('🚀 Iniciando aplicación TUM...');
-            await testBackendConnection();
+            console.log('Iniciando aplicación...');
             
+            // Probar conexión
+            makeJSONPRequest({action: 'test'}, function(response) {
+                const debugInfo = document.getElementById('debugInfo');
+                if (response && response.status === 'success') {
+                    debugInfo.innerHTML = `<div class="success">${response.message}</div>`;
+                } else {
+                    debugInfo.innerHTML = `<div class="error">Error de conexión</div>`;
+                }
+            });
+            
+            // Verificar si estamos en el chat
             const urlParams = new URLSearchParams(window.location.search);
-            const negociacionId = urlParams.get('id');
+            const id = urlParams.get('id');
             const userType = urlParams.get('user');
-
-            if (negociacionId && userType) {
+            
+            if (id && userType) {
                 appState.userType = userType;
                 document.getElementById('createForm').classList.add('hidden');
                 document.getElementById('chatInterface').classList.remove('hidden');
-                await cargarNegociacion(negociacionId);
+                cargarChat(id);
             }
         }
 
-        // Probar conexión con backend
-        async function testBackendConnection() {
-            try {
-                const debugInfo = document.getElementById('debugInfo');
-                debugInfo.innerHTML = '🔧 Probando conexión con backend...';
-                
-                makeRequest(API_URL + '?action=test', function(result) {
-                    if (result && result.success) {
-                        debugInfo.innerHTML = `✅ Backend conectado: ${result.message}`;
-                        console.log('✅ Backend funcionando:', result);
-                    } else {
-                        debugInfo.innerHTML = `❌ Error: ${result.error || 'Respuesta inválida'}`;
-                    }
-                });
-                
-            } catch (error) {
-                document.getElementById('debugInfo').innerHTML = `❌ Error: ${error.message}`;
-            }
-        }
-
-        // Crear nueva negociación
-        async function crearNegociacion() {
-            const creadorEmail = document.getElementById('creadorEmail').value;
-            const clienteEmail = document.getElementById('clienteEmail').value;
+        // Crear negociación
+        function crearNegociacion() {
+            const creador = document.getElementById('creadorEmail').value;
+            const cliente = document.getElementById('clienteEmail').value;
             const monto = document.getElementById('monto').value;
             const descripcion = document.getElementById('descripcion').value;
-
-            if (!creadorEmail || !clienteEmail || !monto || !descripcion) {
-                alert('Por favor completa todos los campos');
-                return;
-            }
-
-            const btn = document.getElementById('createBtn');
-            const formResult = document.getElementById('formResult');
             
+            const btn = document.getElementById('createBtn');
             btn.disabled = true;
             btn.textContent = 'Creando...';
-            formResult.innerHTML = '<div class="loading">🔄 Creando negociación...</div>';
-
-            try {
-                makeRequest(
-                    API_URL + '?action=crear_negociacion&creador=' + encodeURIComponent(creadorEmail) + 
-                    '&cliente=' + encodeURIComponent(clienteEmail) + '&monto=' + monto + 
-                    '&descripcion=' + encodeURIComponent(descripcion), 
-                    function(result) {
-                        if (result.success) {
-                            const html = `
-                                <div class="success">
-                                    <h4>✅ Negociación Creada Exitosamente</h4>
-                                    <p><strong>ID:</strong> ${result.id}</p>
-                                    <p><strong>Enlace Creador:</strong> <a href="${result.enlaces.creador}" target="_blank">Abrir como Creador</a></p>
-                                    <p><strong>Enlace Cliente:</strong> <a href="${result.enlaces.cliente}" target="_blank">Abrir como Cliente</a></p>
-                                </div>
-                            `;
-                            formResult.innerHTML = html;
-                            
-                            // Limpiar formulario
-                            document.getElementById('creadorEmail').value = '';
-                            document.getElementById('clienteEmail').value = '';
-                            document.getElementById('monto').value = '';
-                            document.getElementById('descripcion').value = '';
-                        } else {
-                            formResult.innerHTML = `<div class="error">❌ Error: ${result.error}</div>`;
-                        }
-                        
-                        btn.disabled = false;
-                        btn.textContent = 'Crear Negociación';
-                    }
-                );
-            } catch (error) {
-                formResult.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            
+            makeJSONPRequest({
+                action: 'crear_negociacion',
+                creador: creador,
+                cliente: cliente,
+                monto: monto,
+                descripcion: descripcion
+            }, function(response) {
                 btn.disabled = false;
                 btn.textContent = 'Crear Negociación';
-            }
-        }
-
-        // Cargar negociación para el chat
-        async function cargarNegociacion(id) {
-            makeRequest(API_URL + '?action=get_negociacion&id=' + id + '&user=' + appState.userType, function(data) {
-                if (data.error) {
-                    mostrarError('No se pudo cargar la negociación: ' + data.error);
-                    return;
+                
+                const resultDiv = document.getElementById('formResult');
+                
+                if (response.status === 'success') {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h4>✅ Negociación Creada</h4>
+                            <p><strong>ID:</strong> ${response.data.id}</p>
+                            <p><a href="${response.data.enlaces.creador}" target="_blank">Abrir como Creador</a></p>
+                            <p><a href="${response.data.enlaces.cliente}" target="_blank">Abrir como Cliente</a></p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">Error: ${response.message}</div>`;
                 }
-
-                appState.negociacion = data;
-                configurarInterfaz();
-                cargarMensajes();
-                iniciarAutoRefresh();
             });
         }
 
-        // Configurar interfaz del chat
-        function configurarInterfaz() {
-            const negociacion = appState.negociacion;
-            if (!negociacion) return;
-
-            const header = document.getElementById('header');
-            const titulo = document.getElementById('titulo');
-            const userBadge = document.getElementById('userBadge');
-            const infoContent = document.getElementById('infoContent');
-            const controls = document.getElementById('controls');
-
-            if (appState.userType === 'creador') {
-                header.classList.add('creador');
-                titulo.textContent = '👑 Chat como Creador';
-                userBadge.textContent = 'Creador';
-                infoContent.innerHTML = `
-                    <strong>ID:</strong> ${negociacion.id} | 
-                    <strong>Monto:</strong> $${negociacion.monto} |
-                    <strong>Cliente:</strong> ${negociacion.cliente}
-                `;
-                controls.innerHTML = `
-                    <button class="control-btn btn-approve" onclick="verificarPago(true)">✅ Aprobar Pago</button>
-                    <button class="control-btn btn-reject" onclick="verificarPago(false)">❌ Rechazar</button>
-                `;
-            } else {
-                titulo.textContent = '👤 Chat como Cliente';
-                userBadge.textContent = 'Cliente';
-                infoContent.innerHTML = `
-                    <strong>ID:</strong> ${negociacion.id} | 
-                    <strong>Monto:</strong> $${negociacion.monto} |
-                    <strong>Creador:</strong> ${negociacion.creador}
-                `;
-                controls.innerHTML = `
-                    <button class="control-btn btn-upload" onclick="subirComprobante()">📎 Subir Comprobante</button>
-                `;
-            }
-
-            document.getElementById('messageInput').disabled = false;
-            document.getElementById('sendButton').disabled = false;
+        // Cargar chat
+        function cargarChat(id) {
+            makeJSONPRequest({action: 'get_negociacion', id: id}, function(response) {
+                if (response.status === 'success') {
+                    appState.negociacion = response.data;
+                    document.getElementById('chatTitle').textContent = 
+                        `Chat - ${appState.userType === 'creador' ? '👑 Creador' : '👤 Cliente'}`;
+                    document.getElementById('chatInfo').textContent = 
+                        `ID: ${response.data.id} | Monto: $${response.data.monto}`;
+                    
+                    document.getElementById('messageInput').disabled = false;
+                    document.getElementById('sendButton').disabled = false;
+                    
+                    cargarMensajes();
+                    setInterval(cargarMensajes, 2000);
+                } else {
+                    document.getElementById('messages').innerHTML = 
+                        `<div class="error">Error: ${response.message}</div>`;
+                }
+            });
         }
 
         // Cargar mensajes
         function cargarMensajes() {
             if (!appState.negociacion) return;
-
-            makeRequest(API_URL + '?action=get_mensajes&id=' + appState.negociacion.id, function(mensajes) {
-                if (Array.isArray(mensajes)) {
-                    appState.mensajes = mensajes;
-                    mostrarMensajes();
+            
+            makeJSONPRequest({action: 'get_mensajes', id: appState.negociacion.id}, function(response) {
+                if (response.status === 'success') {
+                    mostrarMensajes(response.data);
                 }
             });
         }
 
         // Mostrar mensajes
-        function mostrarMensajes() {
-            const contenedor = document.getElementById('messages');
+        function mostrarMensajes(mensajes) {
+            const container = document.getElementById('messages');
             
-            if (appState.mensajes.length === 0) {
-                contenedor.innerHTML = '<div class="message-sistema">💬 No hay mensajes aún</div>';
+            if (!mensajes || mensajes.length === 0) {
+                container.innerHTML = '<div class="loading">No hay mensajes aún</div>';
                 return;
             }
-
-            contenedor.innerHTML = appState.mensajes.map(msg => {
-                const esCreador = msg.remitente.includes('Creador');
-                return `
-                    <div class="message ${esCreador ? 'message-creador' : 'message-cliente'}">
-                        <div class="message-sender">${msg.remitente}</div>
-                        <div>${msg.mensaje}</div>
-                        <div class="message-time">${msg.fecha}</div>
-                    </div>
-                `;
-            }).join('');
-
-            contenedor.scrollTop = contenedor.scrollHeight;
+            
+            container.innerHTML = mensajes.map(msg => `
+                <div class="message ${msg.remitente.includes('Creador') ? 'message-creador' : 'message-cliente'}">
+                    <strong>${msg.remitente}:</strong> ${msg.mensaje}
+                    <div style="font-size: 12px; color: #666;">${msg.fecha}</div>
+                </div>
+            `).join('');
+            
+            container.scrollTop = container.scrollHeight;
         }
 
         // Enviar mensaje
-        async function enviarMensaje() {
+        function enviarMensaje() {
             const input = document.getElementById('messageInput');
             const mensaje = input.value.trim();
-
+            
             if (!mensaje || !appState.negociacion) return;
-
-            const boton = document.getElementById('sendButton');
-            boton.disabled = true;
-            boton.textContent = '⏳';
-
-            try {
-                makeRequest(
-                    API_URL + '?action=enviar_mensaje&id=' + appState.negociacion.id + 
-                    '&remitente=' + appState.userType + '&tipoUsuario=' + appState.userType + 
-                    '&mensaje=' + encodeURIComponent(mensaje),
-                    function(result) {
-                        if (result.success) {
-                            input.value = '';
-                            cargarMensajes();
-                        } else {
-                            alert('Error: ' + result.error);
-                        }
-                        boton.disabled = false;
-                        boton.textContent = '➤';
-                        input.focus();
-                    }
-                );
-            } catch (error) {
-                alert('Error: ' + error.message);
-                boton.disabled = false;
-                boton.textContent = '➤';
-            }
+            
+            const btn = document.getElementById('sendButton');
+            btn.disabled = true;
+            
+            makeJSONPRequest({
+                action: 'enviar_mensaje',
+                id: appState.negociacion.id,
+                tipoUsuario: appState.userType,
+                mensaje: mensaje
+            }, function(response) {
+                btn.disabled = false;
+                
+                if (response.status === 'success') {
+                    input.value = '';
+                    cargarMensajes();
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            });
         }
 
-        // Funciones de control
-        function verificarPago(aprobado) {
-            alert(`Pago ${aprobado ? 'aprobado' : 'rechazado'} - Función en desarrollo`);
-        }
-
-        function subirComprobante() {
-            alert('Subir comprobante - Función en desarrollo');
-        }
-
-        function mostrarError(mensaje) {
-            document.getElementById('messages').innerHTML = `<div class="error">❌ ${mensaje}</div>`;
-        }
-
-        function iniciarAutoRefresh() {
-            setInterval(cargarMensajes, 3000);
-        }
-
-        document.getElementById('messageInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') enviarMensaje();
-        });
-
+        // Iniciar cuando se carga la página
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
