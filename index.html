@@ -600,7 +600,7 @@
             intervaloTimer: null
         };
 
-        // FUNCIÓN ORIGINAL QUE FUNCIONABA - SIN CAMBIOS
+        // Función corregida para hacer requests
         async function hacerRequest(params) {
             const url = API_URL + '?' + new URLSearchParams(params).toString();
             try {
@@ -738,7 +738,7 @@
             }
         }
 
-        // Función para cargar el chat - VERSIÓN ORIGINAL MEJORADA
+        // FUNCIÓN CORREGIDA - Cargar chat con controles correctos
         async function cargarChat(id) {
             try {
                 console.log('Cargando chat para ID:', id);
@@ -760,12 +760,12 @@
                             <span class="info-value">${response.data.ID}</span>
                         </div>
                         <div class="info-item">
-                            <span class="info-label">Monto</span>
-                            <span class="info-value">$${response.data.Monto}</span>
-                        </div>
-                        <div class="info-item">
                             <span class="info-label">Cliente</span>
                             <span class="info-value">${response.data.Cliente}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Monto</span>
+                            <span class="info-value">$${response.data.Monto}</span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Estado</span>
@@ -778,14 +778,18 @@
                     statusBadge.textContent = response.data.Estado;
                     statusBadge.className = `status-badge status-${response.data.Estado.toLowerCase()}`;
                     
-                    // Mostrar controles según el tipo de usuario
+                    // LIMPIAR TODOS LOS CONTROLES PRIMERO
                     document.getElementById('creadorControls').classList.add('hidden');
                     document.getElementById('clienteControls').classList.add('hidden');
+                    document.getElementById('uploadSection').classList.add('hidden');
                     
+                    // LOGICA CORREGIDA PARA CONTROLES
                     if (response.data.Estado === 'ACTIVA') {
                         if (esCreador) {
+                            console.log('🛠 Mostrando controles del CREADOR');
                             document.getElementById('creadorControls').classList.remove('hidden');
                         } else {
+                            console.log('🛠 Mostrando controles del CLIENTE');
                             document.getElementById('clienteControls').classList.remove('hidden');
                         }
                         
@@ -794,6 +798,7 @@
                         document.getElementById('sendButton').disabled = false;
                         document.getElementById('messageInput').focus();
                     } else {
+                        console.log('🛠 Chat DESHABILITADO - Estado:', response.data.Estado);
                         deshabilitarChat();
                     }
                     
@@ -1026,6 +1031,7 @@
             document.getElementById('sendButton').disabled = true;
             document.getElementById('creadorControls').classList.add('hidden');
             document.getElementById('clienteControls').classList.add('hidden');
+            document.getElementById('uploadSection').classList.add('hidden');
         }
 
         // Funciones de utilidad
