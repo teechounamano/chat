@@ -136,9 +136,6 @@
         button.warning { background: var(--warning); color: black; }
         button.warning:hover { background: #e0a800; }
         
-        button.secondary { background: var(--secondary); }
-        button.secondary:hover { background: #8a2a5d; }
-        
         .hidden { display: none; }
         
         .loading { 
@@ -265,16 +262,18 @@
             align-items: flex-end;
         }
         
-        #messageInput { 
+        .message-input { 
             flex: 1; 
             padding: 15px;
             font-size: 14px;
             height: 60px;
             resize: none;
             background: var(--light);
+            border: 2px solid var(--border);
+            border-radius: 10px;
         }
         
-        #sendButton {
+        .send-btn {
             width: 60px;
             height: 60px;
             display: flex;
@@ -283,6 +282,9 @@
             font-size: 18px;
             border-radius: 50%;
             background: var(--primary);
+            border: none;
+            color: white;
+            cursor: pointer;
         }
         
         .controls { 
@@ -477,6 +479,33 @@
             margin-bottom: 15px;
             opacity: 0.5;
         }
+
+        /* Selector de vista */
+        .view-selector {
+            display: flex;
+            background: var(--light);
+            border-radius: var(--radius);
+            padding: 8px;
+            margin: 16px;
+            gap: 8px;
+        }
+
+        .view-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--gray);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .view-btn.active {
+            background: var(--primary);
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -487,8 +516,14 @@
             <p>Negociaciones seguras y confiables</p>
         </div>
 
-        <!-- Formulario de creación -->
-        <div id="createForm" class="card">
+        <!-- Selector de Vista -->
+        <div class="view-selector">
+            <button class="view-btn active" onclick="mostrarVista('creador')">👑 Creador</button>
+            <button class="view-btn" onclick="mostrarVista('cliente')">👤 Cliente</button>
+        </div>
+
+        <!-- VISTA DEL CREADOR -->
+        <div id="vistaCreador" class="card">
             <h2>🚀 Crear Nueva Negociación</h2>
             <div id="debugInfo" class="loading">
                 <div class="loading-spinner"></div>
@@ -496,17 +531,17 @@
             </div>
             
             <div class="form-group">
-                <label class="form-label" for="cliente">📱 Número del Cliente</label>
+                <label class="form-label">📱 Número del Cliente</label>
                 <input type="tel" id="cliente" placeholder="+1234567890" value="+1234567890">
             </div>
             
             <div class="form-group">
-                <label class="form-label" for="monto">💰 Monto de la Negociación</label>
+                <label class="form-label">💰 Monto de la Negociación</label>
                 <input type="number" id="monto" placeholder="1000" value="1000">
             </div>
             
             <div class="form-group">
-                <label class="form-label" for="tiempoExpiracion">⏰ Tiempo de Expiración</label>
+                <label class="form-label">⏰ Tiempo de Expiración</label>
                 <select id="tiempoExpiracion">
                     <option value="5">5 minutos</option>
                     <option value="10">10 minutos</option>
@@ -517,75 +552,121 @@
             </div>
             
             <div class="form-group">
-                <label class="form-label" for="descripcion">📝 Descripción del Trato</label>
+                <label class="form-label">📝 Descripción del Trato</label>
                 <textarea id="descripcion" placeholder="Describe los términos del acuerdo..." rows="3">Servicio de consultoría profesional</textarea>
             </div>
             
             <button onclick="crearNegociacion()" id="createBtn">Crear Negociación</button>
             <div id="formResult"></div>
+
+            <!-- Chat del Creador (oculto inicialmente) -->
+            <div id="chatCreador" class="hidden">
+                <div class="chat-header">
+                    <div>
+                        <h2>👑 Panel del Creador</h2>
+                    </div>
+                    <div id="statusBadgeCreador" class="status-badge status-activa">ACTIVA</div>
+                </div>
+                
+                <div class="chat-info">
+                    <div class="info-grid" id="negociacionInfoCreador"></div>
+                </div>
+                
+                <div id="timerCreador" class="timer normal">
+                    ⏰ Tiempo restante: <span id="tiempoRestanteCreador">--:--</span>
+                </div>
+                
+                <div class="messages-container" id="messagesCreador">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        Cargando mensajes...
+                    </div>
+                </div>
+                
+                <!-- Controles del CREADOR - TODOS LOS ACCESOS -->
+                <div class="controls">
+                    <button onclick="verificarPago(true)" class="success">✅ Aprobar Pago</button>
+                    <button onclick="verificarPago(false)" class="danger">❌ Rechazar Pago</button>
+                    <button onclick="cancelarNegociacion()" class="danger">🚫 Cancelar Negociación</button>
+                </div>
+                
+                <div class="input-area">
+                    <textarea id="messageInputCreador" class="message-input" placeholder="Escribe tu mensaje aquí..." rows="2"></textarea>
+                    <button onclick="enviarMensajeCreador()" class="send-btn">➤</button>
+                </div>
+            </div>
         </div>
 
-        <!-- Interfaz del Chat -->
-        <div id="chatInterface" class="card hidden">
-            <!-- Header del Chat -->
-            <div class="chat-header">
-                <div>
-                    <h2 id="chatTitle">💬 Negociación</h2>
-                    <div id="chatInfo"></div>
+        <!-- VISTA DEL CLIENTE -->
+        <div id="vistaCliente" class="card hidden">
+            <h2>👤 Vista del Cliente</h2>
+            
+            <!-- Chat del Cliente -->
+            <div id="chatCliente">
+                <div class="chat-header">
+                    <div>
+                        <h2>💬 Negociación</h2>
+                    </div>
+                    <div id="statusBadgeCliente" class="status-badge status-activa">ACTIVA</div>
                 </div>
-                <div id="statusBadge" class="status-badge status-activa">ACTIVA</div>
-            </div>
-            
-            <!-- Información de la negociación -->
-            <div class="chat-info">
-                <div class="info-grid" id="negociacionInfo">
-                    <!-- Se llena dinámicamente -->
+                
+                <div class="chat-info">
+                    <div class="info-grid" id="negociacionInfoCliente">
+                        <div class="info-item">
+                            <span class="info-label">Estado</span>
+                            <span class="info-value" id="estadoCliente">Esperando ID...</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Monto</span>
+                            <span class="info-value" id="montoCliente">$0</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            
-            <!-- Timer -->
-            <div id="timer" class="timer normal">
-                ⏰ Tiempo restante: <span id="tiempoRestante">--:--</span>
-            </div>
-            
-            <!-- Mensajes -->
-            <div class="messages-container" id="messages">
-                <div class="loading">
-                    <div class="loading-spinner"></div>
-                    Cargando mensajes...
+                
+                <div id="timerCliente" class="timer normal">
+                    ⏰ Tiempo restante: <span id="tiempoRestanteCliente">--:--</span>
                 </div>
-            </div>
-            
-            <!-- Controles según el tipo de usuario -->
-            <div id="clienteControls" class="controls hidden">
-                <button onclick="mostrarSubirComprobante()" class="warning">📎 Subir Comprobante</button>
-                <button onclick="cancelarNegociacion()" class="danger">🚫 Cancelar</button>
-            </div>
-            
-            <div id="creadorControls" class="controls hidden">
-                <button onclick="verificarPago(true)" class="success">✅ Aprobar Pago</button>
-                <button onclick="verificarPago(false)" class="danger">❌ Rechazar Pago</button>
-            </div>
-            
-            <!-- Área de subida de comprobante -->
-            <div id="uploadSection" class="hidden">
-                <div class="warning">
-                    <strong>📎 Subir Comprobante de Pago</strong>
-                    <p>Ingresa la URL o descripción del comprobante de transferencia o pago</p>
+                
+                <div class="messages-container" id="messagesCliente">
+                    <div class="empty-state">
+                        <div>🔍</div>
+                        <p>Ingresa el ID de negociación</p>
+                        <small>El creador te debe haber proporcionado un enlace</small>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <input type="text" id="comprobanteUrl" placeholder="https://ejemplo.com/comprobante.jpg o descripción del pago">
-                </div>
+                
+                <!-- Controles del CLIENTE - SOLO COMPROBANTE Y CANCELAR -->
                 <div class="controls">
-                    <button onclick="subirComprobante()" class="success">✅ Subir Comprobante</button>
-                    <button onclick="ocultarSubirComprobante()" class="danger">❌ Cancelar</button>
+                    <button onclick="mostrarSubirComprobante()" class="warning">📎 Subir Comprobante</button>
+                    <button onclick="cancelarNegociacionCliente()" class="danger">🚫 Cancelar</button>
                 </div>
-            </div>
-            
-            <!-- Chat input -->
-            <div class="input-area">
-                <textarea id="messageInput" placeholder="Escribe tu mensaje aquí..." rows="2" disabled></textarea>
-                <button onclick="enviarMensaje()" id="sendButton" disabled>➤</button>
+                
+                <!-- Área de subida de comprobante -->
+                <div id="uploadSection" class="hidden">
+                    <div class="warning">
+                        <strong>📎 Subir Comprobante de Pago</strong>
+                        <p>Ingresa la URL o descripción del comprobante de transferencia o pago</p>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="comprobanteUrl" placeholder="https://ejemplo.com/comprobante.jpg o descripción del pago">
+                    </div>
+                    <div class="controls">
+                        <button onclick="subirComprobante()" class="success">✅ Subir Comprobante</button>
+                        <button onclick="ocultarSubirComprobante()" class="danger">❌ Cancelar</button>
+                    </div>
+                </div>
+                
+                <div class="input-area">
+                    <textarea id="messageInputCliente" class="message-input" placeholder="Escribe tu mensaje aquí..." rows="2" disabled></textarea>
+                    <button onclick="enviarMensajeCliente()" class="send-btn" disabled>➤</button>
+                </div>
+
+                <!-- Formulario para ingresar ID -->
+                <div id="formIngresoID" class="form-group">
+                    <label class="form-label">🔑 ID de Negociación</label>
+                    <input type="text" id="idNegociacionCliente" placeholder="Ingresa el ID que te proporcionó el creador">
+                    <button onclick="cargarChatCliente()" class="btn-primary" style="margin-top: 10px;">Cargar Negociación</button>
+                </div>
             </div>
         </div>
     </div>
@@ -593,14 +674,20 @@
     <script>
         const API_URL = 'https://script.google.com/macros/s/AKfycbxgR_3Yfjzy_FgE6fYi9OIxLiablneUyvWqt5eukezplafrEFdYaw8UL9gaFXQyxn3yEw/exec';
         
-        let appState = { 
+        // ESTADOS SEPARADOS PARA CADA VISTA
+        const estadoCreador = { 
             negociacion: null, 
-            userType: '',
             intervaloMensajes: null,
             intervaloTimer: null
         };
 
-        // FUNCIÓN ORIGINAL QUE FUNCIONABA
+        const estadoCliente = { 
+            negociacion: null, 
+            intervaloMensajes: null,
+            intervaloTimer: null
+        };
+
+        // FUNCIÓN DE REQUEST
         async function hacerRequest(params) {
             const url = API_URL + '?' + new URLSearchParams(params).toString();
             try {
@@ -620,7 +707,29 @@
             }
         }
 
-        // Inicialización
+        // MANEJO DE VISTAS
+        function mostrarVista(vista) {
+            // Actualizar botones
+            document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Mostrar/ocultar vistas
+            document.getElementById('vistaCreador').classList.add('hidden');
+            document.getElementById('vistaCliente').classList.add('hidden');
+            document.getElementById(vista === 'creador' ? 'vistaCreador' : 'vistaCliente').classList.remove('hidden');
+            
+            // Si es cliente, verificar si hay ID en URL
+            if (vista === 'cliente') {
+                const urlParams = new URLSearchParams(window.location.search);
+                const id = urlParams.get('id');
+                if (id) {
+                    document.getElementById('idNegociacionCliente').value = id;
+                    cargarChatCliente();
+                }
+            }
+        }
+
+        // INICIALIZACIÓN
         async function init() {
             try {
                 const response = await hacerRequest({action: 'test'});
@@ -633,19 +742,26 @@
                     `<div class="error">❌ Error de conexión: ${error.message}</div>`;
             }
             
+            // Verificar parámetros de URL para determinar vista inicial
             const urlParams = new URLSearchParams(window.location.search);
+            const user = urlParams.get('user');
             const id = urlParams.get('id');
-            const userType = urlParams.get('user');
             
-            if (id && userType) {
-                appState.userType = userType;
-                document.getElementById('createForm').classList.add('hidden');
-                document.getElementById('chatInterface').classList.remove('hidden');
-                await cargarChat(id);
+            if (user === 'cliente' && id) {
+                mostrarVista('cliente');
+                document.getElementById('idNegociacionCliente').value = id;
+                cargarChatCliente();
+            } else if (user === 'creador' && id) {
+                mostrarVista('creador');
+                cargarChatCreador(id);
             }
+            // Si no hay parámetros, mostrar vista del creador por defecto
         }
 
-        // Función para crear negociación - ORIGINAL FUNCIONAL
+        // =============================================
+        // FUNCIONES DEL CREADOR
+        // =============================================
+
         async function crearNegociacion() {
             const cliente = document.getElementById('cliente').value;
             const monto = document.getElementById('monto').value;
@@ -673,7 +789,6 @@
                 const result = document.getElementById('formResult');
                 
                 if (response.success) {
-                    // MOSTRAR RESULTADO EXITOSO CON ENLACES
                     const enlaceCliente = response.data.enlaceCliente;
                     const numeroCliente = cliente.replace(/\D/g, '');
                     const mensajeWhatsApp = `Hola! Te invito a nuestra negociación TUM. Monto: $${monto}. Accede aquí: ${enlaceCliente}`;
@@ -742,104 +857,70 @@
             }
         }
 
-        // Función para cargar el chat - ORIGINAL FUNCIONAL
-        async function cargarChat(id) {
+        async function cargarChatCreador(id) {
             try {
-                console.log('Cargando chat para ID:', id);
                 const response = await hacerRequest({ action: 'get_negociacion', id: id });
                 
                 if (response.success) {
-                    appState.negociacion = response.data;
-                    console.log('Negociación cargada:', response.data);
+                    estadoCreador.negociacion = response.data;
+                    actualizarInterfazCreador(response.data);
+                    await cargarMensajesCreador();
+                    iniciarActualizacionesCreador(id);
                     
-                    // Configurar interfaz según tipo de usuario
-                    const esCreador = appState.userType === 'creador';
-                    document.getElementById('chatTitle').textContent = 
-                        esCreador ? '👑 Panel del Creador' : '👤 Vista del Cliente';
-                    
-                    // Actualizar información de la negociación
-                    document.getElementById('negociacionInfo').innerHTML = `
-                        <div class="info-item">
-                            <span class="info-label">ID</span>
-                            <span class="info-value">${response.data.ID}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Monto</span>
-                            <span class="info-value">$${response.data.Monto}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Cliente</span>
-                            <span class="info-value">${response.data.Cliente}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Estado</span>
-                            <span class="info-value">${response.data.Estado}</span>
-                        </div>
-                    `;
-                    
-                    // Actualizar badge de estado
-                    const statusBadge = document.getElementById('statusBadge');
-                    statusBadge.textContent = response.data.Estado;
-                    statusBadge.className = `status-badge status-${response.data.Estado.toLowerCase()}`;
-                    
-                    // Mostrar controles según el tipo de usuario
-                    document.getElementById('creadorControls').classList.add('hidden');
-                    document.getElementById('clienteControls').classList.add('hidden');
-                    
-                    if (response.data.Estado === 'ACTIVA') {
-                        if (esCreador) {
-                            document.getElementById('creadorControls').classList.remove('hidden');
-                        } else {
-                            document.getElementById('clienteControls').classList.remove('hidden');
-                        }
-                        
-                        // Habilitar chat
-                        document.getElementById('messageInput').disabled = false;
-                        document.getElementById('sendButton').disabled = false;
-                        document.getElementById('messageInput').focus();
-                    } else {
-                        deshabilitarChat();
-                    }
-                    
-                    // Cargar mensajes y configurar intervalos
-                    await cargarMensajes();
-                    actualizarTimer();
-                    
-                    // Configurar intervalos
-                    if (appState.intervaloMensajes) clearInterval(appState.intervaloMensajes);
-                    if (appState.intervaloTimer) clearInterval(appState.intervaloTimer);
-                    
-                    appState.intervaloMensajes = setInterval(cargarMensajes, 3000);
-                    appState.intervaloTimer = setInterval(actualizarTimer, 1000);
+                    // Mostrar el chat y ocultar el formulario de creación
+                    document.getElementById('chatCreador').classList.remove('hidden');
                     
                 } else {
-                    document.getElementById('messages').innerHTML = 
+                    document.getElementById('messagesCreador').innerHTML = 
                         `<div class="error">❌ ${response.message}</div>`;
                 }
             } catch (error) {
-                document.getElementById('messages').innerHTML = 
+                document.getElementById('messagesCreador').innerHTML = 
                     `<div class="error">❌ Error cargando el chat: ${error.message}</div>`;
             }
         }
 
-        async function cargarMensajes() {
-            if (!appState.negociacion) return;
+        function actualizarInterfazCreador(negociacion) {
+            document.getElementById('negociacionInfoCreador').innerHTML = `
+                <div class="info-item">
+                    <span class="info-label">ID</span>
+                    <span class="info-value">${negociacion.ID}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Monto</span>
+                    <span class="info-value">$${negociacion.Monto}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Cliente</span>
+                    <span class="info-value">${negociacion.Cliente}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Estado</span>
+                    <span class="info-value">${negociacion.Estado}</span>
+                </div>
+            `;
+            
+            const statusBadge = document.getElementById('statusBadgeCreador');
+            statusBadge.textContent = negociacion.Estado;
+            statusBadge.className = `status-badge status-${negociacion.Estado.toLowerCase()}`;
+        }
+
+        async function cargarMensajesCreador() {
+            if (!estadoCreador.negociacion) return;
             
             try {
-                const response = await hacerRequest({ action: 'get_mensajes', id: appState.negociacion.ID });
+                const response = await hacerRequest({ action: 'get_mensajes', id: estadoCreador.negociacion.ID });
                 
                 if (response.success) {
-                    mostrarMensajes(response.data);
-                } else {
-                    console.error('Error cargando mensajes:', response.message);
+                    mostrarMensajesCreador(response.data);
                 }
             } catch (error) {
                 console.error('Error cargando mensajes:', error);
             }
         }
 
-        function mostrarMensajes(mensajes) {
-            const container = document.getElementById('messages');
+        function mostrarMensajesCreador(mensajes) {
+            const container = document.getElementById('messagesCreador');
             
             if (!mensajes || mensajes.length === 0) {
                 container.innerHTML = `
@@ -853,19 +934,11 @@
             }
             
             container.innerHTML = mensajes.map(msg => {
-                let clase = '';
-                let remitente = msg.Remitente || 'Desconocido';
-                
-                if (remitente.includes('TeEchoUnaMano') || remitente.includes('👑')) {
-                    clase = 'creador';
-                } else if (remitente.includes('Cliente') || remitente.includes('👤')) {
-                    clase = 'cliente';
-                } else if (remitente.includes('Sistema') || remitente.includes('🤖')) {
-                    clase = 'sistema';
-                }
-                
-                if (msg.Tipo === 'COMPROBANTE') {
-                    clase += ' comprobante';
+                let clase = 'message-cliente';
+                if (msg.Remitente.includes('TeEchoUnaMano') || msg.Remitente.includes('👑')) {
+                    clase = 'message-creador';
+                } else if (msg.Remitente.includes('Sistema') || msg.Remitente.includes('🤖')) {
+                    clase = 'message-sistema';
                 }
                 
                 let fechaStr = 'Fecha no disponible';
@@ -880,7 +953,7 @@
                 
                 return `
                     <div class="message ${clase}">
-                        <strong>${remitente}</strong><br>
+                        <strong>${msg.Remitente}</strong><br>
                         ${msg.Mensaje || 'Mensaje no disponible'}<br>
                         <div class="message-time">${fechaStr}</div>
                     </div>
@@ -890,29 +963,271 @@
             container.scrollTop = container.scrollHeight;
         }
 
-        async function enviarMensaje() {
-            const input = document.getElementById('messageInput');
+        async function enviarMensajeCreador() {
+            const input = document.getElementById('messageInputCreador');
             const mensaje = input.value.trim();
             
-            if (!mensaje || !appState.negociacion) return;
+            if (!mensaje || !estadoCreador.negociacion) return;
             
             try {
                 const response = await hacerRequest({
                     action: 'enviar_mensaje',
-                    id: appState.negociacion.ID,
-                    tipoUsuario: appState.userType,
+                    id: estadoCreador.negociacion.ID,
+                    tipoUsuario: 'creador',
                     mensaje: mensaje
                 });
                 
                 if (response.success) {
                     input.value = '';
-                    document.getElementById('sendButton').disabled = true;
-                    await cargarMensajes();
+                    await cargarMensajesCreador();
                 } else {
                     mostrarNotificacion('❌ Error al enviar mensaje: ' + response.message);
                 }
             } catch (error) {
                 mostrarNotificacion('❌ Error de conexión: ' + error.message);
+            }
+        }
+
+        function iniciarActualizacionesCreador(id) {
+            if (estadoCreador.intervaloMensajes) clearInterval(estadoCreador.intervaloMensajes);
+            if (estadoCreador.intervaloTimer) clearInterval(estadoCreador.intervaloTimer);
+            
+            estadoCreador.intervaloMensajes = setInterval(cargarMensajesCreador, 3000);
+            estadoCreador.intervaloTimer = setInterval(actualizarTimerCreador, 1000);
+        }
+
+        function actualizarTimerCreador() {
+            if (!estadoCreador.negociacion || !estadoCreador.negociacion.Tiempo_Restante) return;
+            
+            const tiempo = estadoCreador.negociacion.Tiempo_Restante;
+            const timerElement = document.getElementById('tiempoRestanteCreador');
+            const timerContainer = document.getElementById('timerCreador');
+            
+            if (tiempo.expirada) {
+                timerElement.textContent = '00:00';
+                timerContainer.className = 'timer danger';
+                return;
+            }
+            
+            const tiempoFormateado = `${tiempo.minutos.toString().padStart(2, '0')}:${tiempo.segundos.toString().padStart(2, '0')}`;
+            timerElement.textContent = tiempoFormateado;
+            
+            if (tiempo.minutos < 1) {
+                timerContainer.className = 'timer danger';
+            } else if (tiempo.minutos < 5) {
+                timerContainer.className = 'timer warning';
+            } else {
+                timerContainer.className = 'timer normal';
+            }
+        }
+
+        async function verificarPago(aprobado) {
+            if (!estadoCreador.negociacion) return;
+            
+            if (!confirm(`¿Estás seguro de que quieres ${aprobado ? 'APROBAR' : 'RECHAZAR'} el pago?`)) {
+                return;
+            }
+            
+            try {
+                const response = await hacerRequest({
+                    action: 'verificar_pago',
+                    id: estadoCreador.negociacion.ID,
+                    aprobado: aprobado
+                });
+                
+                if (response.success) {
+                    mostrarNotificacion(aprobado ? '✅ Pago aprobado' : '❌ Pago rechazado');
+                    await cargarChatCreador(estadoCreador.negociacion.ID);
+                } else {
+                    mostrarNotificacion('❌ Error al verificar pago: ' + response.message);
+                }
+            } catch (error) {
+                mostrarNotificacion('❌ Error de conexión: ' + error.message);
+            }
+        }
+
+        async function cancelarNegociacion() {
+            if (!estadoCreador.negociacion) return;
+            
+            const razon = prompt('¿Por qué cancelas la negociación?');
+            if (razon === null || razon.trim() === '') return;
+            
+            try {
+                const response = await hacerRequest({
+                    action: 'cancelar_negociacion',
+                    id: estadoCreador.negociacion.ID,
+                    razon: razon,
+                    tipoUsuario: 'creador'
+                });
+                
+                if (response.success) {
+                    mostrarNotificacion('✅ Negociación cancelada');
+                    await cargarChatCreador(estadoCreador.negociacion.ID);
+                } else {
+                    mostrarNotificacion('❌ Error al cancelar: ' + response.message);
+                }
+            } catch (error) {
+                mostrarNotificacion('❌ Error de conexión: ' + error.message);
+            }
+        }
+
+        // =============================================
+        // FUNCIONES DEL CLIENTE
+        // =============================================
+
+        async function cargarChatCliente() {
+            const id = document.getElementById('idNegociacionCliente').value.trim();
+            if (!id) {
+                mostrarNotificacion('❌ Ingresa un ID de negociación');
+                return;
+            }
+            
+            try {
+                const response = await hacerRequest({ action: 'get_negociacion', id: id });
+                
+                if (response.success) {
+                    estadoCliente.negociacion = response.data;
+                    actualizarInterfazCliente(response.data);
+                    await cargarMensajesCliente();
+                    iniciarActualizacionesCliente(id);
+                    
+                    // Ocultar formulario de ingreso de ID
+                    document.getElementById('formIngresoID').classList.add('hidden');
+                    document.getElementById('messageInputCliente').disabled = false;
+                    document.querySelector('#vistaCliente .send-btn').disabled = false;
+                    
+                } else {
+                    document.getElementById('messagesCliente').innerHTML = 
+                        `<div class="error">❌ ${response.message}</div>`;
+                }
+            } catch (error) {
+                document.getElementById('messagesCliente').innerHTML = 
+                    `<div class="error">❌ Error cargando el chat: ${error.message}</div>`;
+            }
+        }
+
+        function actualizarInterfazCliente(negociacion) {
+            document.getElementById('estadoCliente').textContent = negociacion.Estado;
+            document.getElementById('montoCliente').textContent = `$${negociacion.Monto}`;
+            
+            const statusBadge = document.getElementById('statusBadgeCliente');
+            statusBadge.textContent = negociacion.Estado;
+            statusBadge.className = `status-badge status-${negociacion.Estado.toLowerCase()}`;
+        }
+
+        async function cargarMensajesCliente() {
+            if (!estadoCliente.negociacion) return;
+            
+            try {
+                const response = await hacerRequest({ action: 'get_mensajes', id: estadoCliente.negociacion.ID });
+                
+                if (response.success) {
+                    mostrarMensajesCliente(response.data);
+                }
+            } catch (error) {
+                console.error('Error cargando mensajes:', error);
+            }
+        }
+
+        function mostrarMensajesCliente(mensajes) {
+            const container = document.getElementById('messagesCliente');
+            
+            if (!mensajes || mensajes.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div>💬</div>
+                        <p>No hay mensajes aún</p>
+                        <small>Se el primero en enviar un mensaje</small>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = mensajes.map(msg => {
+                let clase = 'message-cliente';
+                if (msg.Remitente.includes('TeEchoUnaMano') || msg.Remitente.includes('👑')) {
+                    clase = 'message-creador';
+                } else if (msg.Remitente.includes('Sistema') || msg.Remitente.includes('🤖')) {
+                    clase = 'message-sistema';
+                }
+                
+                let fechaStr = 'Fecha no disponible';
+                try {
+                    const fecha = new Date(msg.Fecha);
+                    if (!isNaN(fecha.getTime())) {
+                        fechaStr = fecha.toLocaleString('es-ES');
+                    }
+                } catch (e) {
+                    fechaStr = new Date().toLocaleString('es-ES');
+                }
+                
+                return `
+                    <div class="message ${clase}">
+                        <strong>${msg.Remitente}</strong><br>
+                        ${msg.Mensaje || 'Mensaje no disponible'}<br>
+                        <div class="message-time">${fechaStr}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function enviarMensajeCliente() {
+            const input = document.getElementById('messageInputCliente');
+            const mensaje = input.value.trim();
+            
+            if (!mensaje || !estadoCliente.negociacion) return;
+            
+            try {
+                const response = await hacerRequest({
+                    action: 'enviar_mensaje',
+                    id: estadoCliente.negociacion.ID,
+                    tipoUsuario: 'cliente',
+                    mensaje: mensaje
+                });
+                
+                if (response.success) {
+                    input.value = '';
+                    await cargarMensajesCliente();
+                } else {
+                    mostrarNotificacion('❌ Error al enviar mensaje: ' + response.message);
+                }
+            } catch (error) {
+                mostrarNotificacion('❌ Error de conexión: ' + error.message);
+            }
+        }
+
+        function iniciarActualizacionesCliente(id) {
+            if (estadoCliente.intervaloMensajes) clearInterval(estadoCliente.intervaloMensajes);
+            if (estadoCliente.intervaloTimer) clearInterval(estadoCliente.intervaloTimer);
+            
+            estadoCliente.intervaloMensajes = setInterval(cargarMensajesCliente, 3000);
+            estadoCliente.intervaloTimer = setInterval(actualizarTimerCliente, 1000);
+        }
+
+        function actualizarTimerCliente() {
+            if (!estadoCliente.negociacion || !estadoCliente.negociacion.Tiempo_Restante) return;
+            
+            const tiempo = estadoCliente.negociacion.Tiempo_Restante;
+            const timerElement = document.getElementById('tiempoRestanteCliente');
+            const timerContainer = document.getElementById('timerCliente');
+            
+            if (tiempo.expirada) {
+                timerElement.textContent = '00:00';
+                timerContainer.className = 'timer danger';
+                return;
+            }
+            
+            const tiempoFormateado = `${tiempo.minutos.toString().padStart(2, '0')}:${tiempo.segundos.toString().padStart(2, '0')}`;
+            timerElement.textContent = tiempoFormateado;
+            
+            if (tiempo.minutos < 1) {
+                timerContainer.className = 'timer danger';
+            } else if (tiempo.minutos < 5) {
+                timerContainer.className = 'timer warning';
+            } else {
+                timerContainer.className = 'timer normal';
             }
         }
 
@@ -935,14 +1250,14 @@
             try {
                 const response = await hacerRequest({
                     action: 'subir_comprobante',
-                    id: appState.negociacion.ID,
+                    id: estadoCliente.negociacion.ID,
                     comprobanteUrl: comprobanteUrl
                 });
                 
                 if (response.success) {
                     mostrarNotificacion('✅ Comprobante subido exitosamente');
                     ocultarSubirComprobante();
-                    await cargarMensajes();
+                    await cargarMensajesCliente();
                 } else {
                     mostrarNotificacion('❌ Error al subir comprobante: ' + response.message);
                 }
@@ -951,44 +1266,23 @@
             }
         }
 
-        async function verificarPago(aprobado) {
-            if (!confirm(`¿Estás seguro de que quieres ${aprobado ? 'APROBAR' : 'RECHAZAR'} el pago?`)) {
-                return;
-            }
+        async function cancelarNegociacionCliente() {
+            if (!estadoCliente.negociacion) return;
             
-            try {
-                const response = await hacerRequest({
-                    action: 'verificar_pago',
-                    id: appState.negociacion.ID,
-                    aprobado: aprobado
-                });
-                
-                if (response.success) {
-                    mostrarNotificacion(aprobado ? '✅ Pago aprobado' : '❌ Pago rechazado');
-                    await cargarChat(appState.negociacion.ID);
-                } else {
-                    mostrarNotificacion('❌ Error al verificar pago: ' + response.message);
-                }
-            } catch (error) {
-                mostrarNotificacion('❌ Error de conexión: ' + error.message);
-            }
-        }
-
-        async function cancelarNegociacion() {
             const razon = prompt('¿Por qué cancelas la negociación?');
             if (razon === null || razon.trim() === '') return;
             
             try {
                 const response = await hacerRequest({
                     action: 'cancelar_negociacion',
-                    id: appState.negociacion.ID,
+                    id: estadoCliente.negociacion.ID,
                     razon: razon,
-                    tipoUsuario: appState.userType
+                    tipoUsuario: 'cliente'
                 });
                 
                 if (response.success) {
                     mostrarNotificacion('✅ Negociación cancelada');
-                    await cargarChat(appState.negociacion.ID);
+                    await cargarChatCliente();
                 } else {
                     mostrarNotificacion('❌ Error al cancelar: ' + response.message);
                 }
@@ -997,42 +1291,10 @@
             }
         }
 
-        function actualizarTimer() {
-            if (!appState.negociacion || !appState.negociacion.Tiempo_Restante) return;
-            
-            const tiempoRestante = appState.negociacion.Tiempo_Restante;
-            const timerElement = document.getElementById('tiempoRestante');
-            const timerContainer = document.getElementById('timer');
-            
-            if (tiempoRestante.expirada) {
-                timerElement.textContent = '00:00';
-                timerContainer.className = 'timer danger';
-                return;
-            }
-            
-            const minutos = tiempoRestante.minutos || 0;
-            const segundos = tiempoRestante.segundos || 0;
-            const tiempoFormateado = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
-            timerElement.textContent = tiempoFormateado;
-            
-            // Cambiar color según el tiempo
-            if (minutos < 1) {
-                timerContainer.className = 'timer danger';
-            } else if (minutos < 5) {
-                timerContainer.className = 'timer warning';
-            } else {
-                timerContainer.className = 'timer normal';
-            }
-        }
+        // =============================================
+        // FUNCIONES COMPARTIDAS
+        // =============================================
 
-        function deshabilitarChat() {
-            document.getElementById('messageInput').disabled = true;
-            document.getElementById('sendButton').disabled = true;
-            document.getElementById('creadorControls').classList.add('hidden');
-            document.getElementById('clienteControls').classList.add('hidden');
-        }
-
-        // Funciones de utilidad
         function enviarWhatsApp(enlaceWhatsApp) {
             window.open(enlaceWhatsApp, '_blank');
         }
@@ -1064,19 +1326,27 @@
             }, 3000);
         }
 
-        // Iniciar la aplicación
+        // EVENT LISTENERS
         document.addEventListener('DOMContentLoaded', init);
         
-        // Event listeners
-        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+        // Event listeners para el creador
+        document.getElementById('messageInputCreador').addEventListener('keypress', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                enviarMensaje();
+                enviarMensajeCreador();
             }
         });
 
-        document.getElementById('messageInput').addEventListener('input', function(e) {
-            const sendButton = document.getElementById('sendButton');
+        // Event listeners para el cliente
+        document.getElementById('messageInputCliente').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                enviarMensajeCliente();
+            }
+        });
+
+        document.getElementById('messageInputCliente').addEventListener('input', function() {
+            const sendButton = document.querySelector('#vistaCliente .send-btn');
             sendButton.disabled = this.value.trim() === '' || this.disabled;
         });
     </script>
