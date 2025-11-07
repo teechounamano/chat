@@ -473,39 +473,6 @@
             padding: 40px 20px;
             color: var(--gray);
         }
-        
-        .empty-state i {
-            font-size: 48px;
-            margin-bottom: 15px;
-            opacity: 0.5;
-        }
-
-        /* Selector de vista */
-        .view-selector {
-            display: flex;
-            background: var(--light);
-            border-radius: var(--radius);
-            padding: 8px;
-            margin: 16px;
-            gap: 8px;
-        }
-
-        .view-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            background: transparent;
-            color: var(--gray);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .view-btn.active {
-            background: var(--primary);
-            color: white;
-        }
     </style>
 </head>
 <body>
@@ -516,48 +483,45 @@
             <p>Negociaciones seguras y confiables</p>
         </div>
 
-        <!-- Selector de Vista -->
-        <div class="view-selector">
-            <button class="view-btn active" onclick="mostrarVista('creador')">👑 Creador</button>
-            <button class="view-btn" onclick="mostrarVista('cliente')">👤 Cliente</button>
-        </div>
-
         <!-- VISTA DEL CREADOR -->
         <div id="vistaCreador" class="card">
-            <h2>🚀 Crear Nueva Negociación</h2>
-            <div id="debugInfo" class="loading">
-                <div class="loading-spinner"></div>
-                Verificando conexión con el servidor...
+            <!-- Formulario de creación -->
+            <div id="createForm">
+                <h2>🚀 Crear Nueva Negociación</h2>
+                <div id="debugInfo" class="loading">
+                    <div class="loading-spinner"></div>
+                    Verificando conexión con el servidor...
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">📱 Número del Cliente</label>
+                    <input type="tel" id="cliente" placeholder="+1234567890" value="+1234567890">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">💰 Monto de la Negociación</label>
+                    <input type="number" id="monto" placeholder="1000" value="1000">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">⏰ Tiempo de Expiración</label>
+                    <select id="tiempoExpiracion">
+                        <option value="5">5 minutos</option>
+                        <option value="10">10 minutos</option>
+                        <option value="15">15 minutos</option>
+                        <option value="30">30 minutos</option>
+                        <option value="60">1 hora</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">📝 Descripción del Trato</label>
+                    <textarea id="descripcion" placeholder="Describe los términos del acuerdo..." rows="3">Servicio de consultoría profesional</textarea>
+                </div>
+                
+                <button onclick="crearNegociacion()" id="createBtn">Crear Negociación</button>
+                <div id="formResult"></div>
             </div>
-            
-            <div class="form-group">
-                <label class="form-label">📱 Número del Cliente</label>
-                <input type="tel" id="cliente" placeholder="+1234567890" value="+1234567890">
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">💰 Monto de la Negociación</label>
-                <input type="number" id="monto" placeholder="1000" value="1000">
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">⏰ Tiempo de Expiración</label>
-                <select id="tiempoExpiracion">
-                    <option value="5">5 minutos</option>
-                    <option value="10">10 minutos</option>
-                    <option value="15">15 minutos</option>
-                    <option value="30">30 minutos</option>
-                    <option value="60">1 hora</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">📝 Descripción del Trato</label>
-                <textarea id="descripcion" placeholder="Describe los términos del acuerdo..." rows="3">Servicio de consultoría profesional</textarea>
-            </div>
-            
-            <button onclick="crearNegociacion()" id="createBtn">Crear Negociación</button>
-            <div id="formResult"></div>
 
             <!-- Chat del Creador (oculto inicialmente) -->
             <div id="chatCreador" class="hidden">
@@ -587,7 +551,7 @@
                 <div class="controls">
                     <button onclick="verificarPago(true)" class="success">✅ Aprobar Pago</button>
                     <button onclick="verificarPago(false)" class="danger">❌ Rechazar Pago</button>
-                    <button onclick="cancelarNegociacion()" class="danger">🚫 Cancelar Negociación</button>
+                    <button onclick="cancelarNegociacionCreador()" class="danger">🚫 Cancelar Negociación</button>
                 </div>
                 
                 <div class="input-area">
@@ -601,8 +565,15 @@
         <div id="vistaCliente" class="card hidden">
             <h2>👤 Vista del Cliente</h2>
             
-            <!-- Chat del Cliente -->
-            <div id="chatCliente">
+            <!-- Formulario para ingresar ID -->
+            <div id="formIngresoID" class="form-group">
+                <label class="form-label">🔑 ID de Negociación</label>
+                <input type="text" id="idNegociacionCliente" placeholder="Ingresa el ID que te proporcionó el creador">
+                <button onclick="cargarChatCliente()" style="margin-top: 10px;">Cargar Negociación</button>
+            </div>
+
+            <!-- Chat del Cliente (oculto inicialmente) -->
+            <div id="chatCliente" class="hidden">
                 <div class="chat-header">
                     <div>
                         <h2>💬 Negociación</h2>
@@ -611,16 +582,7 @@
                 </div>
                 
                 <div class="chat-info">
-                    <div class="info-grid" id="negociacionInfoCliente">
-                        <div class="info-item">
-                            <span class="info-label">Estado</span>
-                            <span class="info-value" id="estadoCliente">Esperando ID...</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Monto</span>
-                            <span class="info-value" id="montoCliente">$0</span>
-                        </div>
-                    </div>
+                    <div class="info-grid" id="negociacionInfoCliente"></div>
                 </div>
                 
                 <div id="timerCliente" class="timer normal">
@@ -628,10 +590,9 @@
                 </div>
                 
                 <div class="messages-container" id="messagesCliente">
-                    <div class="empty-state">
-                        <div>🔍</div>
-                        <p>Ingresa el ID de negociación</p>
-                        <small>El creador te debe haber proporcionado un enlace</small>
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        Cargando mensajes...
                     </div>
                 </div>
                 
@@ -657,15 +618,8 @@
                 </div>
                 
                 <div class="input-area">
-                    <textarea id="messageInputCliente" class="message-input" placeholder="Escribe tu mensaje aquí..." rows="2" disabled></textarea>
-                    <button onclick="enviarMensajeCliente()" class="send-btn" disabled>➤</button>
-                </div>
-
-                <!-- Formulario para ingresar ID -->
-                <div id="formIngresoID" class="form-group">
-                    <label class="form-label">🔑 ID de Negociación</label>
-                    <input type="text" id="idNegociacionCliente" placeholder="Ingresa el ID que te proporcionó el creador">
-                    <button onclick="cargarChatCliente()" class="btn-primary" style="margin-top: 10px;">Cargar Negociación</button>
+                    <textarea id="messageInputCliente" class="message-input" placeholder="Escribe tu mensaje aquí..." rows="2"></textarea>
+                    <button onclick="enviarMensajeCliente()" class="send-btn">➤</button>
                 </div>
             </div>
         </div>
@@ -707,28 +661,6 @@
             }
         }
 
-        // MANEJO DE VISTAS
-        function mostrarVista(vista) {
-            // Actualizar botones
-            document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            // Mostrar/ocultar vistas
-            document.getElementById('vistaCreador').classList.add('hidden');
-            document.getElementById('vistaCliente').classList.add('hidden');
-            document.getElementById(vista === 'creador' ? 'vistaCreador' : 'vistaCliente').classList.remove('hidden');
-            
-            // Si es cliente, verificar si hay ID en URL
-            if (vista === 'cliente') {
-                const urlParams = new URLSearchParams(window.location.search);
-                const id = urlParams.get('id');
-                if (id) {
-                    document.getElementById('idNegociacionCliente').value = id;
-                    cargarChatCliente();
-                }
-            }
-        }
-
         // INICIALIZACIÓN
         async function init() {
             try {
@@ -748,14 +680,20 @@
             const id = urlParams.get('id');
             
             if (user === 'cliente' && id) {
-                mostrarVista('cliente');
+                // Mostrar vista del cliente
+                document.getElementById('vistaCreador').classList.add('hidden');
+                document.getElementById('vistaCliente').classList.remove('hidden');
                 document.getElementById('idNegociacionCliente').value = id;
                 cargarChatCliente();
             } else if (user === 'creador' && id) {
-                mostrarVista('creador');
+                // Mostrar vista del creador con chat
+                document.getElementById('vistaCreador').classList.remove('hidden');
+                document.getElementById('vistaCliente').classList.add('hidden');
+                document.getElementById('createForm').classList.add('hidden');
+                document.getElementById('chatCreador').classList.remove('hidden');
                 cargarChatCreador(id);
             }
-            // Si no hay parámetros, mostrar vista del creador por defecto
+            // Si no hay parámetros, mostrar vista del creador por defecto (solo formulario)
         }
 
         // =============================================
@@ -789,7 +727,8 @@
                 const result = document.getElementById('formResult');
                 
                 if (response.success) {
-                    const enlaceCliente = response.data.enlaceCliente;
+                    const enlaceCliente = `https://teechounamano.github.io/chat/?id=${response.data.id}&user=cliente`;
+                    const enlaceCreador = `https://teechounamano.github.io/chat/?id=${response.data.id}&user=creador`;
                     const numeroCliente = cliente.replace(/\D/g, '');
                     const mensajeWhatsApp = `Hola! Te invito a nuestra negociación TUM. Monto: $${monto}. Accede aquí: ${enlaceCliente}`;
                     const enlaceWhatsApp = `https://wa.me/${numeroCliente}?text=${encodeURIComponent(mensajeWhatsApp)}`;
@@ -831,7 +770,7 @@
                             </div>
                             
                             <p style="margin-top: 15px; text-align: center;">
-                                <a href="${enlaceCliente.replace('user=cliente', 'user=creador')}" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">
+                                <a href="${enlaceCreador}" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">
                                     👑 Abrir Panel del Creador
                                 </a>
                             </p>
@@ -866,9 +805,6 @@
                     actualizarInterfazCreador(response.data);
                     await cargarMensajesCreador();
                     iniciarActualizacionesCreador(id);
-                    
-                    // Mostrar el chat y ocultar el formulario de creación
-                    document.getElementById('chatCreador').classList.remove('hidden');
                     
                 } else {
                     document.getElementById('messagesCreador').innerHTML = 
@@ -934,11 +870,11 @@
             }
             
             container.innerHTML = mensajes.map(msg => {
-                let clase = 'message-cliente';
+                let clase = 'cliente';
                 if (msg.Remitente.includes('TeEchoUnaMano') || msg.Remitente.includes('👑')) {
-                    clase = 'message-creador';
+                    clase = 'creador';
                 } else if (msg.Remitente.includes('Sistema') || msg.Remitente.includes('🤖')) {
-                    clase = 'message-sistema';
+                    clase = 'sistema';
                 }
                 
                 let fechaStr = 'Fecha no disponible';
@@ -1022,7 +958,10 @@
         }
 
         async function verificarPago(aprobado) {
-            if (!estadoCreador.negociacion) return;
+            if (!estadoCreador.negociacion) {
+                mostrarNotificacion('❌ No hay negociación cargada');
+                return;
+            }
             
             if (!confirm(`¿Estás seguro de que quieres ${aprobado ? 'APROBAR' : 'RECHAZAR'} el pago?`)) {
                 return;
@@ -1046,8 +985,11 @@
             }
         }
 
-        async function cancelarNegociacion() {
-            if (!estadoCreador.negociacion) return;
+        async function cancelarNegociacionCreador() {
+            if (!estadoCreador.negociacion) {
+                mostrarNotificacion('❌ No hay negociación cargada');
+                return;
+            }
             
             const razon = prompt('¿Por qué cancelas la negociación?');
             if (razon === null || razon.trim() === '') return;
@@ -1091,24 +1033,33 @@
                     await cargarMensajesCliente();
                     iniciarActualizacionesCliente(id);
                     
-                    // Ocultar formulario de ingreso de ID
+                    // Ocultar formulario de ingreso de ID y mostrar chat
                     document.getElementById('formIngresoID').classList.add('hidden');
-                    document.getElementById('messageInputCliente').disabled = false;
-                    document.querySelector('#vistaCliente .send-btn').disabled = false;
+                    document.getElementById('chatCliente').classList.remove('hidden');
                     
                 } else {
-                    document.getElementById('messagesCliente').innerHTML = 
-                        `<div class="error">❌ ${response.message}</div>`;
+                    mostrarNotificacion('❌ ' + response.message);
                 }
             } catch (error) {
-                document.getElementById('messagesCliente').innerHTML = 
-                    `<div class="error">❌ Error cargando el chat: ${error.message}</div>`;
+                mostrarNotificacion('❌ Error cargando el chat: ' + error.message);
             }
         }
 
         function actualizarInterfazCliente(negociacion) {
-            document.getElementById('estadoCliente').textContent = negociacion.Estado;
-            document.getElementById('montoCliente').textContent = `$${negociacion.Monto}`;
+            document.getElementById('negociacionInfoCliente').innerHTML = `
+                <div class="info-item">
+                    <span class="info-label">ID</span>
+                    <span class="info-value">${negociacion.ID}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Monto</span>
+                    <span class="info-value">$${negociacion.Monto}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Estado</span>
+                    <span class="info-value">${negociacion.Estado}</span>
+                </div>
+            `;
             
             const statusBadge = document.getElementById('statusBadgeCliente');
             statusBadge.textContent = negociacion.Estado;
@@ -1144,11 +1095,11 @@
             }
             
             container.innerHTML = mensajes.map(msg => {
-                let clase = 'message-cliente';
+                let clase = 'cliente';
                 if (msg.Remitente.includes('TeEchoUnaMano') || msg.Remitente.includes('👑')) {
-                    clase = 'message-creador';
+                    clase = 'creador';
                 } else if (msg.Remitente.includes('Sistema') || msg.Remitente.includes('🤖')) {
-                    clase = 'message-sistema';
+                    clase = 'sistema';
                 }
                 
                 let fechaStr = 'Fecha no disponible';
@@ -1267,7 +1218,10 @@
         }
 
         async function cancelarNegociacionCliente() {
-            if (!estadoCliente.negociacion) return;
+            if (!estadoCliente.negociacion) {
+                mostrarNotificacion('❌ No hay negociación cargada');
+                return;
+            }
             
             const razon = prompt('¿Por qué cancelas la negociación?');
             if (razon === null || razon.trim() === '') return;
@@ -1343,11 +1297,6 @@
                 e.preventDefault();
                 enviarMensajeCliente();
             }
-        });
-
-        document.getElementById('messageInputCliente').addEventListener('input', function() {
-            const sendButton = document.querySelector('#vistaCliente .send-btn');
-            sendButton.disabled = this.value.trim() === '' || this.disabled;
         });
     </script>
 </body>
