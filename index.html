@@ -125,16 +125,17 @@
             background: var(--gray); 
             transform: none;
             cursor: not-allowed;
+            opacity: 0.6;
         }
         
         button.success { background: var(--success); }
-        button.success:hover { background: #218838; }
+        button.success:hover:not(:disabled) { background: #218838; }
         
         button.danger { background: var(--danger); }
-        button.danger:hover { background: #c82333; }
+        button.danger:hover:not(:disabled) { background: #c82333; }
         
         button.warning { background: var(--warning); color: black; }
-        button.warning:hover { background: #e0a800; }
+        button.warning:hover:not(:disabled) { background: #e0a800; }
         
         .hidden { display: none; }
         
@@ -272,6 +273,12 @@
             border: 2px solid var(--border);
             border-radius: 10px;
         }
+
+        .message-input:disabled {
+            background: #f8f9fa;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
         
         .send-btn {
             width: 60px;
@@ -285,6 +292,12 @@
             border: none;
             color: white;
             cursor: pointer;
+        }
+
+        .send-btn:disabled {
+            background: var(--gray);
+            cursor: not-allowed;
+            transform: none;
         }
         
         .controls { 
@@ -330,6 +343,12 @@
             border-color: #FECACA;
             animation: pulse 1s infinite;
         }
+
+        .timer.finalizada {
+            background: #e9ecef;
+            color: #6c757d;
+            border-color: #dee2e6;
+        }
         
         @keyframes pulse {
             0% { opacity: 1; }
@@ -351,6 +370,7 @@
         .status-completada { background: #DBEAFE; color: #1E40AF; }
         .status-cancelada { background: #FEE2E2; color: #DC2626; }
         .status-expirada { background: #FEF3C7; color: #D97706; }
+        .status-rechazada { background: #FEE2E2; color: #DC2626; }
         
         .chat-header {
             display: flex;
@@ -473,6 +493,15 @@
             padding: 40px 20px;
             color: var(--gray);
         }
+
+        .finalizado-overlay {
+            background: rgba(248, 249, 250, 0.9);
+            padding: 20px;
+            border-radius: var(--radius);
+            text-align: center;
+            margin: 20px 0;
+            border: 2px dashed var(--gray);
+        }
     </style>
 </head>
 <body>
@@ -539,6 +568,12 @@
                 <div id="timerCreador" class="timer normal">
                     ⏰ Tiempo restante: <span id="tiempoRestanteCreador">--:--</span>
                 </div>
+
+                <!-- Overlay cuando está finalizada -->
+                <div id="finalizadoOverlayCreador" class="finalizado-overlay hidden">
+                    <h3>🔒 Negociación Finalizada</h3>
+                    <p>Esta negociación ha sido completada. Todas las funciones están deshabilitadas.</p>
+                </div>
                 
                 <div class="messages-container" id="messagesCreador">
                     <div class="loading">
@@ -548,15 +583,15 @@
                 </div>
                 
                 <!-- Controles del CREADOR - TODOS LOS ACCESOS -->
-                <div class="controls">
-                    <button onclick="verificarPago(true)" class="success">✅ Aprobar Pago</button>
-                    <button onclick="verificarPago(false)" class="danger">❌ Rechazar Pago</button>
-                    <button onclick="cancelarNegociacionCreador()" class="danger">🚫 Cancelar Negociación</button>
+                <div class="controls" id="controlesCreador">
+                    <button onclick="verificarPago(true)" class="success" id="btnAprobarCreador">✅ Aprobar Pago</button>
+                    <button onclick="verificarPago(false)" class="danger" id="btnRechazarCreador">❌ Rechazar Pago</button>
+                    <button onclick="cancelarNegociacionCreador()" class="danger" id="btnCancelarCreador">🚫 Cancelar Negociación</button>
                 </div>
                 
                 <div class="input-area">
                     <textarea id="messageInputCreador" class="message-input" placeholder="Escribe tu mensaje aquí..." rows="2"></textarea>
-                    <button onclick="enviarMensajeCreador()" class="send-btn">➤</button>
+                    <button onclick="enviarMensajeCreador()" class="send-btn" id="btnEnviarCreador">➤</button>
                 </div>
             </div>
         </div>
@@ -588,6 +623,12 @@
                 <div id="timerCliente" class="timer normal">
                     ⏰ Tiempo restante: <span id="tiempoRestanteCliente">--:--</span>
                 </div>
+
+                <!-- Overlay cuando está finalizada -->
+                <div id="finalizadoOverlayCliente" class="finalizado-overlay hidden">
+                    <h3>🔒 Negociación Finalizada</h3>
+                    <p>Esta negociación ha sido completada. Todas las funciones están deshabilitadas.</p>
+                </div>
                 
                 <div class="messages-container" id="messagesCliente">
                     <div class="loading">
@@ -597,9 +638,9 @@
                 </div>
                 
                 <!-- Controles del CLIENTE - SOLO COMPROBANTE Y CANCELAR -->
-                <div class="controls">
-                    <button onclick="mostrarSubirComprobante()" class="warning">📎 Subir Comprobante</button>
-                    <button onclick="cancelarNegociacionCliente()" class="danger">🚫 Cancelar</button>
+                <div class="controls" id="controlesCliente">
+                    <button onclick="mostrarSubirComprobante()" class="warning" id="btnComprobanteCliente">📎 Subir Comprobante</button>
+                    <button onclick="cancelarNegociacionCliente()" class="danger" id="btnCancelarCliente">🚫 Cancelar</button>
                 </div>
                 
                 <!-- Área de subida de comprobante -->
@@ -619,7 +660,7 @@
                 
                 <div class="input-area">
                     <textarea id="messageInputCliente" class="message-input" placeholder="Escribe tu mensaje aquí..." rows="2"></textarea>
-                    <button onclick="enviarMensajeCliente()" class="send-btn">➤</button>
+                    <button onclick="enviarMensajeCliente()" class="send-btn" id="btnEnviarCliente">➤</button>
                 </div>
             </div>
         </div>
@@ -694,6 +735,80 @@
                 cargarChatCreador(id);
             }
             // Si no hay parámetros, mostrar vista del creador por defecto (solo formulario)
+        }
+
+        // =============================================
+        // FUNCIONES PARA BLOQUEAR/DESBLOQUEAR CONTROLES
+        // =============================================
+
+        function bloquearControlesCreador() {
+            const controles = document.getElementById('controlesCreador');
+            const inputMensaje = document.getElementById('messageInputCreador');
+            const btnEnviar = document.getElementById('btnEnviarCreador');
+            const overlay = document.getElementById('finalizadoOverlayCreador');
+            const timer = document.getElementById('timerCreador');
+
+            // Deshabilitar todos los botones de controles
+            const botones = controles.querySelectorAll('button');
+            botones.forEach(boton => {
+                boton.disabled = true;
+            });
+
+            // Deshabilitar chat
+            inputMensaje.disabled = true;
+            btnEnviar.disabled = true;
+
+            // Mostrar overlay de finalizado
+            overlay.classList.remove('hidden');
+
+            // Cambiar estilo del timer
+            timer.className = 'timer finalizada';
+            timer.innerHTML = '🔒 Negociación Finalizada';
+        }
+
+        function bloquearControlesCliente() {
+            const controles = document.getElementById('controlesCliente');
+            const inputMensaje = document.getElementById('messageInputCliente');
+            const btnEnviar = document.getElementById('btnEnviarCliente');
+            const overlay = document.getElementById('finalizadoOverlayCliente');
+            const timer = document.getElementById('timerCliente');
+            const uploadSection = document.getElementById('uploadSection');
+
+            // Deshabilitar todos los botones de controles
+            const botones = controles.querySelectorAll('button');
+            botones.forEach(boton => {
+                boton.disabled = true;
+            });
+
+            // Deshabilitar chat
+            inputMensaje.disabled = true;
+            btnEnviar.disabled = true;
+
+            // Ocultar sección de subida de comprobante si está visible
+            if (!uploadSection.classList.contains('hidden')) {
+                uploadSection.classList.add('hidden');
+            }
+
+            // Mostrar overlay de finalizado
+            overlay.classList.remove('hidden');
+
+            // Cambiar estilo del timer
+            timer.className = 'timer finalizada';
+            timer.innerHTML = '🔒 Negociación Finalizada';
+        }
+
+        function verificarEstadoYBloquearControles(negociacion, esCreador) {
+            const estadosFinalizados = ['COMPLETADA', 'CANCELADA', 'RECHAZADA', 'EXPIRADA'];
+            
+            if (estadosFinalizados.includes(negociacion.Estado)) {
+                if (esCreador) {
+                    bloquearControlesCreador();
+                } else {
+                    bloquearControlesCliente();
+                }
+                return true; // Está finalizada
+            }
+            return false; // No está finalizada
         }
 
         // =============================================
@@ -803,8 +918,17 @@
                 if (response.success) {
                     estadoCreador.negociacion = response.data;
                     actualizarInterfazCreador(response.data);
-                    await cargarMensajesCreador();
-                    iniciarActualizacionesCreador(id);
+                    
+                    // Verificar si está finalizada y bloquear controles
+                    const estaFinalizada = verificarEstadoYBloquearControles(response.data, true);
+                    
+                    if (!estaFinalizada) {
+                        await cargarMensajesCreador();
+                        iniciarActualizacionesCreador(id);
+                    } else {
+                        // Si está finalizada, cargar mensajes una vez pero no iniciar polling
+                        await cargarMensajesCreador();
+                    }
                     
                 } else {
                     document.getElementById('messagesCreador').innerHTML = 
@@ -942,6 +1066,11 @@
             if (tiempo.expirada) {
                 timerElement.textContent = '00:00';
                 timerContainer.className = 'timer danger';
+                // Si expira, bloquear controles
+                if (estadoCreador.negociacion.Estado === 'ACTIVA') {
+                    estadoCreador.negociacion.Estado = 'EXPIRADA';
+                    bloquearControlesCreador();
+                }
                 return;
             }
             
@@ -976,6 +1105,7 @@
                 
                 if (response.success) {
                     mostrarNotificacion(aprobado ? '✅ Pago aprobado' : '❌ Pago rechazado');
+                    // Recargar el chat para actualizar estado y bloquear controles
                     await cargarChatCreador(estadoCreador.negociacion.ID);
                 } else {
                     mostrarNotificacion('❌ Error al verificar pago: ' + response.message);
@@ -1004,6 +1134,7 @@
                 
                 if (response.success) {
                     mostrarNotificacion('✅ Negociación cancelada');
+                    // Recargar el chat para actualizar estado y bloquear controles
                     await cargarChatCreador(estadoCreador.negociacion.ID);
                 } else {
                     mostrarNotificacion('❌ Error al cancelar: ' + response.message);
@@ -1030,8 +1161,17 @@
                 if (response.success) {
                     estadoCliente.negociacion = response.data;
                     actualizarInterfazCliente(response.data);
-                    await cargarMensajesCliente();
-                    iniciarActualizacionesCliente(id);
+                    
+                    // Verificar si está finalizada y bloquear controles
+                    const estaFinalizada = verificarEstadoYBloquearControles(response.data, false);
+                    
+                    if (!estaFinalizada) {
+                        await cargarMensajesCliente();
+                        iniciarActualizacionesCliente(id);
+                    } else {
+                        // Si está finalizada, cargar mensajes una vez pero no iniciar polling
+                        await cargarMensajesCliente();
+                    }
                     
                     // Ocultar formulario de ingreso de ID y mostrar chat
                     document.getElementById('formIngresoID').classList.add('hidden');
@@ -1167,6 +1307,11 @@
             if (tiempo.expirada) {
                 timerElement.textContent = '00:00';
                 timerContainer.className = 'timer danger';
+                // Si expira, bloquear controles
+                if (estadoCliente.negociacion.Estado === 'ACTIVA') {
+                    estadoCliente.negociacion.Estado = 'EXPIRADA';
+                    bloquearControlesCliente();
+                }
                 return;
             }
             
@@ -1236,6 +1381,7 @@
                 
                 if (response.success) {
                     mostrarNotificacion('✅ Negociación cancelada');
+                    // Recargar el chat para actualizar estado y bloquear controles
                     await cargarChatCliente();
                 } else {
                     mostrarNotificacion('❌ Error al cancelar: ' + response.message);
