@@ -582,7 +582,7 @@
                     </div>
                 </div>
                 
-                <!-- Controles del CREADOR - TODOS LOS ACCESOS -->
+                <!-- Controles del CREADOR - NUNCA SE BLOQUEAN -->
                 <div class="controls" id="controlesCreador">
                     <button onclick="verificarPago(true)" class="success" id="btnAprobarCreador">✅ Aprobar Pago</button>
                     <button onclick="verificarPago(false)" class="danger" id="btnRechazarCreador">❌ Rechazar Pago</button>
@@ -637,10 +637,9 @@
                     </div>
                 </div>
                 
-                <!-- Controles del CLIENTE - SOLO COMPROBANTE Y CANCELAR -->
+                <!-- Controles del CLIENTE - SOLO COMPROBANTE (ELIMINADO CANCELAR) -->
                 <div class="controls" id="controlesCliente">
                     <button onclick="mostrarSubirComprobante()" class="warning" id="btnComprobanteCliente">📎 Subir Comprobante</button>
-                    <button onclick="cancelarNegociacionCliente()" class="danger" id="btnCancelarCliente">🚫 Cancelar</button>
                 </div>
                 
                 <!-- Área de subida de comprobante -->
@@ -742,26 +741,8 @@
         // =============================================
 
         function bloquearControlesCreador() {
-            const controles = document.getElementById('controlesCreador');
-            const inputMensaje = document.getElementById('messageInputCreador');
-            const btnEnviar = document.getElementById('btnEnviarCreador');
-            const overlay = document.getElementById('finalizadoOverlayCreador');
+            // EL CREADOR NUNCA SE BLOQUEA - SOLO ACTUALIZA INTERFAZ
             const timer = document.getElementById('timerCreador');
-
-            // Deshabilitar todos los botones de controles
-            const botones = controles.querySelectorAll('button');
-            botones.forEach(boton => {
-                boton.disabled = true;
-            });
-
-            // Deshabilitar chat
-            inputMensaje.disabled = true;
-            btnEnviar.disabled = true;
-
-            // Mostrar overlay de finalizado
-            overlay.classList.remove('hidden');
-
-            // Cambiar estilo del timer
             timer.className = 'timer finalizada';
             timer.innerHTML = '🔒 Negociación Finalizada';
         }
@@ -802,9 +783,9 @@
             
             if (estadosFinalizados.includes(negociacion.Estado)) {
                 if (esCreador) {
-                    bloquearControlesCreador();
+                    bloquearControlesCreador(); // Solo actualiza interfaz
                 } else {
-                    bloquearControlesCliente();
+                    bloquearControlesCliente(); // Bloquea completamente
                 }
                 return true; // Está finalizada
             }
@@ -919,7 +900,7 @@
                     estadoCreador.negociacion = response.data;
                     actualizarInterfazCreador(response.data);
                     
-                    // Verificar si está finalizada y bloquear controles
+                    // Verificar si está finalizada y actualizar interfaz
                     const estaFinalizada = verificarEstadoYBloquearControles(response.data, true);
                     
                     if (!estaFinalizada) {
@@ -1029,6 +1010,9 @@
             
             if (!mensaje || !estadoCreador.negociacion) return;
             
+            // LIMPIAR INMEDIATAMENTE para evitar doble envío
+            input.value = '';
+            
             try {
                 const response = await hacerRequest({
                     action: 'enviar_mensaje',
@@ -1038,13 +1022,16 @@
                 });
                 
                 if (response.success) {
-                    input.value = '';
                     await cargarMensajesCreador();
                 } else {
                     mostrarNotificacion('❌ Error al enviar mensaje: ' + response.message);
+                    // Si hay error, restaurar mensaje
+                    input.value = mensaje;
                 }
             } catch (error) {
                 mostrarNotificacion('❌ Error de conexión: ' + error.message);
+                // Si hay error, restaurar mensaje
+                input.value = mensaje;
             }
         }
 
@@ -1066,10 +1053,10 @@
             if (tiempo.expirada) {
                 timerElement.textContent = '00:00';
                 timerContainer.className = 'timer danger';
-                // Si expira, bloquear controles
+                // Si expira, solo actualizar interfaz
                 if (estadoCreador.negociacion.Estado === 'ACTIVA') {
                     estadoCreador.negociacion.Estado = 'EXPIRADA';
-                    bloquearControlesCreador();
+                    bloquearControlesCreador(); // Solo actualiza interfaz
                 }
                 return;
             }
@@ -1105,7 +1092,7 @@
                 
                 if (response.success) {
                     mostrarNotificacion(aprobado ? '✅ Pago aprobado' : '❌ Pago rechazado');
-                    // Recargar el chat para actualizar estado y bloquear controles
+                    // Recargar el chat para actualizar estado
                     await cargarChatCreador(estadoCreador.negociacion.ID);
                 } else {
                     mostrarNotificacion('❌ Error al verificar pago: ' + response.message);
@@ -1134,7 +1121,7 @@
                 
                 if (response.success) {
                     mostrarNotificacion('✅ Negociación cancelada');
-                    // Recargar el chat para actualizar estado y bloquear controles
+                    // Recargar el chat para actualizar estado
                     await cargarChatCreador(estadoCreador.negociacion.ID);
                 } else {
                     mostrarNotificacion('❌ Error al cancelar: ' + response.message);
@@ -1270,6 +1257,9 @@
             
             if (!mensaje || !estadoCliente.negociacion) return;
             
+            // LIMPIAR INMEDIATAMENTE para evitar doble envío
+            input.value = '';
+            
             try {
                 const response = await hacerRequest({
                     action: 'enviar_mensaje',
@@ -1279,13 +1269,16 @@
                 });
                 
                 if (response.success) {
-                    input.value = '';
                     await cargarMensajesCliente();
                 } else {
                     mostrarNotificacion('❌ Error al enviar mensaje: ' + response.message);
+                    // Si hay error, restaurar mensaje
+                    input.value = mensaje;
                 }
             } catch (error) {
                 mostrarNotificacion('❌ Error de conexión: ' + error.message);
+                // Si hay error, restaurar mensaje
+                input.value = mensaje;
             }
         }
 
@@ -1356,35 +1349,6 @@
                     await cargarMensajesCliente();
                 } else {
                     mostrarNotificacion('❌ Error al subir comprobante: ' + response.message);
-                }
-            } catch (error) {
-                mostrarNotificacion('❌ Error de conexión: ' + error.message);
-            }
-        }
-
-        async function cancelarNegociacionCliente() {
-            if (!estadoCliente.negociacion) {
-                mostrarNotificacion('❌ No hay negociación cargada');
-                return;
-            }
-            
-            const razon = prompt('¿Por qué cancelas la negociación?');
-            if (razon === null || razon.trim() === '') return;
-            
-            try {
-                const response = await hacerRequest({
-                    action: 'cancelar_negociacion',
-                    id: estadoCliente.negociacion.ID,
-                    razon: razon,
-                    tipoUsuario: 'cliente'
-                });
-                
-                if (response.success) {
-                    mostrarNotificacion('✅ Negociación cancelada');
-                    // Recargar el chat para actualizar estado y bloquear controles
-                    await cargarChatCliente();
-                } else {
-                    mostrarNotificacion('❌ Error al cancelar: ' + response.message);
                 }
             } catch (error) {
                 mostrarNotificacion('❌ Error de conexión: ' + error.message);
