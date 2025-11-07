@@ -46,38 +46,18 @@
             min-height: calc(100vh - 40px);
         }
 
-        /* Header Moderno */
+        /* Header */
         .header {
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
             padding: 24px;
             text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
-            background-size: 20px 20px;
-            animation: float 20s infinite linear;
-        }
-
-        @keyframes float {
-            0% { transform: translate(0, 0) rotate(0deg); }
-            100% { transform: translate(-20px, -20px) rotate(360deg); }
         }
 
         .header h1 {
             font-size: 24px;
             font-weight: 700;
             margin-bottom: 4px;
-            position: relative;
         }
 
         .header p {
@@ -86,7 +66,7 @@
             font-weight: 400;
         }
 
-        /* Cards Modernas */
+        /* Cards */
         .card {
             padding: 24px;
             background: white;
@@ -130,7 +110,7 @@
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
-        /* Botones Modernos */
+        /* Botones */
         .btn {
             padding: 12px 24px;
             border: none;
@@ -143,6 +123,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            width: 100%;
         }
 
         .btn:disabled {
@@ -159,7 +140,6 @@
         .btn-primary:hover:not(:disabled) {
             background: var(--primary-dark);
             transform: translateY(-1px);
-            box-shadow: var(--shadow-lg);
         }
 
         .btn-success {
@@ -226,7 +206,7 @@
             color: var(--dark);
         }
 
-        /* Timer Moderno */
+        /* Timer */
         .timer {
             text-align: center;
             padding: 16px;
@@ -235,7 +215,6 @@
             margin: 20px 0;
             border: 2px solid;
             background: white;
-            transition: all 0.3s ease;
         }
 
         .timer-normal { border-color: #bbf7d0; background: #f0fdf4; color: #166534; }
@@ -270,19 +249,6 @@
             max-width: 85%;
             font-size: 14px;
             line-height: 1.4;
-            position: relative;
-            animation: messageSlide 0.3s ease-out;
-        }
-
-        @keyframes messageSlide {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .message-creator {
@@ -330,7 +296,6 @@
             resize: none;
             font-size: 14px;
             background: var(--light);
-            transition: all 0.2s ease;
         }
 
         .message-input:focus {
@@ -371,24 +336,12 @@
             min-width: 140px;
         }
 
-        /* Estados de carga optimizados */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: 4px;
-        }
-
-        .skeleton-text {
-            height: 12px;
-            margin-bottom: 8px;
-        }
-
+        /* Estados */
         .hidden {
             display: none;
         }
 
-        /* Notificaciones modernas */
+        /* Notificaciones */
         .notification {
             position: fixed;
             top: 20px;
@@ -400,7 +353,6 @@
             box-shadow: var(--shadow-lg);
             z-index: 1000;
             animation: slideInRight 0.3s ease-out;
-            max-width: 300px;
         }
 
         @keyframes slideInRight {
@@ -414,18 +366,93 @@
             }
         }
 
-        /* Empty states */
+        /* Enlaces */
+        .enlace-container {
+            background: var(--light);
+            padding: 20px;
+            border-radius: var(--radius);
+            margin: 20px 0;
+            border: 2px dashed var(--border);
+        }
+
+        .enlace-text {
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--dark);
+        }
+
+        .enlace-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .enlace-buttons button {
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .copy-btn {
+            background: var(--gray);
+            color: white;
+        }
+
+        .whatsapp-btn {
+            background: #25D366 !important;
+            color: white;
+        }
+
+        /* Estados de carga */
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--gray);
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: var(--radius);
+            margin: 12px 0;
+            border-left: 4px solid #dc2626;
+            font-size: 14px;
+        }
+
+        .success-message {
+            background: #f0fdf4;
+            color: #166534;
+            padding: 16px;
+            border-radius: var(--radius);
+            margin: 16px 0;
+            border-left: 4px solid #10b981;
+        }
+
         .empty-state {
             text-align: center;
             padding: 40px 20px;
             color: var(--gray);
-        }
-
-        .empty-state svg {
-            width: 64px;
-            height: 64px;
-            margin-bottom: 16px;
-            opacity: 0.5;
         }
 
         /* Responsive */
@@ -456,7 +483,10 @@
         <div id="createForm" class="card">
             <h2 class="section-title">🚀 Crear Negociación</h2>
             
-            <div id="debugInfo" class="skeleton-text" style="height: 20px; margin-bottom: 20px;"></div>
+            <div id="debugInfo" class="loading">
+                <div class="loading-spinner"></div>
+                Conectando con el servidor...
+            </div>
             
             <div class="form-group">
                 <label class="form-label">📱 Número del Cliente</label>
@@ -484,7 +514,7 @@
                 <textarea id="descripcion" class="input-field" placeholder="Describe los términos del acuerdo..." rows="3" required>Servicio de consultoría profesional</textarea>
             </div>
             
-            <button onclick="crearNegociacion()" id="createBtn" class="btn btn-primary" style="width: 100%">
+            <button onclick="crearNegociacion()" id="createBtn" class="btn btn-primary">
                 Crear Negociación
             </button>
             <div id="formResult" style="margin-top: 16px;"></div>
@@ -512,9 +542,10 @@
             
             <!-- Mensajes -->
             <div class="messages-container" id="messages">
-                <div class="skeleton-text" style="height: 20px; margin-bottom: 8px;"></div>
-                <div class="skeleton-text" style="height: 20px; margin-bottom: 8px;"></div>
-                <div class="skeleton-text" style="height: 20px; width: 70%;"></div>
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    Cargando mensajes...
+                </div>
             </div>
             
             <!-- Controles -->
@@ -552,242 +583,504 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN OPTIMIZADA
+        // CONFIGURACIÓN
         const CONFIG = {
-            API_URL: 'https://script.google.com/macros/s/AKfycbxgR_3Yfjzy_FgE6fYi9OIxLiablneUyvWqt5eukezplafrEFdYaw8UL9gaFXQyxn3yEw/exec',
-            POLLING_INTERVAL: 2000, // Reducido de 3000ms
-            DEBOUNCE_DELAY: 300,
-            MAX_RETRIES: 2
+            API_URL: 'https://script.google.com/macros/s/AKfycbxgR_3Yfjzy_FgE6fYi9OIxLiablneUyvWqt5eukezplafrEFdYaw8UL9gaFXQyxn3yEw/exec'
         };
 
-        // ESTADO GLOBAL OPTIMIZADO
-        const STATE = {
+        // ESTADO GLOBAL
+        let appState = {
             negociacion: null,
             userType: '',
-            intervals: new Set(),
-            retryCount: 0,
-            lastMessageId: null
+            intervaloMensajes: null,
+            intervaloTimer: null
         };
 
-        // CACHE PARA OPTIMIZACIÓN
-        const CACHE = {
-            mensajes: new Map(),
-            negociaciones: new Map(),
-            timestamp: new Map()
-        };
-
-        // FUNCIÓN DE REQUEST OPTIMIZADA
-        async function makeRequest(params) {
-            const url = `${CONFIG.API_URL}?${new URLSearchParams(params)}`;
-            const cacheKey = JSON.stringify(params);
+        // FUNCIÓN DE REQUEST CORREGIDA
+        async function hacerRequest(params) {
+            const url = CONFIG.API_URL + '?' + new URLSearchParams(params).toString();
+            console.log('🔗 Haciendo request:', params.action, params);
             
-            // Verificar cache (solo para gets)
-            if (params.action.startsWith('get_') && CACHE.timestamp.get(cacheKey) > Date.now() - 5000) {
-                return CACHE.mensajes.get(cacheKey);
-            }
-
             try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000);
+                const response = await fetch(url);
                 
-                const response = await fetch(url, { 
-                    signal: controller.signal,
-                    mode: 'no-cors'
-                });
-                
-                clearTimeout(timeoutId);
-                
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                
-                const data = await response.json();
-                
-                // Guardar en cache
-                if (params.action.startsWith('get_')) {
-                    CACHE.mensajes.set(cacheKey, data);
-                    CACHE.timestamp.set(cacheKey, Date.now());
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
                 }
                 
-                STATE.retryCount = 0;
+                const data = await response.json();
+                console.log('📨 Respuesta recibida:', data);
                 return data;
                 
             } catch (error) {
-                console.warn('Request failed:', error);
-                
-                if (STATE.retryCount < CONFIG.MAX_RETRIES) {
-                    STATE.retryCount++;
-                    await new Promise(resolve => setTimeout(resolve, 1000 * STATE.retryCount));
-                    return makeRequest(params);
-                }
-                
-                throw new Error(`Conexión fallida después de ${CONFIG.MAX_RETRIES} intentos`);
+                console.error('❌ Error en request:', error);
+                throw error;
             }
         }
 
-        // INICIALIZACIÓN RÁPIDA
+        // INICIALIZACIÓN CORREGIDA
         async function init() {
             try {
+                const response = await hacerRequest({action: 'test'});
                 const debug = document.getElementById('debugInfo');
-                debug.innerHTML = '<div style="color: var(--success); font-size: 14px;">✅ Conectado al servidor</div>';
                 
-                // Cargar desde URL parameters inmediatamente
-                const urlParams = new URLSearchParams(window.location.search);
-                const id = urlParams.get('id');
-                const userType = urlParams.get('user');
-                
-                if (id && userType) {
-                    STATE.userType = userType;
-                    switchToChat();
-                    await loadChat(id);
+                if (response.success) {
+                    debug.innerHTML = '<div class="success-message">✅ ' + response.message + '</div>';
+                } else {
+                    debug.innerHTML = '<div class="error">❌ ' + response.message + '</div>';
                 }
             } catch (error) {
                 document.getElementById('debugInfo').innerHTML = 
-                    `<div style="color: var(--danger); font-size: 14px;">❌ Error de conexión</div>`;
+                    '<div class="error">❌ Error de conexión: ' + error.message + '</div>';
+            }
+            
+            // Cargar desde URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+            const userType = urlParams.get('user');
+            
+            if (id && userType) {
+                appState.userType = userType;
+                document.getElementById('createForm').classList.add('hidden');
+                document.getElementById('chatInterface').classList.remove('hidden');
+                await cargarChat(id);
             }
         }
 
-        // FUNCIONES OPTIMIZADAS
+        // FUNCIÓN CREAR NEGOCIACIÓN CORREGIDA
         async function crearNegociacion() {
-            const btn = document.getElementById('createBtn');
-            const originalText = btn.textContent;
+            const cliente = document.getElementById('cliente').value.trim();
+            const monto = document.getElementById('monto').value.trim();
+            const descripcion = document.getElementById('descripcion').value.trim();
+            const tiempoExpiracion = document.getElementById('tiempoExpiracion').value;
             
+            // Validaciones
+            if (!cliente || !monto || !descripcion) {
+                mostrarNotificacion('❌ Por favor completa todos los campos');
+                return;
+            }
+            
+            const btn = document.getElementById('createBtn');
             btn.disabled = true;
             btn.textContent = 'Creando...';
             
             try {
-                const data = {
-                    cliente: document.getElementById('cliente').value.trim(),
-                    monto: document.getElementById('monto').value,
-                    descripcion: document.getElementById('descripcion').value.trim(),
-                    tiempoExpiracion: document.getElementById('tiempoExpiracion').value
-                };
-
-                // Validación rápida
-                if (!data.cliente || !data.monto) {
-                    showNotification('❌ Completa todos los campos');
-                    return;
-                }
-
-                const result = await makeRequest({
+                const response = await hacerRequest({
                     action: 'crear_negociacion',
-                    ...data
+                    cliente: cliente,
+                    monto: monto,
+                    descripcion: descripcion,
+                    tiempoExpiracion: tiempoExpiracion
                 });
-
-                if (result.success) {
-                    showSuccessResult(result.data);
+                
+                const result = document.getElementById('formResult');
+                
+                if (response.success) {
+                    mostrarResultadoExitoso(response.data, cliente);
                 } else {
-                    showNotification(`❌ ${result.message}`);
+                    result.innerHTML = '<div class="error">❌ ' + response.message + '</div>';
                 }
             } catch (error) {
-                showNotification('❌ Error de conexión');
+                document.getElementById('formResult').innerHTML = 
+                    '<div class="error">❌ Error de conexión: ' + error.message + '</div>';
             } finally {
                 btn.disabled = false;
-                btn.textContent = originalText;
+                btn.textContent = 'Crear Negociación';
             }
         }
 
-        async function loadChat(id) {
-            try {
-                const [negociacion, mensajes] = await Promise.all([
-                    makeRequest({ action: 'get_negociacion', id }),
-                    makeRequest({ action: 'get_mensajes', id })
-                ]);
+        // FUNCIÓN MEJORADA PARA MOSTRAR RESULTADO
+        function mostrarResultadoExitoso(data, cliente) {
+            const enlaceCliente = `https://teechounamano.github.io/chat/?id=${data.id}&user=cliente`;
+            const numeroCliente = cliente.replace(/\D/g, '');
+            const mensajeWhatsApp = `Hola! Te invito a nuestra negociación TUM. Monto: $${data.monto}. Accede aquí: ${enlaceCliente}`;
+            const enlaceWhatsApp = `https://wa.me/${numeroCliente}?text=${encodeURIComponent(mensajeWhatsApp)}`;
+            
+            const resultDiv = document.getElementById('formResult');
+            resultDiv.innerHTML = `
+                <div class="success-message">
+                    <h3 style="margin-bottom: 16px;">✅ ¡Negociación Creada Exitosamente!</h3>
+                    
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">ID de Negociación</span>
+                            <span class="info-value">${data.id}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Tiempo Límite</span>
+                            <span class="info-value">${data.tiempoExpiracion} min</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Monto</span>
+                            <span class="info-value">$${data.monto}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Cliente</span>
+                            <span class="info-value">${cliente}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="enlace-container">
+                        <strong style="display: block; margin-bottom: 12px;">🔗 Enlace para el cliente:</strong>
+                        <div class="enlace-text">${enlaceCliente}</div>
+                        
+                        <div class="enlace-buttons">
+                            <button class="btn copy-btn" onclick="copiarEnlace('${enlaceCliente}')">
+                                📋 Copiar Enlace
+                            </button>
+                            <button class="btn whatsapp-btn" onclick="enviarWhatsApp('${enlaceWhatsApp}')">
+                                💬 Enviar por WhatsApp
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+                        <a href="https://teechounamano.github.io/chat/?id=${data.id}&user=creador" target="_blank" 
+                           style="color: var(--primary); text-decoration: none; font-weight: 600; font-size: 14px;">
+                            👑 Abrir Panel del Creador
+                        </a>
+                    </div>
+                </div>
+            `;
+            
+            // Limpiar formulario
+            document.getElementById('cliente').value = '';
+            document.getElementById('monto').value = '';
+            document.getElementById('descripcion').value = '';
+            
+            mostrarNotificacion('✅ Negociación creada exitosamente');
+        }
 
-                if (negociacion.success) {
-                    STATE.negociacion = negociacion.data;
-                    updateChatUI(negociacion.data);
-                    updateMessages(mensajes.data || []);
-                    startPolling(id);
+        // FUNCIÓN CARGAR CHAT CORREGIDA
+        async function cargarChat(id) {
+            try {
+                console.log('🔍 Cargando chat para ID:', id);
+                const response = await hacerRequest({ action: 'get_negociacion', id: id });
+                
+                if (response.success) {
+                    appState.negociacion = response.data;
+                    console.log('✅ Negociación cargada:', response.data);
+                    
+                    actualizarInterfazChat(response.data);
+                    await cargarMensajes();
+                    iniciarActualizaciones(id);
+                    
+                } else {
+                    document.getElementById('messages').innerHTML = 
+                        '<div class="error">❌ ' + response.message + '</div>';
                 }
             } catch (error) {
-                console.error('Error loading chat:', error);
+                document.getElementById('messages').innerHTML = 
+                    '<div class="error">❌ Error cargando el chat: ' + error.message + '</div>';
             }
         }
 
-        // POLLING OPTIMIZADO
-        function startPolling(id) {
-            // Limpiar intervalos anteriores
-            STATE.intervals.forEach(clearInterval);
-            STATE.intervals.clear();
-
-            const messageInterval = setInterval(async () => {
-                try {
-                    const mensajes = await makeRequest({ action: 'get_mensajes', id });
-                    updateMessages(mensajes.data || []);
-                } catch (error) {
-                    console.warn('Polling error:', error);
-                }
-            }, CONFIG.POLLING_INTERVAL);
-
-            const timerInterval = setInterval(updateTimer, 1000);
+        function actualizarInterfazChat(negociacion) {
+            // Configurar título según tipo de usuario
+            const esCreador = appState.userType === 'creador';
+            document.getElementById('chatTitle').textContent = 
+                esCreador ? '👑 Panel del Creador' : '👤 Vista del Cliente';
             
-            STATE.intervals.add(messageInterval);
-            STATE.intervals.add(timerInterval);
+            // Actualizar información
+            document.getElementById('negociacionInfo').innerHTML = `
+                <div class="info-item">
+                    <span class="info-label">ID</span>
+                    <span class="info-value">${negociacion.ID}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Monto</span>
+                    <span class="info-value">$${negociacion.Monto}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Cliente</span>
+                    <span class="info-value">${negociacion.Cliente}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Estado</span>
+                    <span class="info-value">${negociacion.Estado}</span>
+                </div>
+            `;
+            
+            // Actualizar badge de estado
+            const statusBadge = document.getElementById('statusBadge');
+            statusBadge.textContent = negociacion.Estado;
+            statusBadge.className = `status-badge status-${negociacion.Estado.toLowerCase()}`;
+            
+            // Mostrar controles según estado y tipo de usuario
+            actualizarControles(negociacion.Estado, esCreador);
         }
 
-        // RENDERIZADO OPTIMIZADO
-        function updateMessages(mensajes) {
+        function actualizarControles(estado, esCreador) {
+            // Ocultar todos primero
+            document.getElementById('creadorControls').classList.add('hidden');
+            document.getElementById('clienteControls').classList.add('hidden');
+            
+            if (estado === 'ACTIVA') {
+                if (esCreador) {
+                    document.getElementById('creadorControls').classList.remove('hidden');
+                } else {
+                    document.getElementById('clienteControls').classList.remove('hidden');
+                }
+                
+                // Habilitar chat
+                document.getElementById('messageInput').disabled = false;
+                document.getElementById('sendButton').disabled = false;
+            } else {
+                deshabilitarChat();
+            }
+        }
+
+        async function cargarMensajes() {
+            if (!appState.negociacion) return;
+            
+            try {
+                const response = await hacerRequest({ action: 'get_mensajes', id: appState.negociacion.ID });
+                
+                if (response.success) {
+                    mostrarMensajes(response.data);
+                }
+            } catch (error) {
+                console.error('Error cargando mensajes:', error);
+            }
+        }
+
+        function mostrarMensajes(mensajes) {
             const container = document.getElementById('messages');
-            if (!mensajes.length) {
-                container.innerHTML = '<div class="empty-state">💬 No hay mensajes aún</div>';
+            
+            if (!mensajes || mensajes.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-size: 48px; margin-bottom: 16px;">💬</div>
+                        <p>No hay mensajes aún</p>
+                        <small>Se el primero en enviar un mensaje</small>
+                    </div>
+                `;
                 return;
             }
-
-            // Solo actualizar si hay mensajes nuevos
-            const lastMsg = mensajes[mensajes.length - 1];
-            if (STATE.lastMessageId === lastMsg.ID_Negociacion + lastMsg.Fecha) return;
             
-            STATE.lastMessageId = lastMsg.ID_Negociacion + lastMsg.Fecha;
-
             container.innerHTML = mensajes.map(msg => {
-                const isCreator = msg.Remitente.includes('TeEchoUnaMano') || msg.Remitente.includes('👑');
-                const isSystem = msg.Remitente.includes('Sistema') || msg.Remitente.includes('🤖');
+                let clase = 'message-client';
+                if (msg.Remitente.includes('TeEchoUnaMano') || msg.Remitente.includes('👑')) {
+                    clase = 'message-creator';
+                } else if (msg.Remitente.includes('Sistema') || msg.Remitente.includes('🤖')) {
+                    clase = 'message-system';
+                }
                 
-                const className = isCreator ? 'message message-creator' : 
-                                 isSystem ? 'message message-system' : 'message message-client';
+                const fecha = new Date(msg.Fecha);
+                const fechaStr = fecha.toLocaleString('es-ES');
                 
                 return `
-                    <div class="${className}">
+                    <div class="message ${clase}">
+                        <div><strong>${msg.Remitente}</strong></div>
                         <div>${msg.Mensaje}</div>
-                        <div class="message-time">${formatTime(msg.Fecha)}</div>
+                        <div class="message-time">${fechaStr}</div>
                     </div>
                 `;
             }).join('');
-
+            
             container.scrollTop = container.scrollHeight;
         }
 
-        // FUNCIONES AUXILIARES OPTIMIZADAS
-        function formatTime(dateString) {
-            const date = new Date(dateString);
-            return isNaN(date) ? '--:--' : date.toLocaleTimeString('es-ES', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
+        function iniciarActualizaciones(id) {
+            // Limpiar intervalos anteriores
+            if (appState.intervaloMensajes) clearInterval(appState.intervaloMensajes);
+            if (appState.intervaloTimer) clearInterval(appState.intervaloTimer);
+            
+            // Configurar nuevos intervalos
+            appState.intervaloMensajes = setInterval(cargarMensajes, 3000);
+            appState.intervaloTimer = setInterval(actualizarTimer, 1000);
+        }
+
+        function actualizarTimer() {
+            if (!appState.negociacion || !appState.negociacion.Tiempo_Restante) return;
+            
+            const tiempo = appState.negociacion.Tiempo_Restante;
+            const timerElement = document.getElementById('tiempoRestante');
+            const timerContainer = document.getElementById('timer');
+            
+            if (tiempo.expirada) {
+                timerElement.textContent = '00:00';
+                timerContainer.className = 'timer timer-danger';
+                deshabilitarChat();
+                return;
+            }
+            
+            const tiempoFormateado = `${tiempo.minutos.toString().padStart(2, '0')}:${tiempo.segundos.toString().padStart(2, '0')}`;
+            timerElement.textContent = tiempoFormateado;
+            
+            // Cambiar color según el tiempo
+            if (tiempo.minutos < 1) {
+                timerContainer.className = 'timer timer-danger';
+            } else if (tiempo.minutos < 5) {
+                timerContainer.className = 'timer timer-warning';
+            } else {
+                timerContainer.className = 'timer timer-normal';
+            }
+        }
+
+        function deshabilitarChat() {
+            document.getElementById('messageInput').disabled = true;
+            document.getElementById('sendButton').disabled = true;
+            document.getElementById('creadorControls').classList.add('hidden');
+            document.getElementById('clienteControls').classList.add('hidden');
+        }
+
+        // FUNCIONES DE UTILIDAD CORREGIDAS
+        function mostrarSubirComprobante() {
+            document.getElementById('uploadSection').classList.remove('hidden');
+        }
+
+        function ocultarSubirComprobante() {
+            document.getElementById('uploadSection').classList.add('hidden');
+            document.getElementById('comprobanteUrl').value = '';
+        }
+
+        async function subirComprobante() {
+            const comprobanteUrl = document.getElementById('comprobanteUrl').value.trim();
+            if (!comprobanteUrl) {
+                mostrarNotificacion('❌ Ingresa la URL del comprobante');
+                return;
+            }
+            
+            try {
+                const response = await hacerRequest({
+                    action: 'subir_comprobante',
+                    id: appState.negociacion.ID,
+                    comprobanteUrl: comprobanteUrl
+                });
+                
+                if (response.success) {
+                    mostrarNotificacion('✅ Comprobante subido');
+                    ocultarSubirComprobante();
+                    await cargarMensajes();
+                } else {
+                    mostrarNotificacion('❌ Error: ' + response.message);
+                }
+            } catch (error) {
+                mostrarNotificacion('❌ Error de conexión');
+            }
+        }
+
+        async function verificarPago(aprobado) {
+            if (!confirm(`¿Estás seguro de ${aprobado ? 'APROBAR' : 'RECHAZAR'} el pago?`)) return;
+            
+            try {
+                const response = await hacerRequest({
+                    action: 'verificar_pago',
+                    id: appState.negociacion.ID,
+                    aprobado: aprobado
+                });
+                
+                if (response.success) {
+                    mostrarNotificacion(aprobado ? '✅ Pago aprobado' : '❌ Pago rechazado');
+                    await cargarChat(appState.negociacion.ID);
+                } else {
+                    mostrarNotificacion('❌ Error: ' + response.message);
+                }
+            } catch (error) {
+                mostrarNotificacion('❌ Error de conexión');
+            }
+        }
+
+        async function cancelarNegociacion() {
+            const razon = prompt('¿Por qué cancelas la negociación?');
+            if (!razon) return;
+            
+            try {
+                const response = await hacerRequest({
+                    action: 'cancelar_negociacion',
+                    id: appState.negociacion.ID,
+                    razon: razon,
+                    tipoUsuario: appState.userType
+                });
+                
+                if (response.success) {
+                    mostrarNotificacion('✅ Negociación cancelada');
+                    await cargarChat(appState.negociacion.ID);
+                } else {
+                    mostrarNotificacion('❌ Error: ' + response.message);
+                }
+            } catch (error) {
+                mostrarNotificacion('❌ Error de conexión');
+            }
+        }
+
+        async function enviarMensaje() {
+            const input = document.getElementById('messageInput');
+            const mensaje = input.value.trim();
+            
+            if (!mensaje || !appState.negociacion) return;
+            
+            try {
+                const response = await hacerRequest({
+                    action: 'enviar_mensaje',
+                    id: appState.negociacion.ID,
+                    tipoUsuario: appState.userType,
+                    mensaje: mensaje
+                });
+                
+                if (response.success) {
+                    input.value = '';
+                    await cargarMensajes();
+                } else {
+                    mostrarNotificacion('❌ Error enviando mensaje');
+                }
+            } catch (error) {
+                mostrarNotificacion('❌ Error de conexión');
+            }
+        }
+
+        // FUNCIONES DE ENLACES CORREGIDAS
+        function enviarWhatsApp(enlaceWhatsApp) {
+            window.open(enlaceWhatsApp, '_blank');
+        }
+
+        function copiarEnlace(enlace) {
+            navigator.clipboard.writeText(enlace).then(() => {
+                mostrarNotificacion('✅ Enlace copiado al portapapeles');
+            }).catch(() => {
+                // Fallback para navegadores antiguos
+                const textArea = document.createElement('textarea');
+                textArea.value = enlace;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                mostrarNotificacion('✅ Enlace copiado al portapapeles');
             });
         }
 
-        function switchToChat() {
-            document.getElementById('createForm').classList.add('hidden');
-            document.getElementById('chatInterface').classList.remove('hidden');
+        function mostrarNotificacion(mensaje) {
+            // Remover notificaciones existentes
+            const existentes = document.querySelectorAll('.notification');
+            existentes.forEach(notif => notif.remove());
+            
+            const notificacion = document.createElement('div');
+            notificacion.className = 'notification';
+            notificacion.textContent = mensaje;
+            document.body.appendChild(notificacion);
+            
+            setTimeout(() => {
+                if (notificacion.parentNode) {
+                    notificacion.parentNode.removeChild(notificacion);
+                }
+            }, 3000);
         }
 
-        function showNotification(message) {
-            // Implementación rápida de notificación
-            console.log('Notification:', message);
-        }
-
-        function showSuccessResult(data) {
-            // Implementación optimizada de resultado exitoso
-            const resultDiv = document.getElementById('formResult');
-            resultDiv.innerHTML = `
-                <div style="background: #f0fdf4; padding: 16px; border-radius: var(--radius); border-left: 4px solid var(--success);">
-                    <div style="font-weight: 600; margin-bottom: 8px;">✅ Negociación creada</div>
-                    <div style="font-size: 14px;">ID: ${data.id}</div>
-                </div>
-            `;
-        }
-
-        // Inicialización inmediata
+        // EVENT LISTENERS CORREGIDOS
         document.addEventListener('DOMContentLoaded', init);
+        
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                enviarMensaje();
+            }
+        });
+
+        document.getElementById('messageInput').addEventListener('input', function() {
+            const sendButton = document.getElementById('sendButton');
+            sendButton.disabled = this.value.trim() === '' || this.disabled;
+        });
     </script>
 </body>
 </html>
