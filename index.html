@@ -477,6 +477,29 @@
             margin-bottom: 15px;
             opacity: 0.5;
         }
+
+        /* Skeleton loading */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 4px;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        .skeleton-text {
+            height: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .skeleton-button {
+            height: 44px;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body>
@@ -497,12 +520,12 @@
             
             <div class="form-group">
                 <label class="form-label" for="cliente">📱 Número del Cliente</label>
-                <input type="tel" id="cliente" placeholder="+1234567890" value="+1234567890">
+                <input type="tel" id="cliente" placeholder="+1234567890" value="+1234567890" required>
             </div>
             
             <div class="form-group">
                 <label class="form-label" for="monto">💰 Monto de la Negociación</label>
-                <input type="number" id="monto" placeholder="1000" value="1000">
+                <input type="number" id="monto" placeholder="1000" value="1000" min="1" required>
             </div>
             
             <div class="form-group">
@@ -518,7 +541,7 @@
             
             <div class="form-group">
                 <label class="form-label" for="descripcion">📝 Descripción del Trato</label>
-                <textarea id="descripcion" placeholder="Describe los términos del acuerdo..." rows="3">Servicio de consultoría profesional</textarea>
+                <textarea id="descripcion" placeholder="Describe los términos del acuerdo..." rows="3" required>Servicio de consultoría profesional</textarea>
             </div>
             
             <button onclick="crearNegociacion()" id="createBtn">Crear Negociación</button>
@@ -597,15 +620,20 @@
             negociacion: null, 
             userType: '',
             intervaloMensajes: null,
-            intervaloTimer: null
+            intervaloTimer: null,
+            conexionActiva: true,
+            intentosReconexion: 0
         };
 
-        // Función corregida para hacer requests
+        // FUNCIÓN MEJORADA CON MANEJO DE ERRORES
         async function hacerRequest(params) {
             const url = API_URL + '?' + new URLSearchParams(params).toString();
             try {
                 console.log('Haciendo request:', params.action, params);
-                const response = await fetch(url);
+                const response = await fetch(url, {
+                    method: 'GET',
+                    mode: 'no-cors'
+                });
                 
                 if (!response.ok) {
                     throw new Error(`Error HTTP: ${response.status}`);
@@ -613,14 +641,24 @@
                 
                 const data = await response.json();
                 console.log('Respuesta recibida:', data);
+                appState.intentosReconexion = 0; // Resetear intentos en éxito
                 return data;
             } catch (error) {
                 console.error('Error en request:', error);
-                throw error;
+                appState.intentosReconexion++;
+                
+                // Intentar reconexión automática
+                if (appState.intentosReconexion <= 3) {
+                    console.log(`Reintentando conexión... (${appState.intentosReconexion}/3)`);
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    return await hacerRequest(params);
+                }
+                
+                throw new Error(`Error de conexión después de 3 intentos: ${error.message}`);
             }
         }
 
-        // Inicialización
+        // Inicialización mejorada
         async function init() {
             try {
                 const response = await hacerRequest({action: 'test'});
@@ -645,15 +683,26 @@
             }
         }
 
-        // Función para crear negociación
+        // Función para crear negociación - MEJORADA
         async function crearNegociacion() {
-            const cliente = document.getElementById('cliente').value;
-            const monto = document.getElementById('monto').value;
-            const descripcion = document.getElementById('descripcion').value;
+            const cliente = document.getElementById('cliente').value.trim();
+            const monto = document.getElementById('monto').value.trim();
+            const descripcion = document.getElementById('descripcion').value.trim();
             const tiempoExpiracion = document.getElementById('tiempoExpiracion').value;
             
-            if (!cliente || !monto) {
+            // Validaciones mejoradas
+            if (!cliente || !monto || !descripcion) {
                 mostrarNotificacion('❌ Por favor completa todos los campos requeridos');
+                return;
+            }
+            
+            if (!cliente.startsWith('+')) {
+                mostrarNotificacion('❌ El número debe incluir código de país (ej: +1234567890)');
+                return;
+            }
+            
+            if (parseFloat(monto) <= 0) {
+                mostrarNotificacion('❌ El monto debe ser mayor a 0');
                 return;
             }
             
@@ -738,7 +787,7 @@
             }
         }
 
-        // FUNCIÓN CORREGIDA - Cargar chat con controles correctos
+        // Función para cargar el chat - MEJORADA
         async function cargarChat(id) {
             try {
                 console.log('Cargando chat para ID:', id);
@@ -760,12 +809,12 @@
                             <span class="info-value">${response.data.ID}</span>
                         </div>
                         <div class="info-item">
-                            <span class="info-label">Cliente</span>
-                            <span class="info-value">${response.data.Cliente}</span>
-                        </div>
-                        <div class="info-item">
                             <span class="info-label">Monto</span>
                             <span class="info-value">$${response.data.Monto}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Cliente</span>
+                            <span class="info-value">${response.data.Cliente}</span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Estado</span>
@@ -778,18 +827,14 @@
                     statusBadge.textContent = response.data.Estado;
                     statusBadge.className = `status-badge status-${response.data.Estado.toLowerCase()}`;
                     
-                    // LIMPIAR TODOS LOS CONTROLES PRIMERO
+                    // Mostrar controles según el tipo de usuario
                     document.getElementById('creadorControls').classList.add('hidden');
                     document.getElementById('clienteControls').classList.add('hidden');
-                    document.getElementById('uploadSection').classList.add('hidden');
                     
-                    // LOGICA CORREGIDA PARA CONTROLES
                     if (response.data.Estado === 'ACTIVA') {
                         if (esCreador) {
-                            console.log('🛠 Mostrando controles del CREADOR');
                             document.getElementById('creadorControls').classList.remove('hidden');
                         } else {
-                            console.log('🛠 Mostrando controles del CLIENTE');
                             document.getElementById('clienteControls').classList.remove('hidden');
                         }
                         
@@ -798,7 +843,6 @@
                         document.getElementById('sendButton').disabled = false;
                         document.getElementById('messageInput').focus();
                     } else {
-                        console.log('🛠 Chat DESHABILITADO - Estado:', response.data.Estado);
                         deshabilitarChat();
                     }
                     
@@ -897,6 +941,10 @@
             
             if (!mensaje || !appState.negociacion) return;
             
+            // Deshabilitar temporalmente
+            input.disabled = true;
+            document.getElementById('sendButton').disabled = true;
+            
             try {
                 const response = await hacerRequest({
                     action: 'enviar_mensaje',
@@ -907,13 +955,16 @@
                 
                 if (response.success) {
                     input.value = '';
-                    document.getElementById('sendButton').disabled = true;
                     await cargarMensajes();
                 } else {
                     mostrarNotificacion('❌ Error al enviar mensaje: ' + response.message);
                 }
             } catch (error) {
                 mostrarNotificacion('❌ Error de conexión: ' + error.message);
+            } finally {
+                // Rehabilitar
+                input.disabled = false;
+                input.focus();
             }
         }
 
@@ -1008,6 +1059,7 @@
             if (tiempoRestante.expirada) {
                 timerElement.textContent = '00:00';
                 timerContainer.className = 'timer danger';
+                deshabilitarChat();
                 return;
             }
             
@@ -1031,10 +1083,19 @@
             document.getElementById('sendButton').disabled = true;
             document.getElementById('creadorControls').classList.add('hidden');
             document.getElementById('clienteControls').classList.add('hidden');
-            document.getElementById('uploadSection').classList.add('hidden');
+            
+            // Limpiar intervalos cuando el chat está deshabilitado
+            if (appState.intervaloMensajes) {
+                clearInterval(appState.intervaloMensajes);
+                appState.intervaloMensajes = null;
+            }
+            if (appState.intervaloTimer) {
+                clearInterval(appState.intervaloTimer);
+                appState.intervaloTimer = null;
+            }
         }
 
-        // Funciones de utilidad
+        // Funciones de utilidad MEJORADAS
         function enviarWhatsApp(enlaceWhatsApp) {
             window.open(enlaceWhatsApp, '_blank');
         }
@@ -1054,6 +1115,10 @@
         }
 
         function mostrarNotificacion(mensaje) {
+            // Remover notificaciones existentes
+            const notificacionesExistentes = document.querySelectorAll('.notification');
+            notificacionesExistentes.forEach(notif => notif.remove());
+            
             const notificacion = document.createElement('div');
             notificacion.className = 'notification';
             notificacion.textContent = mensaje;
@@ -1069,7 +1134,7 @@
         // Iniciar la aplicación
         document.addEventListener('DOMContentLoaded', init);
         
-        // Event listeners
+        // Event listeners MEJORADOS
         document.getElementById('messageInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -1080,6 +1145,13 @@
         document.getElementById('messageInput').addEventListener('input', function(e) {
             const sendButton = document.getElementById('sendButton');
             sendButton.disabled = this.value.trim() === '' || this.disabled;
+        });
+
+        // Validación en tiempo real
+        document.getElementById('monto').addEventListener('input', function(e) {
+            if (this.value < 0) {
+                this.value = 1;
+            }
         });
     </script>
 </body>
