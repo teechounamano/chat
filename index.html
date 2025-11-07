@@ -3,370 +3,394 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Te Echo Una Mano | Negociaciones Seguras</title>
+    <title>Te Echo Una Mano - Negociaciones Seguras</title>
     <style>
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --primary-light: #dbeafe;
-            --secondary: #7c3aed;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --dark: #1f2937;
-            --light: #f8fafc;
-            --gray: #6b7280;
-            --border: #e5e7eb;
-            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --radius: 8px;
-        }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        
+        :root {
+            --primary: #2E86AB;
+            --primary-dark: #1A5A7A;
+            --secondary: #A23B72;
+            --success: #28A745;
+            --danger: #DC3545;
+            --warning: #FFC107;
+            --light: #F8F9FA;
+            --dark: #343A40;
+            --gray: #6C757D;
+            --border: #E9ECEF;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+        }
+        
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            max-width: 500px; 
+            margin: 0 auto; 
+            padding: 20px; 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
-            line-height: 1.6;
         }
-
+        
         .app-container {
-            max-width: 480px;
-            margin: 0 auto;
             background: white;
-            border-radius: 16px;
-            box-shadow: var(--shadow-lg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
             overflow: hidden;
             min-height: calc(100vh - 40px);
         }
-
-        /* Header */
+        
+        .card { 
+            background: white; 
+            padding: 25px; 
+            border-radius: var(--radius);
+            margin-bottom: 0;
+        }
+        
         .header {
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
-            padding: 24px;
+            padding: 25px;
             text-align: center;
         }
-
+        
         .header h1 {
             font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 4px;
+            font-weight: 600;
+            margin-bottom: 8px;
         }
-
+        
         .header p {
             opacity: 0.9;
             font-size: 14px;
-            font-weight: 400;
         }
-
-        /* Cards */
-        .card {
-            padding: 24px;
-            background: white;
-        }
-
-        .section-title {
-            font-size: 20px;
-            font-weight: 600;
+        
+        h2 {
             color: var(--dark);
             margin-bottom: 20px;
             text-align: center;
+            font-weight: 600;
+            font-size: 20px;
         }
-
-        /* Form Elements */
+        
         .form-group {
             margin-bottom: 20px;
         }
-
+        
         .form-label {
             display: block;
-            font-size: 14px;
+            margin-bottom: 8px;
             font-weight: 500;
             color: var(--dark);
-            margin-bottom: 8px;
-        }
-
-        .input-field {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid var(--border);
-            border-radius: var(--radius);
             font-size: 14px;
-            transition: all 0.2s ease;
-            background: var(--light);
         }
-
-        .input-field:focus {
-            outline: none;
+        
+        input, textarea, button, select { 
+            width: 100%; 
+            padding: 15px; 
+            margin: 0; 
+            border: 2px solid var(--border); 
+            border-radius: 10px; 
+            font-size: 16px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, textarea:focus, select:focus {
             border-color: var(--primary);
-            background: white;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(46, 134, 171, 0.1);
         }
-
-        /* Botones */
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: var(--radius);
-            font-size: 14px;
+        
+        button { 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
             font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
+            transition: all 0.3s;
+            padding: 15px 20px;
         }
-
-        .btn:disabled {
-            opacity: 0.6;
+        
+        button:hover { 
+            background: var(--primary-dark); 
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        button:disabled { 
+            background: var(--gray); 
+            transform: none;
             cursor: not-allowed;
-            transform: none !important;
         }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
+        
+        button.success { background: var(--success); }
+        button.success:hover { background: #218838; }
+        
+        button.danger { background: var(--danger); }
+        button.danger:hover { background: #c82333; }
+        
+        button.warning { background: var(--warning); color: black; }
+        button.warning:hover { background: #e0a800; }
+        
+        button.secondary { background: var(--secondary); }
+        button.secondary:hover { background: #8a2a5d; }
+        
+        .hidden { display: none; }
+        
+        .loading { 
+            text-align: center; 
+            color: var(--gray); 
+            padding: 30px; 
+            font-size: 16px;
         }
-
-        .btn-primary:hover:not(:disabled) {
-            background: var(--primary-dark);
-            transform: translateY(-1px);
+        
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
         }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-warning {
-            background: var(--warning);
-            color: white;
-        }
-
-        /* Chat Interface */
-        .chat-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 16px;
-            border-bottom: 2px solid var(--border);
-            margin-bottom: 20px;
-        }
-
-        .status-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .status-active { background: var(--primary-light); color: var(--primary-dark); }
-        .status-completed { background: #dcfce7; color: #166534; }
-        .status-cancelled { background: #fef2f2; color: #dc2626; }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            background: var(--light);
-            padding: 16px;
-            border-radius: var(--radius);
-            margin-bottom: 20px;
-        }
-
-        .info-item {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .info-label {
-            font-size: 12px;
-            color: var(--gray);
-            margin-bottom: 4px;
-        }
-
-        .info-value {
+        
+        .error { 
+            background: #FEF2F2; 
+            color: #DC2626; 
+            padding: 15px; 
+            border-radius: 10px; 
+            margin: 15px 0; 
+            border-left: 4px solid #DC2626;
             font-size: 14px;
-            font-weight: 600;
-            color: var(--dark);
         }
-
-        /* Timer */
-        .timer {
-            text-align: center;
-            padding: 16px;
-            border-radius: var(--radius);
-            font-weight: 600;
-            margin: 20px 0;
-            border: 2px solid;
-            background: white;
+        
+        .success-message { 
+            background: #F0FDF4; 
+            color: #16A34A; 
+            padding: 15px; 
+            border-radius: 10px; 
+            margin: 15px 0;
+            border-left: 4px solid #16A34A;
+            font-size: 14px;
         }
-
-        .timer-normal { border-color: #bbf7d0; background: #f0fdf4; color: #166534; }
-        .timer-warning { border-color: #fde68a; background: #fffbeb; color: #d97706; }
-        .timer-danger { 
-            border-color: #fecaca; 
-            background: #fef2f2; 
-            color: #dc2626; 
-            animation: pulse 2s infinite;
+        
+        .warning { 
+            background: #FFFBEB; 
+            color: #D97706; 
+            padding: 15px; 
+            border-radius: 10px; 
+            margin: 15px 0;
+            border-left: 4px solid #D97706;
+            font-size: 14px;
         }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        /* Mensajes */
-        .messages-container {
-            height: 300px;
-            overflow-y: auto;
-            padding: 16px;
+        
+        .messages-container { 
+            height: 350px; 
+            overflow-y: auto; 
+            border: 2px solid var(--border); 
+            padding: 15px; 
+            margin: 20px 0; 
             background: var(--light);
             border-radius: var(--radius);
-            margin: 20px 0;
-            border: 1px solid var(--border);
         }
-
-        .message {
-            margin: 12px 0;
-            padding: 12px 16px;
-            border-radius: 12px;
+        
+        .message { 
+            margin: 12px 0; 
+            padding: 12px 16px; 
+            border-radius: 12px; 
             max-width: 85%;
+            word-wrap: break-word;
             font-size: 14px;
             line-height: 1.4;
+            position: relative;
         }
-
-        .message-creator {
+        
+        .creador { 
             background: var(--primary);
             color: white;
             margin-left: auto;
             border-bottom-right-radius: 4px;
         }
-
-        .message-client {
+        
+        .cliente { 
             background: white;
             color: var(--dark);
             margin-right: auto;
-            border: 1px solid var(--border);
             border-bottom-left-radius: 4px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-
-        .message-system {
-            background: var(--warning);
+        
+        .sistema { 
+            background: var(--warning); 
             color: black;
-            margin: 12px auto;
-            text-align: center;
-            font-style: italic;
+            text-align: center; 
+            margin: 12px auto; 
             max-width: 90%;
+            font-style: italic;
+            border: 1px dashed #D97706;
         }
-
+        
+        .comprobante { 
+            background: #DCFCE7; 
+            border-left: 4px solid var(--success);
+            border: 1px solid #BBF7D0;
+        }
+        
         .message-time {
             font-size: 11px;
             opacity: 0.7;
-            margin-top: 4px;
+            margin-top: 5px;
+            text-align: right;
         }
-
-        /* Input Area */
-        .input-area {
-            display: flex;
-            gap: 12px;
+        
+        .cliente .message-time {
+            text-align: left;
+            color: var(--gray);
+        }
+        
+        .input-area { 
+            display: flex; 
+            gap: 12px; 
             margin-top: 20px;
+            align-items: flex-end;
         }
-
-        .message-input {
-            flex: 1;
-            padding: 12px 16px;
-            border: 2px solid var(--border);
-            border-radius: var(--radius);
-            resize: none;
+        
+        #messageInput { 
+            flex: 1; 
+            padding: 15px;
             font-size: 14px;
+            height: 60px;
+            resize: none;
             background: var(--light);
         }
-
-        .message-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: white;
-        }
-
-        .send-btn {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: var(--primary);
-            color: white;
-            border: none;
+        
+        #sendButton {
+            width: 60px;
+            height: 60px;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            font-size: 18px;
+            border-radius: 50%;
+            background: var(--primary);
         }
-
-        .send-btn:hover:not(:disabled) {
-            background: var(--primary-dark);
-            transform: scale(1.05);
-        }
-
-        /* Controles */
-        .controls {
-            display: flex;
-            gap: 12px;
-            margin: 20px 0;
+        
+        .controls { 
+            display: flex; 
+            gap: 10px; 
+            margin: 20px 0; 
             flex-wrap: wrap;
         }
-
-        .controls .btn {
+        
+        .controls button { 
             flex: 1;
             min-width: 140px;
+            padding: 12px 16px;
+            font-size: 14px;
         }
-
-        /* Estados */
-        .hidden {
-            display: none;
+        
+        .timer { 
+            text-align: center; 
+            padding: 15px; 
+            margin: 20px 0; 
+            border-radius: var(--radius); 
+            font-weight: 600; 
+            font-size: 16px;
+            border: 2px solid;
+            background: white;
         }
-
-        /* Notificaciones */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--success);
-            color: white;
-            padding: 12px 20px;
+        
+        .timer.normal { 
+            background: #F0FDF4; 
+            color: #166534; 
+            border-color: #BBF7D0;
+        }
+        
+        .timer.warning { 
+            background: #FFFBEB; 
+            color: #D97706; 
+            border-color: #FDE68A;
+        }
+        
+        .timer.danger { 
+            background: #FEF2F2; 
+            color: #DC2626; 
+            border-color: #FECACA;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-activa { background: #DCFCE7; color: #166534; }
+        .status-completada { background: #DBEAFE; color: #1E40AF; }
+        .status-cancelada { background: #FEE2E2; color: #DC2626; }
+        .status-expirada { background: #FEF3C7; color: #D97706; }
+        
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .chat-info {
+            background: var(--light);
+            padding: 15px;
             border-radius: var(--radius);
-            box-shadow: var(--shadow-lg);
-            z-index: 1000;
-            animation: slideInRight 0.3s ease-out;
+            margin: 15px 0;
+            font-size: 14px;
+            color: var(--dark);
         }
-
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
         }
-
-        /* Enlaces */
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .info-label {
+            font-size: 12px;
+            color: var(--gray);
+            margin-bottom: 4px;
+        }
+        
+        .info-value {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
         .enlace-container {
             background: var(--light);
             padding: 20px;
@@ -374,7 +398,25 @@
             margin: 20px 0;
             border: 2px dashed var(--border);
         }
-
+        
+        .copy-btn {
+            background: var(--gray);
+            margin-top: 10px;
+        }
+        
+        .copy-btn:hover {
+            background: #545b62;
+        }
+        
+        .whatsapp-btn {
+            background: #25D366 !important;
+            margin-top: 10px;
+        }
+        
+        .whatsapp-btn:hover {
+            background: #1da851 !important;
+        }
+        
         .enlace-text {
             word-break: break-all;
             font-family: 'Courier New', monospace;
@@ -386,88 +428,54 @@
             font-size: 12px;
             color: var(--dark);
         }
-
+        
         .enlace-buttons {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
         }
-
+        
         .enlace-buttons button {
             flex: 1;
             min-width: 140px;
         }
-
-        .copy-btn {
-            background: var(--gray);
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success);
             color: white;
-        }
-
-        .whatsapp-btn {
-            background: #25D366 !important;
-            color: white;
-        }
-
-        /* Estados de carga */
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: var(--gray);
-        }
-
-        .loading-spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--primary);
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .error {
-            background: #fef2f2;
-            color: #dc2626;
-            padding: 12px 16px;
+            padding: 15px 20px;
             border-radius: var(--radius);
-            margin: 12px 0;
-            border-left: 4px solid #dc2626;
-            font-size: 14px;
+            z-index: 10000;
+            box-shadow: var(--shadow);
+            font-weight: 600;
+            animation: slideIn 0.3s ease-out;
+            max-width: 300px;
         }
-
-        .success-message {
-            background: #f0fdf4;
-            color: #166534;
-            padding: 16px;
-            border-radius: var(--radius);
-            margin: 16px 0;
-            border-left: 4px solid #10b981;
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
-
+        
         .empty-state {
             text-align: center;
             padding: 40px 20px;
             color: var(--gray);
         }
-
-        /* Responsive */
-        @media (max-width: 480px) {
-            .card {
-                padding: 20px;
-            }
-            
-            .controls .btn {
-                min-width: 100%;
-            }
-            
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
+        
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
         }
     </style>
 </head>
@@ -481,26 +489,25 @@
 
         <!-- Formulario de creación -->
         <div id="createForm" class="card">
-            <h2 class="section-title">🚀 Crear Negociación</h2>
-            
+            <h2>🚀 Crear Nueva Negociación</h2>
             <div id="debugInfo" class="loading">
                 <div class="loading-spinner"></div>
-                Conectando con el servidor...
+                Verificando conexión con el servidor...
             </div>
             
             <div class="form-group">
-                <label class="form-label">📱 Número del Cliente</label>
-                <input type="tel" id="cliente" class="input-field" placeholder="+1234567890" value="+1234567890" required>
+                <label class="form-label" for="cliente">📱 Número del Cliente</label>
+                <input type="tel" id="cliente" placeholder="+1234567890" value="+1234567890">
             </div>
             
             <div class="form-group">
-                <label class="form-label">💰 Monto</label>
-                <input type="number" id="monto" class="input-field" placeholder="1000" value="1000" min="1" required>
+                <label class="form-label" for="monto">💰 Monto de la Negociación</label>
+                <input type="number" id="monto" placeholder="1000" value="1000">
             </div>
             
             <div class="form-group">
-                <label class="form-label">⏰ Tiempo de Expiración</label>
-                <select id="tiempoExpiracion" class="input-field">
+                <label class="form-label" for="tiempoExpiracion">⏰ Tiempo de Expiración</label>
+                <select id="tiempoExpiracion">
                     <option value="5">5 minutos</option>
                     <option value="10">10 minutos</option>
                     <option value="15">15 minutos</option>
@@ -510,14 +517,12 @@
             </div>
             
             <div class="form-group">
-                <label class="form-label">📝 Descripción</label>
-                <textarea id="descripcion" class="input-field" placeholder="Describe los términos del acuerdo..." rows="3" required>Servicio de consultoría profesional</textarea>
+                <label class="form-label" for="descripcion">📝 Descripción del Trato</label>
+                <textarea id="descripcion" placeholder="Describe los términos del acuerdo..." rows="3">Servicio de consultoría profesional</textarea>
             </div>
             
-            <button onclick="crearNegociacion()" id="createBtn" class="btn btn-primary">
-                Crear Negociación
-            </button>
-            <div id="formResult" style="margin-top: 16px;"></div>
+            <button onclick="crearNegociacion()" id="createBtn">Crear Negociación</button>
+            <div id="formResult"></div>
         </div>
 
         <!-- Interfaz del Chat -->
@@ -525,19 +530,22 @@
             <!-- Header del Chat -->
             <div class="chat-header">
                 <div>
-                    <h2 id="chatTitle" style="font-size: 18px; margin: 0;">💬 Negociación</h2>
+                    <h2 id="chatTitle">💬 Negociación</h2>
+                    <div id="chatInfo"></div>
                 </div>
-                <div id="statusBadge" class="status-badge status-active">ACTIVA</div>
+                <div id="statusBadge" class="status-badge status-activa">ACTIVA</div>
             </div>
             
-            <!-- Información -->
-            <div class="info-grid" id="negociacionInfo">
-                <!-- Dinámico -->
+            <!-- Información de la negociación -->
+            <div class="chat-info">
+                <div class="info-grid" id="negociacionInfo">
+                    <!-- Se llena dinámicamente -->
+                </div>
             </div>
             
             <!-- Timer -->
-            <div id="timer" class="timer timer-normal">
-                ⏰ <span id="tiempoRestante">--:--</span>
+            <div id="timer" class="timer normal">
+                ⏰ Tiempo restante: <span id="tiempoRestante">--:--</span>
             </div>
             
             <!-- Mensajes -->
@@ -548,60 +556,55 @@
                 </div>
             </div>
             
-            <!-- Controles -->
+            <!-- Controles según el tipo de usuario -->
             <div id="clienteControls" class="controls hidden">
-                <button onclick="mostrarSubirComprobante()" class="btn btn-warning">📎 Comprobante</button>
-                <button onclick="cancelarNegociacion()" class="btn btn-danger">🚫 Cancelar</button>
+                <button onclick="mostrarSubirComprobante()" class="warning">📎 Subir Comprobante</button>
+                <button onclick="cancelarNegociacion()" class="danger">🚫 Cancelar</button>
             </div>
             
             <div id="creadorControls" class="controls hidden">
-                <button onclick="verificarPago(true)" class="btn btn-success">✅ Aprobar</button>
-                <button onclick="verificarPago(false)" class="btn btn-danger">❌ Rechazar</button>
+                <button onclick="verificarPago(true)" class="success">✅ Aprobar Pago</button>
+                <button onclick="verificarPago(false)" class="danger">❌ Rechazar Pago</button>
             </div>
             
-            <!-- Subida de comprobante -->
+            <!-- Área de subida de comprobante -->
             <div id="uploadSection" class="hidden">
-                <div style="background: #fffbeb; padding: 16px; border-radius: var(--radius); margin: 16px 0; border-left: 4px solid var(--warning);">
-                    <strong>📎 Subir Comprobante</strong>
-                    <p style="font-size: 14px; margin-top: 4px; color: var(--gray);">Ingresa la URL o descripción del comprobante</p>
+                <div class="warning">
+                    <strong>📎 Subir Comprobante de Pago</strong>
+                    <p>Ingresa la URL o descripción del comprobante de transferencia o pago</p>
                 </div>
                 <div class="form-group">
-                    <input type="text" id="comprobanteUrl" class="input-field" placeholder="https://ejemplo.com/comprobante.jpg">
+                    <input type="text" id="comprobanteUrl" placeholder="https://ejemplo.com/comprobante.jpg o descripción del pago">
                 </div>
                 <div class="controls">
-                    <button onclick="subirComprobante()" class="btn btn-success">✅ Subir</button>
-                    <button onclick="ocultarSubirComprobante()" class="btn btn-danger">❌ Cancelar</button>
+                    <button onclick="subirComprobante()" class="success">✅ Subir Comprobante</button>
+                    <button onclick="ocultarSubirComprobante()" class="danger">❌ Cancelar</button>
                 </div>
             </div>
             
-            <!-- Input de mensaje -->
+            <!-- Chat input -->
             <div class="input-area">
-                <textarea id="messageInput" class="message-input" placeholder="Escribe tu mensaje..." rows="1" disabled></textarea>
-                <button onclick="enviarMensaje()" id="sendButton" class="send-btn" disabled>➤</button>
+                <textarea id="messageInput" placeholder="Escribe tu mensaje aquí..." rows="2" disabled></textarea>
+                <button onclick="enviarMensaje()" id="sendButton" disabled>➤</button>
             </div>
         </div>
     </div>
 
     <script>
-        // CONFIGURACIÓN
-        const CONFIG = {
-            API_URL: 'https://script.google.com/macros/s/AKfycbxgR_3Yfjzy_FgE6fYi9OIxLiablneUyvWqt5eukezplafrEFdYaw8UL9gaFXQyxn3yEw/exec'
-        };
-
-        // ESTADO GLOBAL
-        let appState = {
-            negociacion: null,
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxgR_3Yfjzy_FgE6fYi9OIxLiablneUyvWqt5eukezplafrEFdYaw8UL9gaFXQyxn3yEw/exec';
+        
+        let appState = { 
+            negociacion: null, 
             userType: '',
             intervaloMensajes: null,
             intervaloTimer: null
         };
 
-        // FUNCIÓN DE REQUEST CORREGIDA
+        // FUNCIÓN ORIGINAL QUE FUNCIONABA
         async function hacerRequest(params) {
-            const url = CONFIG.API_URL + '?' + new URLSearchParams(params).toString();
-            console.log('🔗 Haciendo request:', params.action, params);
-            
+            const url = API_URL + '?' + new URLSearchParams(params).toString();
             try {
+                console.log('Haciendo request:', params);
                 const response = await fetch(url);
                 
                 if (!response.ok) {
@@ -609,32 +612,27 @@
                 }
                 
                 const data = await response.json();
-                console.log('📨 Respuesta recibida:', data);
+                console.log('Respuesta recibida:', data);
                 return data;
-                
             } catch (error) {
-                console.error('❌ Error en request:', error);
+                console.error('Error en request:', error);
                 throw error;
             }
         }
 
-        // INICIALIZACIÓN CORREGIDA
+        // Inicialización
         async function init() {
             try {
                 const response = await hacerRequest({action: 'test'});
                 const debug = document.getElementById('debugInfo');
-                
-                if (response.success) {
-                    debug.innerHTML = '<div class="success-message">✅ ' + response.message + '</div>';
-                } else {
-                    debug.innerHTML = '<div class="error">❌ ' + response.message + '</div>';
-                }
+                debug.innerHTML = response.success ? 
+                    `<div class="success-message">✅ ${response.message}</div>` :
+                    `<div class="error">❌ ${response.message}</div>`;
             } catch (error) {
                 document.getElementById('debugInfo').innerHTML = 
-                    '<div class="error">❌ Error de conexión: ' + error.message + '</div>';
+                    `<div class="error">❌ Error de conexión: ${error.message}</div>`;
             }
             
-            // Cargar desde URL parameters
             const urlParams = new URLSearchParams(window.location.search);
             const id = urlParams.get('id');
             const userType = urlParams.get('user');
@@ -647,16 +645,15 @@
             }
         }
 
-        // FUNCIÓN CREAR NEGOCIACIÓN CORREGIDA
+        // Función para crear negociación - ORIGINAL FUNCIONAL
         async function crearNegociacion() {
-            const cliente = document.getElementById('cliente').value.trim();
-            const monto = document.getElementById('monto').value.trim();
-            const descripcion = document.getElementById('descripcion').value.trim();
+            const cliente = document.getElementById('cliente').value;
+            const monto = document.getElementById('monto').value;
+            const descripcion = document.getElementById('descripcion').value;
             const tiempoExpiracion = document.getElementById('tiempoExpiracion').value;
             
-            // Validaciones
-            if (!cliente || !monto || !descripcion) {
-                mostrarNotificacion('❌ Por favor completa todos los campos');
+            if (!cliente || !monto) {
+                mostrarNotificacion('❌ Por favor completa todos los campos requeridos');
                 return;
             }
             
@@ -676,157 +673,152 @@
                 const result = document.getElementById('formResult');
                 
                 if (response.success) {
-                    mostrarResultadoExitoso(response.data, cliente);
+                    // MOSTRAR RESULTADO EXITOSO CON ENLACES
+                    const enlaceCliente = response.data.enlaceCliente;
+                    const numeroCliente = cliente.replace(/\D/g, '');
+                    const mensajeWhatsApp = `Hola! Te invito a nuestra negociación TUM. Monto: $${monto}. Accede aquí: ${enlaceCliente}`;
+                    const enlaceWhatsApp = `https://wa.me/${numeroCliente}?text=${encodeURIComponent(mensajeWhatsApp)}`;
+                    
+                    result.innerHTML = `
+                        <div class="success-message">
+                            <h3>✅ ¡Negociación Creada Exitosamente!</h3>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <span class="info-label">ID de Negociación</span>
+                                    <span class="info-value">${response.data.id}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Tiempo Límite</span>
+                                    <span class="info-value">${response.data.tiempoExpiracion} min</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Monto</span>
+                                    <span class="info-value">$${response.data.monto}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Cliente</span>
+                                    <span class="info-value">${cliente}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="enlace-container">
+                                <strong>🔗 Enlace para el cliente:</strong>
+                                <div class="enlace-text">${enlaceCliente}</div>
+                                
+                                <div class="enlace-buttons">
+                                    <button class="copy-btn" onclick="copiarEnlace('${enlaceCliente}')">
+                                        📋 Copiar Enlace
+                                    </button>
+                                    <button class="whatsapp-btn" onclick="enviarWhatsApp('${enlaceWhatsApp}')">
+                                        💬 Enviar por WhatsApp
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <p style="margin-top: 15px; text-align: center;">
+                                <a href="${enlaceCliente.replace('user=cliente', 'user=creador')}" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">
+                                    👑 Abrir Panel del Creador
+                                </a>
+                            </p>
+                        </div>
+                    `;
+                    
+                    // Limpiar formulario
+                    document.getElementById('cliente').value = '';
+                    document.getElementById('monto').value = '';
+                    document.getElementById('descripcion').value = '';
+                    
+                    mostrarNotificacion('✅ Negociación creada exitosamente');
+                    
                 } else {
-                    result.innerHTML = '<div class="error">❌ ' + response.message + '</div>';
+                    result.innerHTML = `<div class="error">❌ ${response.message}</div>`;
                 }
             } catch (error) {
                 document.getElementById('formResult').innerHTML = 
-                    '<div class="error">❌ Error de conexión: ' + error.message + '</div>';
+                    `<div class="error">❌ Error de conexión: ${error.message}</div>`;
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Crear Negociación';
             }
         }
 
-        // FUNCIÓN MEJORADA PARA MOSTRAR RESULTADO
-        function mostrarResultadoExitoso(data, cliente) {
-            const enlaceCliente = `https://teechounamano.github.io/chat/?id=${data.id}&user=cliente`;
-            const numeroCliente = cliente.replace(/\D/g, '');
-            const mensajeWhatsApp = `Hola! Te invito a nuestra negociación TUM. Monto: $${data.monto}. Accede aquí: ${enlaceCliente}`;
-            const enlaceWhatsApp = `https://wa.me/${numeroCliente}?text=${encodeURIComponent(mensajeWhatsApp)}`;
-            
-            const resultDiv = document.getElementById('formResult');
-            resultDiv.innerHTML = `
-                <div class="success-message">
-                    <h3 style="margin-bottom: 16px;">✅ ¡Negociación Creada Exitosamente!</h3>
-                    
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <span class="info-label">ID de Negociación</span>
-                            <span class="info-value">${data.id}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Tiempo Límite</span>
-                            <span class="info-value">${data.tiempoExpiracion} min</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Monto</span>
-                            <span class="info-value">$${data.monto}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Cliente</span>
-                            <span class="info-value">${cliente}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="enlace-container">
-                        <strong style="display: block; margin-bottom: 12px;">🔗 Enlace para el cliente:</strong>
-                        <div class="enlace-text">${enlaceCliente}</div>
-                        
-                        <div class="enlace-buttons">
-                            <button class="btn copy-btn" onclick="copiarEnlace('${enlaceCliente}')">
-                                📋 Copiar Enlace
-                            </button>
-                            <button class="btn whatsapp-btn" onclick="enviarWhatsApp('${enlaceWhatsApp}')">
-                                💬 Enviar por WhatsApp
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div style="text-align: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
-                        <a href="https://teechounamano.github.io/chat/?id=${data.id}&user=creador" target="_blank" 
-                           style="color: var(--primary); text-decoration: none; font-weight: 600; font-size: 14px;">
-                            👑 Abrir Panel del Creador
-                        </a>
-                    </div>
-                </div>
-            `;
-            
-            // Limpiar formulario
-            document.getElementById('cliente').value = '';
-            document.getElementById('monto').value = '';
-            document.getElementById('descripcion').value = '';
-            
-            mostrarNotificacion('✅ Negociación creada exitosamente');
-        }
-
-        // FUNCIÓN CARGAR CHAT CORREGIDA
+        // Función para cargar el chat - ORIGINAL FUNCIONAL
         async function cargarChat(id) {
             try {
-                console.log('🔍 Cargando chat para ID:', id);
+                console.log('Cargando chat para ID:', id);
                 const response = await hacerRequest({ action: 'get_negociacion', id: id });
                 
                 if (response.success) {
                     appState.negociacion = response.data;
-                    console.log('✅ Negociación cargada:', response.data);
+                    console.log('Negociación cargada:', response.data);
                     
-                    actualizarInterfazChat(response.data);
+                    // Configurar interfaz según tipo de usuario
+                    const esCreador = appState.userType === 'creador';
+                    document.getElementById('chatTitle').textContent = 
+                        esCreador ? '👑 Panel del Creador' : '👤 Vista del Cliente';
+                    
+                    // Actualizar información de la negociación
+                    document.getElementById('negociacionInfo').innerHTML = `
+                        <div class="info-item">
+                            <span class="info-label">ID</span>
+                            <span class="info-value">${response.data.ID}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Monto</span>
+                            <span class="info-value">$${response.data.Monto}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Cliente</span>
+                            <span class="info-value">${response.data.Cliente}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Estado</span>
+                            <span class="info-value">${response.data.Estado}</span>
+                        </div>
+                    `;
+                    
+                    // Actualizar badge de estado
+                    const statusBadge = document.getElementById('statusBadge');
+                    statusBadge.textContent = response.data.Estado;
+                    statusBadge.className = `status-badge status-${response.data.Estado.toLowerCase()}`;
+                    
+                    // Mostrar controles según el tipo de usuario
+                    document.getElementById('creadorControls').classList.add('hidden');
+                    document.getElementById('clienteControls').classList.add('hidden');
+                    
+                    if (response.data.Estado === 'ACTIVA') {
+                        if (esCreador) {
+                            document.getElementById('creadorControls').classList.remove('hidden');
+                        } else {
+                            document.getElementById('clienteControls').classList.remove('hidden');
+                        }
+                        
+                        // Habilitar chat
+                        document.getElementById('messageInput').disabled = false;
+                        document.getElementById('sendButton').disabled = false;
+                        document.getElementById('messageInput').focus();
+                    } else {
+                        deshabilitarChat();
+                    }
+                    
+                    // Cargar mensajes y configurar intervalos
                     await cargarMensajes();
-                    iniciarActualizaciones(id);
+                    actualizarTimer();
+                    
+                    // Configurar intervalos
+                    if (appState.intervaloMensajes) clearInterval(appState.intervaloMensajes);
+                    if (appState.intervaloTimer) clearInterval(appState.intervaloTimer);
+                    
+                    appState.intervaloMensajes = setInterval(cargarMensajes, 3000);
+                    appState.intervaloTimer = setInterval(actualizarTimer, 1000);
                     
                 } else {
                     document.getElementById('messages').innerHTML = 
-                        '<div class="error">❌ ' + response.message + '</div>';
+                        `<div class="error">❌ ${response.message}</div>`;
                 }
             } catch (error) {
                 document.getElementById('messages').innerHTML = 
-                    '<div class="error">❌ Error cargando el chat: ' + error.message + '</div>';
-            }
-        }
-
-        function actualizarInterfazChat(negociacion) {
-            // Configurar título según tipo de usuario
-            const esCreador = appState.userType === 'creador';
-            document.getElementById('chatTitle').textContent = 
-                esCreador ? '👑 Panel del Creador' : '👤 Vista del Cliente';
-            
-            // Actualizar información
-            document.getElementById('negociacionInfo').innerHTML = `
-                <div class="info-item">
-                    <span class="info-label">ID</span>
-                    <span class="info-value">${negociacion.ID}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Monto</span>
-                    <span class="info-value">$${negociacion.Monto}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Cliente</span>
-                    <span class="info-value">${negociacion.Cliente}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Estado</span>
-                    <span class="info-value">${negociacion.Estado}</span>
-                </div>
-            `;
-            
-            // Actualizar badge de estado
-            const statusBadge = document.getElementById('statusBadge');
-            statusBadge.textContent = negociacion.Estado;
-            statusBadge.className = `status-badge status-${negociacion.Estado.toLowerCase()}`;
-            
-            // Mostrar controles según estado y tipo de usuario
-            actualizarControles(negociacion.Estado, esCreador);
-        }
-
-        function actualizarControles(estado, esCreador) {
-            // Ocultar todos primero
-            document.getElementById('creadorControls').classList.add('hidden');
-            document.getElementById('clienteControls').classList.add('hidden');
-            
-            if (estado === 'ACTIVA') {
-                if (esCreador) {
-                    document.getElementById('creadorControls').classList.remove('hidden');
-                } else {
-                    document.getElementById('clienteControls').classList.remove('hidden');
-                }
-                
-                // Habilitar chat
-                document.getElementById('messageInput').disabled = false;
-                document.getElementById('sendButton').disabled = false;
-            } else {
-                deshabilitarChat();
+                    `<div class="error">❌ Error cargando el chat: ${error.message}</div>`;
             }
         }
 
@@ -838,6 +830,8 @@
                 
                 if (response.success) {
                     mostrarMensajes(response.data);
+                } else {
+                    console.error('Error cargando mensajes:', response.message);
                 }
             } catch (error) {
                 console.error('Error cargando mensajes:', error);
@@ -850,7 +844,7 @@
             if (!mensajes || mensajes.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
-                        <div style="font-size: 48px; margin-bottom: 16px;">💬</div>
+                        <div>💬</div>
                         <p>No hay mensajes aún</p>
                         <small>Se el primero en enviar un mensaje</small>
                     </div>
@@ -859,150 +853,41 @@
             }
             
             container.innerHTML = mensajes.map(msg => {
-                let clase = 'message-client';
-                if (msg.Remitente.includes('TeEchoUnaMano') || msg.Remitente.includes('👑')) {
-                    clase = 'message-creator';
-                } else if (msg.Remitente.includes('Sistema') || msg.Remitente.includes('🤖')) {
-                    clase = 'message-system';
+                let clase = '';
+                let remitente = msg.Remitente || 'Desconocido';
+                
+                if (remitente.includes('TeEchoUnaMano') || remitente.includes('👑')) {
+                    clase = 'creador';
+                } else if (remitente.includes('Cliente') || remitente.includes('👤')) {
+                    clase = 'cliente';
+                } else if (remitente.includes('Sistema') || remitente.includes('🤖')) {
+                    clase = 'sistema';
                 }
                 
-                const fecha = new Date(msg.Fecha);
-                const fechaStr = fecha.toLocaleString('es-ES');
+                if (msg.Tipo === 'COMPROBANTE') {
+                    clase += ' comprobante';
+                }
+                
+                let fechaStr = 'Fecha no disponible';
+                try {
+                    const fecha = new Date(msg.Fecha);
+                    if (!isNaN(fecha.getTime())) {
+                        fechaStr = fecha.toLocaleString('es-ES');
+                    }
+                } catch (e) {
+                    fechaStr = new Date().toLocaleString('es-ES');
+                }
                 
                 return `
                     <div class="message ${clase}">
-                        <div><strong>${msg.Remitente}</strong></div>
-                        <div>${msg.Mensaje}</div>
+                        <strong>${remitente}</strong><br>
+                        ${msg.Mensaje || 'Mensaje no disponible'}<br>
                         <div class="message-time">${fechaStr}</div>
                     </div>
                 `;
             }).join('');
             
             container.scrollTop = container.scrollHeight;
-        }
-
-        function iniciarActualizaciones(id) {
-            // Limpiar intervalos anteriores
-            if (appState.intervaloMensajes) clearInterval(appState.intervaloMensajes);
-            if (appState.intervaloTimer) clearInterval(appState.intervaloTimer);
-            
-            // Configurar nuevos intervalos
-            appState.intervaloMensajes = setInterval(cargarMensajes, 3000);
-            appState.intervaloTimer = setInterval(actualizarTimer, 1000);
-        }
-
-        function actualizarTimer() {
-            if (!appState.negociacion || !appState.negociacion.Tiempo_Restante) return;
-            
-            const tiempo = appState.negociacion.Tiempo_Restante;
-            const timerElement = document.getElementById('tiempoRestante');
-            const timerContainer = document.getElementById('timer');
-            
-            if (tiempo.expirada) {
-                timerElement.textContent = '00:00';
-                timerContainer.className = 'timer timer-danger';
-                deshabilitarChat();
-                return;
-            }
-            
-            const tiempoFormateado = `${tiempo.minutos.toString().padStart(2, '0')}:${tiempo.segundos.toString().padStart(2, '0')}`;
-            timerElement.textContent = tiempoFormateado;
-            
-            // Cambiar color según el tiempo
-            if (tiempo.minutos < 1) {
-                timerContainer.className = 'timer timer-danger';
-            } else if (tiempo.minutos < 5) {
-                timerContainer.className = 'timer timer-warning';
-            } else {
-                timerContainer.className = 'timer timer-normal';
-            }
-        }
-
-        function deshabilitarChat() {
-            document.getElementById('messageInput').disabled = true;
-            document.getElementById('sendButton').disabled = true;
-            document.getElementById('creadorControls').classList.add('hidden');
-            document.getElementById('clienteControls').classList.add('hidden');
-        }
-
-        // FUNCIONES DE UTILIDAD CORREGIDAS
-        function mostrarSubirComprobante() {
-            document.getElementById('uploadSection').classList.remove('hidden');
-        }
-
-        function ocultarSubirComprobante() {
-            document.getElementById('uploadSection').classList.add('hidden');
-            document.getElementById('comprobanteUrl').value = '';
-        }
-
-        async function subirComprobante() {
-            const comprobanteUrl = document.getElementById('comprobanteUrl').value.trim();
-            if (!comprobanteUrl) {
-                mostrarNotificacion('❌ Ingresa la URL del comprobante');
-                return;
-            }
-            
-            try {
-                const response = await hacerRequest({
-                    action: 'subir_comprobante',
-                    id: appState.negociacion.ID,
-                    comprobanteUrl: comprobanteUrl
-                });
-                
-                if (response.success) {
-                    mostrarNotificacion('✅ Comprobante subido');
-                    ocultarSubirComprobante();
-                    await cargarMensajes();
-                } else {
-                    mostrarNotificacion('❌ Error: ' + response.message);
-                }
-            } catch (error) {
-                mostrarNotificacion('❌ Error de conexión');
-            }
-        }
-
-        async function verificarPago(aprobado) {
-            if (!confirm(`¿Estás seguro de ${aprobado ? 'APROBAR' : 'RECHAZAR'} el pago?`)) return;
-            
-            try {
-                const response = await hacerRequest({
-                    action: 'verificar_pago',
-                    id: appState.negociacion.ID,
-                    aprobado: aprobado
-                });
-                
-                if (response.success) {
-                    mostrarNotificacion(aprobado ? '✅ Pago aprobado' : '❌ Pago rechazado');
-                    await cargarChat(appState.negociacion.ID);
-                } else {
-                    mostrarNotificacion('❌ Error: ' + response.message);
-                }
-            } catch (error) {
-                mostrarNotificacion('❌ Error de conexión');
-            }
-        }
-
-        async function cancelarNegociacion() {
-            const razon = prompt('¿Por qué cancelas la negociación?');
-            if (!razon) return;
-            
-            try {
-                const response = await hacerRequest({
-                    action: 'cancelar_negociacion',
-                    id: appState.negociacion.ID,
-                    razon: razon,
-                    tipoUsuario: appState.userType
-                });
-                
-                if (response.success) {
-                    mostrarNotificacion('✅ Negociación cancelada');
-                    await cargarChat(appState.negociacion.ID);
-                } else {
-                    mostrarNotificacion('❌ Error: ' + response.message);
-                }
-            } catch (error) {
-                mostrarNotificacion('❌ Error de conexión');
-            }
         }
 
         async function enviarMensaje() {
@@ -1021,16 +906,133 @@
                 
                 if (response.success) {
                     input.value = '';
+                    document.getElementById('sendButton').disabled = true;
                     await cargarMensajes();
                 } else {
-                    mostrarNotificacion('❌ Error enviando mensaje');
+                    mostrarNotificacion('❌ Error al enviar mensaje: ' + response.message);
                 }
             } catch (error) {
-                mostrarNotificacion('❌ Error de conexión');
+                mostrarNotificacion('❌ Error de conexión: ' + error.message);
             }
         }
 
-        // FUNCIONES DE ENLACES CORREGIDAS
+        function mostrarSubirComprobante() {
+            document.getElementById('uploadSection').classList.remove('hidden');
+        }
+
+        function ocultarSubirComprobante() {
+            document.getElementById('uploadSection').classList.add('hidden');
+            document.getElementById('comprobanteUrl').value = '';
+        }
+
+        async function subirComprobante() {
+            const comprobanteUrl = document.getElementById('comprobanteUrl').value.trim();
+            if (!comprobanteUrl) {
+                mostrarNotificacion('❌ Por favor ingresa la URL o descripción del comprobante');
+                return;
+            }
+            
+            try {
+                const response = await hacerRequest({
+                    action: 'subir_comprobante',
+                    id: appState.negociacion.ID,
+                    comprobanteUrl: comprobanteUrl
+                });
+                
+                if (response.success) {
+                    mostrarNotificacion('✅ Comprobante subido exitosamente');
+                    ocultarSubirComprobante();
+                    await cargarMensajes();
+                } else {
+                    mostrarNotificacion('❌ Error al subir comprobante: ' + response.message);
+                }
+            } catch (error) {
+                mostrarNotificacion('❌ Error de conexión: ' + error.message);
+            }
+        }
+
+        async function verificarPago(aprobado) {
+            if (!confirm(`¿Estás seguro de que quieres ${aprobado ? 'APROBAR' : 'RECHAZAR'} el pago?`)) {
+                return;
+            }
+            
+            try {
+                const response = await hacerRequest({
+                    action: 'verificar_pago',
+                    id: appState.negociacion.ID,
+                    aprobado: aprobado
+                });
+                
+                if (response.success) {
+                    mostrarNotificacion(aprobado ? '✅ Pago aprobado' : '❌ Pago rechazado');
+                    await cargarChat(appState.negociacion.ID);
+                } else {
+                    mostrarNotificacion('❌ Error al verificar pago: ' + response.message);
+                }
+            } catch (error) {
+                mostrarNotificacion('❌ Error de conexión: ' + error.message);
+            }
+        }
+
+        async function cancelarNegociacion() {
+            const razon = prompt('¿Por qué cancelas la negociación?');
+            if (razon === null || razon.trim() === '') return;
+            
+            try {
+                const response = await hacerRequest({
+                    action: 'cancelar_negociacion',
+                    id: appState.negociacion.ID,
+                    razon: razon,
+                    tipoUsuario: appState.userType
+                });
+                
+                if (response.success) {
+                    mostrarNotificacion('✅ Negociación cancelada');
+                    await cargarChat(appState.negociacion.ID);
+                } else {
+                    mostrarNotificacion('❌ Error al cancelar: ' + response.message);
+                }
+            } catch (error) {
+                mostrarNotificacion('❌ Error de conexión: ' + error.message);
+            }
+        }
+
+        function actualizarTimer() {
+            if (!appState.negociacion || !appState.negociacion.Tiempo_Restante) return;
+            
+            const tiempoRestante = appState.negociacion.Tiempo_Restante;
+            const timerElement = document.getElementById('tiempoRestante');
+            const timerContainer = document.getElementById('timer');
+            
+            if (tiempoRestante.expirada) {
+                timerElement.textContent = '00:00';
+                timerContainer.className = 'timer danger';
+                return;
+            }
+            
+            const minutos = tiempoRestante.minutos || 0;
+            const segundos = tiempoRestante.segundos || 0;
+            const tiempoFormateado = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+            timerElement.textContent = tiempoFormateado;
+            
+            // Cambiar color según el tiempo
+            if (minutos < 1) {
+                timerContainer.className = 'timer danger';
+            } else if (minutos < 5) {
+                timerContainer.className = 'timer warning';
+            } else {
+                timerContainer.className = 'timer normal';
+            }
+        }
+
+        function deshabilitarChat() {
+            document.getElementById('messageInput').disabled = true;
+            document.getElementById('sendButton').disabled = true;
+            document.getElementById('creadorControls').classList.add('hidden');
+            document.getElementById('clienteControls').classList.add('hidden');
+        }
+
+        // Funciones de utilidad
         function enviarWhatsApp(enlaceWhatsApp) {
             window.open(enlaceWhatsApp, '_blank');
         }
@@ -1039,7 +1041,6 @@
             navigator.clipboard.writeText(enlace).then(() => {
                 mostrarNotificacion('✅ Enlace copiado al portapapeles');
             }).catch(() => {
-                // Fallback para navegadores antiguos
                 const textArea = document.createElement('textarea');
                 textArea.value = enlace;
                 document.body.appendChild(textArea);
@@ -1051,25 +1052,22 @@
         }
 
         function mostrarNotificacion(mensaje) {
-            // Remover notificaciones existentes
-            const existentes = document.querySelectorAll('.notification');
-            existentes.forEach(notif => notif.remove());
-            
             const notificacion = document.createElement('div');
             notificacion.className = 'notification';
             notificacion.textContent = mensaje;
             document.body.appendChild(notificacion);
             
             setTimeout(() => {
-                if (notificacion.parentNode) {
-                    notificacion.parentNode.removeChild(notificacion);
+                if (document.body.contains(notificacion)) {
+                    document.body.removeChild(notificacion);
                 }
             }, 3000);
         }
 
-        // EVENT LISTENERS CORREGIDOS
+        // Iniciar la aplicación
         document.addEventListener('DOMContentLoaded', init);
         
+        // Event listeners
         document.getElementById('messageInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -1077,7 +1075,7 @@
             }
         });
 
-        document.getElementById('messageInput').addEventListener('input', function() {
+        document.getElementById('messageInput').addEventListener('input', function(e) {
             const sendButton = document.getElementById('sendButton');
             sendButton.disabled = this.value.trim() === '' || this.disabled;
         });
